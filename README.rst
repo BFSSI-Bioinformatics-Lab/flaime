@@ -88,4 +88,18 @@ The following details how to deploy this application.
 Redis Guide
 ^^^^^^^^^^^
 https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-redis-on-ubuntu-18-04
+https://github.com/rq/django-rq
+
+
+Misc. Dev Notes
+^^^^^^^^^^^^^^^
+If you're using fish, activate the venv with this command in the terminal::
+
+    $ source venv/bin/activate.fish
+
+
+To activate the browser based RQ dashboard::
+
+    $ rq-dashboard
+
 

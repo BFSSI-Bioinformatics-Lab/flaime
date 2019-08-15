@@ -1,3 +1,5 @@
+requests
+selenium
 environ
 -r ./base.txt
 

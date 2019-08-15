@@ -53,7 +53,6 @@ DATABASES['default']['PASSWORD'] = env('FLAIM_DB_PASSWORD')
 DATABASES['default']['HOST'] = 'localhost'
 DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
 
-
 # URLS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#root-urlconf
@@ -79,6 +78,7 @@ THIRD_PARTY_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "rest_framework",
+    "django_rq"
 ]
 
 LOCAL_APPS = [
@@ -241,7 +241,7 @@ LOGGING = {
     "formatters": {
         "verbose": {
             "format": "%(levelname)s %(asctime)s %(module)s "
-            "%(process)d %(thread)d %(message)s"
+                      "%(process)d %(thread)d %(message)s"
         }
     },
     "handlers": {
@@ -253,7 +253,6 @@ LOGGING = {
     },
     "root": {"level": "INFO", "handlers": ["console"]},
 }
-
 
 # django-allauth
 # ------------------------------------------------------------------------------
@@ -269,6 +268,34 @@ ACCOUNT_ADAPTER = "flaim.users.adapters.AccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 SOCIALACCOUNT_ADAPTER = "flaim.users.adapters.SocialAccountAdapter"
 
-
 # Your stuff...
 # ------------------------------------------------------------------------------
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10
+}
+
+RQ_QUEUES = {
+    'default': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+        'PASSWORD': env('REDIS_PASSWORD'),
+        'DEFAULT_TIMEOUT': 360,
+    },
+    'high': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+        'PASSWORD': env('REDIS_PASSWORD'),
+        'DEFAULT_TIMEOUT': 360,
+    },
+    'low': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+        'PASSWORD': env('REDIS_PASSWORD'),
+        'DEFAULT_TIMEOUT': 360,
+    }
+}
+RQ_SHOW_ADMIN_LINK = True

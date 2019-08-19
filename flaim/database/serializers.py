@@ -7,12 +7,15 @@ User = get_user_model()
 
 
 class ProductSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.ReadOnlyField()
+
     class Meta:
         model = models.Product
         fields = '__all__'
 
 
 class LoblawsProductSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.ReadOnlyField()
     product = ProductSerializer()
 
     class Meta:
@@ -21,6 +24,7 @@ class LoblawsProductSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class WalmartProductSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.ReadOnlyField()
     product = ProductSerializer()
 
     class Meta:
@@ -29,6 +33,7 @@ class WalmartProductSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class AmazonProductSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.ReadOnlyField()
     product = ProductSerializer()
 
     class Meta:
@@ -37,6 +42,7 @@ class AmazonProductSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class NutritionFactsSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.ReadOnlyField()
     product = ProductSerializer()
 
     class Meta:
@@ -45,12 +51,14 @@ class NutritionFactsSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
+
     class Meta:
         model = User
         fields = ['url', 'username', 'email', 'groups']
 
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
+
     class Meta:
         model = Group
         fields = ['url', 'name']

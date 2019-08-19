@@ -1,0 +1,19 @@
+{% block content %}
+    <h4>Loblaws Metadata</h4>
+    <table class="table table-light">
+        <tbody>
+        <tr>
+            <td>Subcategory</td>
+            <td>{{ product.loblaws_product.subcategory }}</td>
+        </tr>
+        <tr>
+            <td>Section</td>
+            <td>{{ product.loblaws_product.section }}</td>
+        </tr>
+        <tr>
+            <td>Description</td>
+            <td>{{ product.loblaws_product.description }}</td>
+        </tr>
+        </tbody>
+    </table>
+{% endblock %}

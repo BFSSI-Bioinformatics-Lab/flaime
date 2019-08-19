@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <div class="container-fluid">
+        <br>
+        <h3>Product Detail</h3>
+        <table class="table-sm">
+            <tr>
+                <td>Date added</td>
+                <td><var>{{ product.created }}</var></td>
+            </tr>
+            <tr>
+                <td>Date last modified</td>
+                <td><var>{{ product.modified }}</var></td>
+            </tr>
+        </table>
+    </div>
+    <div class="row">
+        <div class="col">
+            {# Basic product information from the Product model #}
+            <div class="product-metadata">
+                <table class="table table-light">
+                    <tbody>
+                    <tr>
+                        <td>Name</td>
+                        <td>{{ product.name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Brand</td>
+                        <td>{{ product.brand }}</td>
+                    </tr>
+                    <tr>
+                        <td>Store</td>
+                        <td>{{ product.store }}</td>
+                    </tr>
+                    <tr>
+                        <td>Product Code</td>
+                        <td>{{ product.product_code }}</td>
+                    </tr>
+                    <tr>
+                        <td>Price</td>
+                        <td>{{ product.price }}</td>
+                    </tr>
+                    <tr>
+                        <td>URL</td>
+                        <td><a href="{{ product.url }}">Link</a></td>
+                    </tr>
+                    </tbody>
+                </table>
+
+            </div>
+            <div class="additional-metadata">
+                {% if product.store.upper == 'LOBLAWS' %}
+                    {% include 'product_browser/loblaws_detail.html' %}
+                {% elif product.store.upper == 'AMAZON' %}
+                    {% include 'product_browser/amazon_detail.html' %}
+                {% elif product.store.upper == 'WALMART' %}
+                    {% include 'product_browser/walmart_detail.html' %}
+                {% endif %}
+            </div>
+            <div class="product-nutrition">
+                {% include 'product_browser/nutrition_detail.html' %}
+            </div>
+        </div>
+        <div class="col-lg-4">
+            {% for img in product_images %}
+                <img src="{{ img }}" class="img-thumbnail img-fluid rounded" alt="">
+                <br>
+                <br>
+            {% endfor %}
+        </div>
+    </div>
+    </div>
+    <br>
+
+
+
+    {% block product_javascript %}
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+
+    {% endblock %}
+
+{% endblock %}

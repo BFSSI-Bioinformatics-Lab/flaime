@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <div class="container-fluid">
+        <h1>Product Browser</h1>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <table id="products" class="table table-striped table-bordered" style="width:100%">
+                    <thead>
+                    <tr>
+                        <th>Link</th>
+                        <th>Name</th>
+                        <th>Brand</th>
+                        <th>Store</th>
+                        <th>Product Code</th>
+                        <th>URL</th>
+                        <th>Created</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {% block product_javascript %}
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+        <script src="//code.jquery.com/jquery-1.12.4.js"></script>
+        <script src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+        <script src="//cdn.datatables.net/1.10.16/js/dataTables.bootstrap4.min.js"></script>
+
+        <script>
+            $.fn.dataTable.render.hyperlink_url = function () {
+                // Custom render method to hyperlink a row value
+                return function (data, type, row) {
+                    if (type === 'display') {
+                        let str = data.toString(); // cast numbers
+                        return '<a href="' + data + '"> Link</a>'
+                    }
+                    // Search, order and type can use the original data
+                    return data;
+                };
+            };
+
+            $.fn.dataTable.render.link_to_id = function () {
+                // Custom render method to hyperlink a row value
+                return function (data, type, row) {
+                    if (type === 'display') {
+                        let id = data.toString(); // cast numbers
+                        let store = row.store.toString().toLowerCase();
+
+                        return '<a href="/product_browser/' + id + '"> Details</a>'
+                    }
+                    // Search, order and type can use the original data
+                    return data;
+                }
+            };
+
+
+            $(document).ready(function () {
+                var table = $('#products').DataTable({
+                    "serverSide": true,
+                    "ajax": "/api/products/?format=datatables",
+                    "columns": [
+                        {"data": "id", "render": $.fn.dataTable.render.link_to_id()},
+                        {"data": "name", "searchable": true},
+                        {"data": "brand"},
+                        {"data": "store"},
+                        {"data": "product_code"},
+                        {"data": "url", "render": $.fn.dataTable.render.hyperlink_url()},
+                        {"data": "created"},
+                    ]
+                });
+            });
+        </script>
+
+        <script>{% include 'product_browser/product_browser.js' %}</script>
+
+    {% endblock %}
+    <br>
+{% endblock %}

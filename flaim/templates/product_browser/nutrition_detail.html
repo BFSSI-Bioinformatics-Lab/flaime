@@ -1,0 +1,264 @@
+{% block content %}
+
+    <h4>Nutrition</h4>
+
+    <div class="product-ingredients card">
+        <div class="card-header">
+            Ingredients
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">{{ product.nutrition_facts.ingredients }}</li>
+        </ul>
+    </div>
+
+    <br>
+
+    <table class="table table-bordered serving-size-table" style="width:100%">
+        <tr>
+            <td>Total Size</td>
+            <td>{{ product.nutrition_facts.total_size }}</td>
+        </tr>
+        <tr>
+            <td>Serving Size</td>
+            <td>{{ product.nutrition_facts.serving_size }} {{ product.nutrition_facts.serving_size_units }}</td>
+
+        </tr>
+        <tr>
+            <td>Calories per serving</td>
+            <td>{{ product.nutrition_facts.calories }} kCal</td>
+        </tr>
+
+    </table>
+
+    <table class="table table-bordered nutrient-table" style="width:100%">
+        <tr>
+            <th>Nutrient</th>
+            <th>Value (g)</th>
+            <th>% DV</th>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Sodium</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.sodium|floatformat:2 }}</td>
+            <td class="nutrient-dv">{{ product.nutrition_facts.sodium_dv|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Calcium</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.calcium|floatformat:2 }}</td>
+            <td class="nutrient-dv">{{ product.nutrition_facts.calcium_dv|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Total Fat</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.total_fat|floatformat:2 }}</td>
+            <td class="nutrient-dv">{{ product.nutrition_facts.total_fat_dv|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Monounsaturated Fat</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.monounsaturated_fat|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Polyunsaturated Fat</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.polyunsaturated_fat|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Saturated Fat</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.saturated_fat|floatformat:2 }}</td>
+            <td class="nutrient-dv">{{ product.nutrition_facts.saturated_fat_dv|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Trans Fat</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.trans_fat|floatformat:2 }}</td>
+            <td class="nutrient-dv">{{ product.nutrition_facts.trans_fat_dv|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Potassium</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.potassium|floatformat:2 }}</td>
+            <td class="nutrient-dv">{{ product.nutrition_facts.potassium_dv|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Total Carbohydrates</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.total_carbohydrate|floatformat:2 }}</td>
+            <td class="nutrient-dv">{{ product.nutrition_facts.total_carbohydrate_dv|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Dietary Fibre</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.dietary_fibre|floatformat:2 }}</td>
+            <td class="nutrient-dv">{{ product.nutrition_facts.dietary_fibre_dv|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Sugars</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.sugars|floatformat:2 }}</td>
+            <td class="nutrient-dv">{{ product.nutrition_facts.sugars_dv|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Protein</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.protein|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Cholesterol</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.cholesterol|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Vitamin A</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.vitamin_a|floatformat:2 }}</td>
+            <td class="nutrient-dv">{{ product.nutrition_facts.vitamin_a_dv|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Vitamin C</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.vitamin_c|floatformat:2 }}</td>
+            <td class="nutrient-dv">{{ product.nutrition_facts.vitamin_c_dv|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Vitamin D</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.vitamin_d|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Vitamin E</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.vitamin_e|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Vitamin B6</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.vitamin_b6|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Vitamin B12</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.vitamin_b12|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Niacin</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.niacin|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+
+        <tr>
+            <td class="nutrient-name">Folacin</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.folacin|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Folate</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.folate|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Pantothenic Acid</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.pantothenic_acid|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Pantothenate</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.pantothenate|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Alcohol</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.alcohol|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Carbohydrate</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.carbohydrate|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Erythritol</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.erythritol|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Glycerol</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.glycerol|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Isomalt</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.isomalt|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Lactitol</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.lactitol|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Maltitol</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.maltitol|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Mannitol</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.mannitol|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Polydextrose</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.polydextrose|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Sorbitol</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.sorbitol|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Xylitol</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.xylitol|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Iron</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.iron|floatformat:2 }}</td>
+            <td class="nutrient-dv">{{ product.nutrition_facts.iron_dv|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Riboflavin</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.riboflavin|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Selenium</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.selenium|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Magnesium</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.magnesium|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Phosphorus</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.phosphorus|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Thiamine</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.thiamine|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+        <tr>
+            <td class="nutrient-name">Zinc</td>
+            <td class="nutrient-value">{{ product.nutrition_facts.zinc|floatformat:2 }}</td>
+            <td class="nutrient-dv"></td>
+        </tr>
+    </table>
+
+    {% block nutrient_detail_javascript %}
+        <script>
+            // Code to remove rows where there's no value to reduce clutter
+            let empty_cells = $(".nutrient-value:empty").each(
+                function () {
+                    $(this).closest("tr").remove();
+                }
+            );
+        </script>
+    {% endblock %}
+
+{% endblock %}
+

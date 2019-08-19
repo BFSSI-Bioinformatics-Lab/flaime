@@ -19,8 +19,9 @@ class TimeStampedModel(models.Model):
 # GENERAL MODELS
 
 class Product(TimeStampedModel):
-    name = models.CharField(max_length=300, unique=False)
-    brand = models.CharField(max_length=100)
+    product_code = models.CharField(max_length=100)
+    name = models.CharField(max_length=300, unique=False, blank=True, null=True)
+    brand = models.CharField(max_length=100, blank=True, null=True)
 
     VALID_STORES = (
         ('LOBLAWS', 'Loblaws'),
@@ -28,7 +29,7 @@ class Product(TimeStampedModel):
         ('AMAZON', 'Amazon')
     )
     store = models.CharField(max_length=7, choices=VALID_STORES)
-    product_code = models.CharField(max_length=100)
+    price = models.CharField(max_length=15, blank=True, null=True)
     upc_code = models.CharField(max_length=100, blank=True, null=True)
     nutrition_available = models.BooleanField(blank=True, null=True)
     url = models.URLField(blank=True, null=True)
@@ -43,7 +44,7 @@ class Product(TimeStampedModel):
 
 
 class NutritionFacts(TimeStampedModel):
-    product = models.OneToOneField(Product, on_delete=models.CASCADE, primary_key=True)
+    product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name="nutrition_facts")
     total_size = models.CharField(max_length=100, blank=True, null=True)
     serving_size_raw = models.CharField(max_length=100, blank=True, null=True)
     serving_size = models.IntegerField(blank=True, null=True)
@@ -193,7 +194,7 @@ class NutritionFacts(TimeStampedModel):
 # LOBLAWS MODELS
 
 class LoblawsProduct(TimeStampedModel):
-    product = models.OneToOneField(Product, on_delete=models.CASCADE, primary_key=True)
+    product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name="loblaws_product")
     subcategory = models.CharField(max_length=100, blank=True, null=True)
     section = models.CharField(max_length=100, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
@@ -211,7 +212,7 @@ class LoblawsProduct(TimeStampedModel):
 # WALMART MODELS
 
 class WalmartProduct(TimeStampedModel):
-    product = models.OneToOneField(Product, on_delete=models.CASCADE, primary_key=True)
+    product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name="walmart_product")
 
     def __str__(self):
         return f"{self.product.product_code}: {self.product.name}"
@@ -224,7 +225,7 @@ class WalmartProduct(TimeStampedModel):
 # AMAZON MODELS
 
 class AmazonProduct(TimeStampedModel):
-    product = models.OneToOneField(Product, on_delete=models.CASCADE, primary_key=True)
+    product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name="amazon_product")
 
     def __str__(self):
         return f"{self.product.product_code}: {self.product.name}"

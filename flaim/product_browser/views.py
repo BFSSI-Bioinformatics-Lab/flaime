@@ -1,4 +1,6 @@
 import logging
+from pathlib import Path
+from django.conf import settings
 from django.views.generic import TemplateView, DetailView
 from flaim.database.models import Product
 
@@ -17,8 +19,13 @@ class ProductView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        logger.debug(f"product: {context}")
-        logger.debug(context['product'].loblaws_product)
+
+        # Get image paths for the product
+        images = list(Path(context['product'].loblaws_product.image_directory).glob("*"))
+        images = [str(x).replace(settings.MEDIA_ROOT, settings.MEDIA_URL[:-1]) for x in images]
+        context['product_images'] = images
+
+        logger.debug(context)
+        logger.debug(context['product_images'])
+
         return context
-
-

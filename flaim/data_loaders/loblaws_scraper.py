@@ -118,7 +118,7 @@ class LoblawsSubcategory(BaseScraper):
 
     # Default values
     total_products: int = 0
-    max_products: int = 5
+    max_products: int = 500
     product_urls: list = None
     subcategory_name: str = None
     outdir: Path = None
@@ -474,6 +474,7 @@ def update_database(product: ProductPage):
                                                           store='LOBLAWS',
                                                           product_code=product.product_code,
                                                           nutrition_available=product.nutrition_present_flag,
+                                                          price=product.price,
                                                           url=product.url
                                                           )
     base_product_instance.save()

@@ -31,6 +31,7 @@ class Product(TimeStampedModel):
     store = models.CharField(max_length=7, choices=VALID_STORES)
     price = models.CharField(max_length=15, blank=True, null=True)
     upc_code = models.CharField(max_length=100, blank=True, null=True)
+    manufacturer = models.CharField(max_length=100, blank=True, null=True)  # e.g. from Amazon technical details
     nutrition_available = models.BooleanField(blank=True, null=True)
     url = models.URLField(blank=True, null=True)
     scrape_date = models.DateTimeField(auto_now_add=True)
@@ -146,28 +147,31 @@ class NutritionFacts(TimeStampedModel):
             print(f"WARNING: Could not detect any units in value ({val})")
             return None
 
-    def extract_number_from_nutrient(self, val: str) -> Union[int, float, None]:
+    def extract_number_from_nutrient(self, val: str) -> Union[tuple, None]:
         """
         Given an input nutrient string, will return the float value while handling unit conversion if necessary
         """
+        # Grab the units from the nutrient string
         nutrient_type = self.detect_units(val)
         if nutrient_type is None:
             return
+
+        # Grab the numeric float value from the string
         nutrient_float = float(val.split(nutrient_type)[0].strip())
 
-        # Grams & Milligrams
+        # Grams & Milligrams (normalizes everything into grams)
         if nutrient_type == 'g':
-            return nutrient_float
+            return nutrient_float, 'g'
         elif nutrient_type == 'mg' or nutrient_type == "milligrams":
-            return self.convert_milligrams_to_grams(nutrient_float)
+            return self.convert_milligrams_to_grams(nutrient_float), 'g'
 
         # Percent DV (values on nutrition labels are integers ranging from 0% -> n%, so we convert to float)
         if nutrient_type == "dv" or nutrient_type == "%":
-            return float(nutrient_float / 100)
+            return float(nutrient_float / 100), '%'
 
         # Calories
         if nutrient_type == "cal" or nutrient_type == "Cal" or nutrient_type == "calories":
-            return int(nutrient_float)
+            return int(nutrient_float), 'cal'
 
     @staticmethod
     def convert_milligrams_to_grams(val: float) -> float:
@@ -226,6 +230,14 @@ class WalmartProduct(TimeStampedModel):
 
 class AmazonProduct(TimeStampedModel):
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name="amazon_product")
+    bullet_points = models.TextField(null=True, blank=True)  # The Amazon description field
+    manufacturer_reference = models.CharField(max_length=100, blank=True,
+                                              null=True)  # e.g. from Amazon technical details
+    speciality = models.CharField(max_length=100, blank=True, null=True)  # e.g. Kosher
+    units = models.CharField(max_length=30, blank=True, null=True)  # e.g. 2.5 Kilograms
+    item_weight = models.CharField(max_length=30, blank=True, null=True)  # e.g. 1.58 kg
+    parcel_dimensions = models.CharField(max_length=30, blank=True, null=True)  # e.g. 30 x 30 x 30 cm
+    date_first_available = models.DateField(null=True, blank=True)  # from the Additional Information table
 
     def __str__(self):
         return f"{self.product.product_code}: {self.product.name}"
@@ -233,3 +245,43 @@ class AmazonProduct(TimeStampedModel):
     class Meta:
         verbose_name = 'Amazon Product'
         verbose_name_plural = 'Amazon Products'
+
+
+class AmazonSearchResult(TimeStampedModel):
+    """ Stores information on the search page that a particular product showed up on """
+    product = models.ForeignKey(AmazonProduct, on_delete=models.CASCADE, related_name="amazon_search_result")
+    search_string = models.CharField(max_length=200)  # Search string used to generate results
+    page = models.IntegerField()  # Page that the product showed up on
+    item_number = models.IntegerField()  # Of products shown on search page, tracks the index of the product (i.e. 2nd)
+
+
+class AmazonProductReview(TimeStampedModel):
+    # One Amazon Product will have many reviews
+    product = models.ForeignKey(AmazonProduct, on_delete=models.CASCADE, related_name="amazon_product_reviews")
+    review_title = models.CharField(max_length=300)
+    review_text = models.TextField(blank=True, null=True)
+    reviewer_username = models.CharField(max_length=100)
+    rating = models.FloatField()  # e.g. 3 out of 5 stars -> convert to float
+    helpful = models.BooleanField()  # Flag for if the review was marked as helpful or not by Amazon
+
+
+# IMAGE CLASSIFICATION
+
+class ProductImageClassification(TimeStampedModel):
+    """ Stores basic classification information on a product image """
+    # Required fields
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="image_classification")
+    image_path = models.CharField(max_length=1000)
+    image_number = models.IntegerField()  # Order of the image in a set for a product
+
+    # Classification can be populated after the fact as it can take time to calculate
+    classification_choices = (
+        ('NUTRITION', 'N'),
+        ('INGREDIENTS', 'I'),
+        ('OTHER', 'O'),
+    )
+    classification = models.CharField(choices=classification_choices, max_length=15, null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Image Classification'
+        verbose_name_plural = 'Image Classifications'

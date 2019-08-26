@@ -1,0 +1,16 @@
+{% block content %}
+  <h4>Front-of-Package Analysis</h4>
+  <div id="fop-container">
+    <div class="card-group">
+        {% for obj in fop_objects %}
+          <div class="card">
+            <img class="card-img-top" src="{{ obj.classified_image_path.url }}" alt="Card image cap">
+            <div class="card-body">
+              <h5 class="card-title">{{ obj.classified_image_filename }}</h5>
+              <p class="card-text"><strong>FOP Label Detected:</strong> {{ obj.label_detected }}</p>
+            </div>
+          </div>
+        {% endfor %}
+    </div>
+  </div>
+{% endblock %}

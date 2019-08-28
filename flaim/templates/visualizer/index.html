@@ -2,182 +2,188 @@
 {% load static %}
 {% block content %}
 
-    <div class="container-fluid">
-        <h1>Data Visualizer</h1>
+  <div class="container-fluid">
+    <h1>Data Visualizer</h1>
 
-        <div class="filter-dashboard">
-            <div class="row">
-                <div class="col">
-                    <div id="demo-chart" style="width:100%; height:400px;"></div>
-                </div>
-                <div class="col-md-4">
-                    <div style="width:auto">
-                        <label for="brand">Nutrient</label>
-                        <select class="form-control" id="nutrient-filter"></select>
-                    </div>
-                </div>
-            </div>
+    <div class="filter-dashboard">
+      <div class="row">
+        <div class="col">
+          <div id="demo-chart" style="width:100%; height:400px;"></div>
         </div>
-
+        <div class="col-md-4">
+          <div style="width:auto">
+            <label for="brand">Nutrient</label>
+            <select class="form-control" id="nutrient-filter"></select>
+          </div>
+        </div>
+      </div>
     </div>
+
+  </div>
 
 
     {% block product_javascript %}
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
-        <script src="https://code.highcharts.com/highcharts.src.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+      <script src="https://code.highcharts.com/highcharts.src.js"></script>
 
-        <script>
-            // Populate the brand list dropdown
-            let nutrient_list = {{ nutrient_list|safe }};
-            $.each(nutrient_list, function (key, value) {
-                $('#nutrient-filter')
-                    .append($("<option></option>")
-                        .attr("value", key)
-                        .text(value));
-            });
+      <script>
+          // Populate the brand list dropdown
+          let nutrient_list = {{ nutrient_list|safe }};
+          $.each(nutrient_list, function (key, value) {
+              $('#nutrient-filter')
+                  .append($("<option></option>")
+                      .attr("value", key)
+                      .text(value));
+          });
 
-            let json_query = "{{ json_query|safe }}";
-            console.log(json_query);
+          let json_query = "{{ json_query|safe }}";
+          console.log(json_query);
 
-            axios.get("/api/products")
-                .then(function (response) {
-                    console.log(response)
-                })
-                .catch(function (error) {
-                    console.log(error)
-                })
-                .finally(function () {
-                    console.log("finally")
-                });
+          axios.get("/api/products")
+              .then(function (response) {
+                  console.log(response)
+              })
+              .catch(function (error) {
+                  console.log(error)
+              })
+              .finally(function () {
+                  console.log("finally")
+              });
 
-            document.addEventListener('DOMContentLoaded', function () {
-                var myChart = Highcharts.chart('demo-chart', {
-                    chart: {
-                        type: 'bar'
-                    },
-                    title: {
-                        text: 'Normalized sugar content by Loblaws Cereal subcategory'
-                    },
-                    xAxis: {
-                        categories: ['Everyday Cereal', 'Kids Cereal', 'Oatmeal & Hot Cereals', 'Health Cereal']
-                    },
-                    yAxis: {
-                        title: {
-                            {#text: 'Normalized sugar content (grams / serving size)'#}
-                            text: ''
-                        }
-                    },
-                    series: [{
-                        name: 'Sugar content (g) / Serving size',
-                        data: [0.20, 0.32, 0.12, 0.18]
-                    }]
-                });
-            });
+          document.addEventListener('DOMContentLoaded', function () {
+              var myChart = Highcharts.chart('demo-chart', {
+                  chart: {
+                      type: 'bar'
+                  },
+                  title: {
+                      text: 'Normalized sugar content by Loblaws Cereal subcategory'
+                  },
+                  xAxis: {
+                      categories: ['Everyday Cereal', 'Kids Cereal', 'Oatmeal & Hot Cereals', 'Health Cereal']
+                  },
+                  yAxis: {
+                      title: {
+                          {#text: 'Normalized sugar content (grams / serving size)'#}
+                          text: ''
+                      },
 
-            // Load the fonts
-            Highcharts.createElement('link', {
-                href: 'https://fonts.googleapis.com/css?family=Signika:400,700',
-                rel: 'stylesheet',
-                type: 'text/css'
-            }, null, document.getElementsByTagName('head')[0]);
+                  },
+                  series: [{
+                      name: '% Sugar Content',
+                      data: [0.20 * 100, 0.32 * 100, 0.12 * 100, 0.18 * 100]
+                  }]
+              });
+          });
 
-            // Add the background image to the container
-            Highcharts.addEvent(Highcharts.Chart, 'afterGetContainer', function () {
-                this.container.style.background =
-                    'url(https://www.highcharts.com/samples/graphics/sand.png)';
-            });
+          // Load the fonts
+          Highcharts.createElement('link', {
+              href: 'https://fonts.googleapis.com/css?family=Signika:400,700',
+              rel: 'stylesheet',
+              type: 'text/css'
+          }, null, document.getElementsByTagName('head')[0]);
+
+          // Add the background image to the container
+          Highcharts.addEvent(Highcharts.Chart, 'afterGetContainer', function () {
+              this.container.style.background =
+                  'url(https://www.highcharts.com/samples/graphics/sand.png)';
+          });
 
 
-            Highcharts.theme = {
-                colors: ['#f45b5b', '#8085e9', '#8d4654', '#7798BF', '#aaeeee',
-                    '#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee'],
-                chart: {
-                    backgroundColor: null,
-                    style: {
-                        fontFamily: 'Signika, serif'
-                    }
-                },
-                title: {
-                    style: {
-                        color: 'black',
-                        fontSize: '16px',
-                        fontWeight: 'bold'
-                    }
-                },
-                subtitle: {
-                    style: {
-                        color: 'black'
-                    }
-                },
-                tooltip: {
-                    borderWidth: 0
-                },
-                labels: {
-                    style: {
-                        color: '#6e6e70'
-                    }
-                },
-                legend: {
-                    backgroundColor: '#E0E0E8',
-                    itemStyle: {
-                        fontWeight: 'bold',
-                        fontSize: '13px'
-                    }
-                },
-                xAxis: {
-                    labels: {
-                        style: {
-                            color: '#6e6e70'
-                        }
-                    }
-                },
-                yAxis: {
-                    labels: {
-                        style: {
-                            color: '#6e6e70'
-                        }
-                    }
-                },
-                plotOptions: {
-                    series: {
-                        shadow: true
-                    },
-                    candlestick: {
-                        lineColor: '#404048'
-                    },
-                    map: {
-                        shadow: false
-                    }
-                },
+          Highcharts.theme = {
+              colors: ['#f45b5b', '#8085e9', '#8d4654', '#7798BF', '#aaeeee',
+                  '#ff0066', '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee'],
+              chart: {
+                  backgroundColor: null,
+                  style: {
+                      fontFamily: 'Signika, serif'
+                  }
+              },
+              title: {
+                  style: {
+                      color: 'black',
+                      fontSize: '16px',
+                      fontWeight: 'bold'
+                  }
+              },
+              subtitle: {
+                  style: {
+                      color: 'black'
+                  }
+              },
+              tooltip: {
+                  borderWidth: 0
+              },
+              labels: {
+                  style: {
 
-                // Highstock specific
-                navigator: {
-                    xAxis: {
-                        gridLineColor: '#D0D0D8'
-                    }
-                },
-                rangeSelector: {
-                    buttonTheme: {
-                        fill: 'white',
-                        stroke: '#C0C0C8',
-                        'stroke-width': 1,
-                        states: {
-                            select: {
-                                fill: '#D0D0D8'
-                            }
-                        }
-                    }
-                },
-                scrollbar: {
-                    trackBorderColor: '#C0C0C8'
-                }
+                      color: '#6e6e70'
+                  }
+              },
+              legend: {
+                  backgroundColor: '#E0E0E8',
+                  itemStyle: {
+                      fontWeight: 'bold',
+                      fontSize: '15px'
+                  }
+              },
+              xAxis: {
+                  labels: {
+                      style: {
+                                                fontSize: '16px',
 
-            };
+                          color: '#6e6e70'
+                      }
+                  }
+              },
+              yAxis: {
+                  labels: {
+                      style: {
 
-            // Apply the theme
-            Highcharts.setOptions(Highcharts.theme);
+                          color: '#6e6e70',
+                      },
 
-        </script>
+                  }
+              },
+              plotOptions: {
+                  series: {
+                      shadow: true
+                  },
+                  candlestick: {
+                      lineColor: '#404048'
+                  },
+                  map: {
+                      shadow: false
+                  }
+              },
+
+              // Highstock specific
+              navigator: {
+                  xAxis: {
+                      gridLineColor: '#D0D0D8'
+                  }
+              },
+              rangeSelector: {
+                  buttonTheme: {
+                      fill: 'white',
+                      stroke: '#C0C0C8',
+                      'stroke-width': 1,
+                      states: {
+                          select: {
+                              fill: '#D0D0D8'
+                          }
+                      }
+                  }
+              },
+              scrollbar: {
+                  trackBorderColor: '#C0C0C8'
+              }
+
+          };
+
+          // Apply the theme
+          Highcharts.setOptions(Highcharts.theme);
+
+      </script>
     {% endblock %}
-    <br>
+  <br>
 {% endblock %}

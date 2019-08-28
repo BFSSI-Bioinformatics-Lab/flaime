@@ -21,6 +21,7 @@ from flaim.database.nutrient_coding import EXPECTED_NUTRIENTS
 from flaim.database import models
 
 STATIC_ROOT = settings.STATIC_ROOT
+MEDIA_ROOT = settings.MEDIA_ROOT
 
 
 class AccidentalRedirect(Exception):
@@ -87,9 +88,6 @@ class LoblawsSection(BaseScraper):
         # Get section name
         self.section_name = self.driver.find_element_by_class_name("row-hero-title").text.strip().upper()
 
-        # Update the output directory for this instance
-        self.outdir = self.outdir / self.section_name
-
         # Find subcategory links on the page
         subcategory_links = self.driver.find_elements_by_class_name("subcategory-link")
 
@@ -118,7 +116,7 @@ class LoblawsSubcategory(BaseScraper):
 
     # Default values
     total_products: int = 0
-    max_products: int = 500
+    max_products: int = 200
     product_urls: list = None
     subcategory_name: str = None
     outdir: Path = None
@@ -138,9 +136,6 @@ class LoblawsSubcategory(BaseScraper):
 
         # Update subcategory name
         self.subcategory_name = self.driver.find_element_by_class_name("page-title__title").text.strip().upper()
-
-        # Update the output directory for this instance
-        self.outdir = self.outdir / self.subcategory_name
 
         # Grab the single load_more_button element on the page
         keep_clicking_load_button = True
@@ -257,8 +252,7 @@ class ProductPage(BaseScraper):
             self.serving_size_units = serving_size_units
 
             # Nutrition dictionary
-            self.nutrition_dict = self.parse_product_nutrition_table(
-                product_nutrition_element=self.nutrition_element)
+            self.nutrition_dict = self.parse_product_nutrition_table(product_nutrition_element=self.nutrition_element)
 
         # Download all of the images for the product
         self.image_paths = []
@@ -448,7 +442,13 @@ class ProductPage(BaseScraper):
                     expected_nutrients_.pop(i)
                     continue
 
-            # Check if it's a unit line
+            # TODO: It seems like sometimes there is only a %DV and no other value
+            """
+            Example:
+            https://www.loblaws.ca/Food/Pantry/Breakfast/Oatmeal-%26-Hot-Cereals/Stoked-Oats-Stone-Age-Bag/p/20971534_EA
+            """
+
+            # Check if it's a unit line. We'll put it into the nutrition dictionary if it is.
             if any(x in line.lower() for x in [' %', ' g', ' mg', ' cal']) and current_nutrient is not None:
                 line = line.replace(",", ".")  # Sometimes a comma is used in place of a decimal
                 nutrition_dict[current_nutrient].append(line)
@@ -475,8 +475,7 @@ def update_database(product: ProductPage):
                                                           product_code=product.product_code,
                                                           nutrition_available=product.nutrition_present_flag,
                                                           price=product.price,
-                                                          url=product.url
-                                                          )
+                                                          url=product.url)
     base_product_instance.save()
 
     # Create and populate the nutrition facts instance
@@ -488,15 +487,8 @@ def update_database(product: ProductPage):
                                                                     ingredients=product.ingredients,
                                                                     nutrition_raw_text=str(product.nutrition_dict))
     if product.nutrition_dict is not None:
-        for nutrient, vals in product.nutrition_dict.items():
-            # Normalize the dict keys to match the columns in the database
-            nutrient = nutrient.lower().replace(" ", "_").replace(".", "")
-            if nutrition_facts_instance.valid_nutrient(nutrient):
-                nutrient_value = nutrition_facts_instance.extract_number_from_nutrient(vals[0])
-                setattr(nutrition_facts_instance, nutrient, nutrient_value)
-                if len(vals) > 1:
-                    nutrient_value_dv = nutrition_facts_instance.extract_number_from_nutrient(vals[1])
-                    setattr(nutrition_facts_instance, f"{nutrient}_dv", nutrient_value_dv)
+        nutrition_facts_instance = nutrition_dict_to_nutrition_facts_instance(product_page=product,
+                                                                              nutrition_facts_instance=nutrition_facts_instance)
     nutrition_facts_instance.save()
 
     # Create Loblaws product instance
@@ -505,19 +497,73 @@ def update_database(product: ProductPage):
         subcategory=product.subcategory.subcategory_name,
         section=product.subcategory.section.section_name,
         description=product.description,
-        image_directory=str(product.outdir),
+        image_directory=str(product.outdir),  # TODO: Strip MEDIA_ROOT from this variable
         breadcrumbs=product.breadcrumbs
     )
     loblaws_product_instance.save()
 
+    # Iterate over images and create ProductImage records
+    generate_product_image_records(image_dir=product.outdir, product_instance=base_product_instance)
+
     print(f"Successfully added records for {product.product_code} to FLAIM-DB")
+
+
+def nutrition_dict_to_nutrition_facts_instance(product_page: ProductPage,
+                                               nutrition_facts_instance: models.NutritionFacts):
+    """
+    This iterates over the product nutrition dictionary, and performs unit conversion where necessary (mg -> g),
+    parses out what is a quantitative value and what is a % DV, and then updates the Nutrition Facts model instance
+    with all of that data for every single nutrient in the dictionary.
+    """
+    for nutrient, vals in product_page.nutrition_dict.items():
+        # [vals] is either 1 or 2 items long -> need to separate DV and value
+
+        # Normalize the dict keys to match the columns in the database
+        nutrient = nutrient.lower().replace(" ", "_").replace(".", "")
+
+        # Make sure the nutrient is something we're expecting
+        if nutrition_facts_instance.valid_nutrient(nutrient):
+
+            # Parse out DV from regular value
+            nutrient_dv_raw = None
+            nutrient_value_raw = None
+            print(f"Parsing {vals} into value and DV")
+            for val in vals:
+                if '%' in val:
+                    print(f"{val} -> DV")
+                    nutrient_dv_raw = val
+                else:
+                    print(f"{val} -> value")
+                    nutrient_value_raw = val
+
+            # Set the nutrition_value (e.g. 9g total fat)
+            if nutrient_value_raw is not None:
+                nutrient_value, unit = nutrition_facts_instance.extract_number_from_nutrient(nutrient_value_raw)
+                setattr(nutrition_facts_instance, nutrient, nutrient_value)
+
+            # Set the DV (e.g. 5 %)
+            if nutrient_dv_raw is not None:
+                nutrient_value_dv, unit = nutrition_facts_instance.extract_number_from_nutrient(nutrient_dv_raw)
+                setattr(nutrition_facts_instance, f"{nutrient}_dv", nutrient_value_dv)
+    return nutrition_facts_instance
+
+
+def generate_product_image_records(image_dir: Path, product_instance: models.Product):
+    """
+    Have to strip out the MEDIA_ROOT from the file paths to behave properly with FileField/ImageField
+    """
+    images = [str(x).replace(settings.MEDIA_ROOT + "/", "") for x in list(image_dir.glob("*")) if x.is_file()]
+    for i in images:
+        models.ProductImage.objects.create(product=product_instance,
+                                           image_path=i)
 
 
 @job('high')
 def run_loblaws_scraper(url: str, outdir: Path, filter_keyword: str = None):
     print(f"Started Loblaws Scraper")
 
-    # Get the scraper going
+    # Get the scraper going -> outdir should always follow /{MEDIA_ROOT}/{store}/{YYYYMMDD}/ pattern
+    outdir = outdir / 'LOBLAWS' / time.strftime('%Y%m%d')
     section = LoblawsSection(url=url, outdir=outdir)
 
     product_objects = []

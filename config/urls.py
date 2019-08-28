@@ -16,7 +16,10 @@ urlpatterns = [
     path("users/", include("flaim.users.urls", namespace="users")),
     path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
-    path("api/", include("flaim.database.urls"))
+    path("api/", include("flaim.database.urls")),
+    path("product_browser/", include("flaim.product_browser.urls", namespace="product_browser")),
+    path("product_search/", include("flaim.product_search.urls", namespace="product_search")),
+    path("visualizer/", include("flaim.visualizer.urls", namespace="visualizer"))
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

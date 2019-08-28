@@ -15,65 +15,88 @@
             </tr>
         </table>
     </div>
-    <div class="row">
-        <div class="col">
-            {# Basic product information from the Product model #}
-            <div class="product-metadata">
-                <table class="table table-light">
-                    <tbody>
-                    <tr>
-                        <td>Name</td>
-                        <td>{{ product.name }}</td>
-                    </tr>
-                    <tr>
-                        <td>Brand</td>
-                        <td>{{ product.brand }}</td>
-                    </tr>
-                    <tr>
-                        <td>Store</td>
-                        <td>{{ product.store }}</td>
-                    </tr>
-                    <tr>
-                        <td>Product Code</td>
-                        <td>{{ product.product_code }}</td>
-                    </tr>
-                    <tr>
-                        <td>Price</td>
-                        <td>{{ product.price }}</td>
-                    </tr>
-                    <tr>
-                        <td>URL</td>
-                        <td><a href="{{ product.url }}">Link</a></td>
-                    </tr>
-                    </tbody>
-                </table>
+    <nav>
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+            <a class="nav-item nav-link active" id="nav-overview-tab" data-toggle="tab" href="#nav-overview" role="tab"
+               aria-controls="nav-overview" aria-selected="true">Home</a>
+            <a class="nav-item nav-link" id="nav-fop-tab" data-toggle="tab" href="#nav-fop" role="tab"
+               aria-controls="nav-fop" aria-selected="false">FOP Analysis</a>
+            <a class="nav-item nav-link" id="nav-other-tab" data-toggle="tab" href="#nav-other" role="tab"
+               aria-controls="nav-other" aria-selected="false">Other</a>
+        </div>
+    </nav>
+  <br>
+    <div class="tab-content" id="nav-tabContent">
 
-            </div>
-            <div class="additional-metadata">
-                {% if product.store.upper == 'LOBLAWS' %}
-                    {% include 'product_browser/loblaws_detail.html' %}
-                {% elif product.store.upper == 'AMAZON' %}
-                    {% include 'product_browser/amazon_detail.html' %}
-                {% elif product.store.upper == 'WALMART' %}
-                    {% include 'product_browser/walmart_detail.html' %}
-                {% endif %}
-            </div>
-            <div class="product-nutrition">
-                {% include 'product_browser/nutrition_detail.html' %}
+        <div class="tab-pane fade show active" id="nav-overview" role="tabpanel" aria-labelledby="nav-overview-tab">
+
+            <div class="row">
+                <div class="col">
+                    {# Basic product information from the Product model #}
+                    <div class="product-metadata">
+                        <table class="table table-hover">
+                            <tbody>
+                            <tr>
+                                <td class="row-label">Name</td>
+                                <td>{{ product.name }}</td>
+                            </tr>
+                            <tr>
+                                <td class="row-label">Brand</td>
+                                <td>{{ product.brand }}</td>
+                            </tr>
+                            <tr>
+                                <td class="row-label">Store</td>
+                                <td>{{ product.store }}</td>
+                            </tr>
+                            <tr>
+                                <td class="row-label">Product Code</td>
+                                <td>{{ product.product_code }}</td>
+                            </tr>
+                            <tr>
+                                <td class="row-label">Price</td>
+                                <td>{{ product.price }}</td>
+                            </tr>
+                            <tr>
+                                <td class="row-label">URL</td>
+                                <td><a href="{{ product.url }}">Link</a></td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                    <div class="additional-metadata">
+                        {% if product.store.upper == 'LOBLAWS' %}
+                            {% include 'product_browser/loblaws_detail.html' %}
+                        {% elif product.store.upper == 'AMAZON' %}
+                            {% include 'product_browser/amazon_detail.html' %}
+                        {% elif product.store.upper == 'WALMART' %}
+                            {% include 'product_browser/walmart_detail.html' %}
+                        {% endif %}
+                    </div>
+                    <div class="product-nutrition">
+                        {% include 'product_browser/nutrition_detail.html' %}
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    {% for img in product_images %}
+                        <img src="{{ img }}" class="img-thumbnail img-fluid rounded" alt="">
+                        <br>
+                        <br>
+                    {% endfor %}
+                </div>
             </div>
         </div>
-        <div class="col-lg-4">
-            {% for img in product_images %}
-                <img src="{{ img }}" class="img-thumbnail img-fluid rounded" alt="">
-                <br>
-                <br>
-            {% endfor %}
+
+
+        <div class="tab-pane fade" id="nav-fop" role="tabpanel" aria-labelledby="nav-fop-tab">
+            {% include 'product_browser/fop_detail.html' %}
         </div>
-    </div>
+
+        <div class="tab-pane fade" id="nav-other" role="tabpanel" aria-labelledby="nav-other-tab">
+            <p>temp</p>
+        </div>
     </div>
     <br>
-
-
 
     {% block product_javascript %}
         <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>

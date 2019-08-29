@@ -180,7 +180,7 @@ class NutritionFacts(TimeStampedModel):
         # Grab the units from the nutrient string
         nutrient_type = self.detect_units(val)
         if nutrient_type is None:
-            return
+            return None
 
         # Grab the numeric float value from the string
         nutrient_float = float(val.split(nutrient_type)[0].strip())
@@ -198,6 +198,7 @@ class NutritionFacts(TimeStampedModel):
         # Calories
         if nutrient_type == "cal" or nutrient_type == "Cal" or nutrient_type == "calories":
             return int(nutrient_float), 'cal'
+        return None
 
     @staticmethod
     def convert_milligrams_to_grams(val: float) -> float:

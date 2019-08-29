@@ -59,6 +59,7 @@ VALID_NUTRIENT_COLUMNS = [
 
 
 EXPECTED_NUTRIENTS = (
+    'Sugars',
     'Calories',
     'Sodium',
     'Calcium',
@@ -70,7 +71,6 @@ EXPECTED_NUTRIENTS = (
     'Potassium',
     'Total Carbohydrate',
     'Dietary Fiber',
-    'Sugars',
     'Protein',
     'Cholesterol',
     'Vitamin A',

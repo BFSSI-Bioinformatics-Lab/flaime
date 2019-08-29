@@ -1,6 +1,7 @@
 import re
 import time
 import requests
+from typing import Optional
 from pathlib import Path
 from dataclasses import dataclass
 from django.conf import settings
@@ -70,9 +71,9 @@ class BaseScraper:
 @dataclass
 class LoblawsSection(BaseScraper):
     # Loaded after class is initialized
-    subcategory_urls: list = None
-    section_name: str = None
-    outdir: Path = None
+    subcategory_urls: Optional[list] = None
+    section_name: Optional[str] = None
+    outdir: Path = Optional[None]
 
     def __post_init__(self):
         print(f"\nInitiated LoblawsSection object")
@@ -117,9 +118,9 @@ class LoblawsSubcategory(BaseScraper):
     # Default values
     total_products: int = 0
     max_products: int = 200
-    product_urls: list = None
-    subcategory_name: str = None
-    outdir: Path = None
+    product_urls: Optional[list] = None
+    subcategory_name: Optional[str] = None
+    outdir: Optional[Path] = None
 
     def __post_init__(self):
         print(f"\nInitiated LoblawsSubcategory object")
@@ -178,27 +179,27 @@ class LoblawsSubcategory(BaseScraper):
 @dataclass
 class ProductPage(BaseScraper):
     subcategory: LoblawsSubcategory
-    outdir: Path = None
+    outdir: Optional[Path] = None
 
     # Populated in __post_init__
     nutrition_present_flag: bool = False
-    name: str = None
-    brand: str = None
-    description: str = None
-    ingredients: str = None
-    product_size: str = None  # Total product size in grams
-    breadcrumbs: str = None  # Delimited by '>' symbol
-    price: str = None
-    serving_size_raw: str = None  # String value pulled straight from webpage; contains junk like '3/4 cup'
-    serving_size: int = None  # Integer value in g or mL parsed from serving_size_raw
-    serving_size_units: str = None  # either 'g' or 'mL'
-    nutrition_dict: dict = None
-    image_paths: list = None
+    name: Optional[str] = None
+    brand: Optional[str] = None
+    description: Optional[str]= None
+    ingredients: Optional[str] = None
+    product_size: Optional[str] = None  # Total product size in grams
+    breadcrumbs: Optional[str] = None  # Delimited by '>' symbol
+    price: Optional[str] = None
+    serving_size_raw: Optional[str] = None  # String value pulled straight from webpage; contains junk like '3/4 cup'
+    serving_size: Optional[int] = None  # Integer value in g or mL parsed from serving_size_raw
+    serving_size_units: Optional[str] = None  # either 'g' or 'mL'
+    nutrition_dict: Optional[dict] = None
+    image_paths: Optional[list] = None
 
     # Unique Loblaws 'Product Number'
-    product_code: str = None
+    product_code: Optional[str] = None
 
-    nutrition_element: WebElement = None
+    nutrition_element: Optional[WebElement] = None
 
     def __post_init__(self):
         print(f"Initiated ProductPage object with {self.url}")
@@ -314,7 +315,8 @@ class ProductPage(BaseScraper):
         with open(str(outfile), "wb") as f:
             for chunk in r:
                 f.write(chunk)
-        self.image_paths.append(outfile)
+        if self.image_paths is not None:
+            self.image_paths.append(outfile)
 
     # Required so no safe-run
     def get_product_code(self):
@@ -428,7 +430,7 @@ class ProductPage(BaseScraper):
         # Make a copy of the global tuple, coerce to list so we can delete entries on the go
         expected_nutrients_ = list(EXPECTED_NUTRIENTS)
 
-        nutrition_dict = {}
+        nutrition_dict: dict = {}
         current_nutrient = None
         for line in table_text:
             for i, exp in enumerate(expected_nutrients_):

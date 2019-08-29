@@ -23,8 +23,8 @@ class ProductView(DetailView):
         # Get image paths for the product. This is pretty gross and should be refactored. TODO: Make this not terrible
         images = list(Path(context['product'].loblaws_product.image_directory).glob("*"))
         images = [x for x in images if x.is_file()]
-        images = [str(x).replace(settings.MEDIA_ROOT, settings.MEDIA_URL[:-1]) for x in images]
-        context['product_images'] = images
+        images_formatted = [str(x).replace(settings.MEDIA_ROOT, settings.MEDIA_URL[:-1]) for x in images]
+        context['product_images'] = images_formatted
 
         # Images
         product_image_objects = ProductImage.objects.filter(product=context['product'])

@@ -61,7 +61,9 @@ class Product(TimeStampedModel):
     product_code = models.CharField(max_length=100)
     name = models.CharField(max_length=300, unique=False, blank=True, null=True)
     brand = models.CharField(max_length=100, blank=True, null=True)
-    batch = models.ForeignKey(ScrapeBatch, on_delete=models.CASCADE)
+
+    # TODO: Make batch field required upon instantiation once we move towards a more production-ready version of FLAIME
+    batch = models.ForeignKey(ScrapeBatch, on_delete=models.CASCADE, blank=True, null=True)
 
     VALID_STORES = (
         ('LOBLAWS', 'Loblaws'),

@@ -43,11 +43,25 @@ class TimeStampedModel(models.Model):
 
 
 # GENERAL MODELS
+class ScrapeBatch(models.Model):
+    """
+    Upon submission of a scraping job, that job is assigned an ID using this table and any products collected throughout
+    the job will be nested beneath it.
+    """
+    start_time = models.DateTimeField(auto_now_add=True)
+    end_time = models.DateTimeField(blank=True, null=True)  # Should be populated manually once scrape job is complete
+    notes = models.TextField(blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Scrape Batch'
+        verbose_name_plural = 'Scrape Batches'
+
 
 class Product(TimeStampedModel):
     product_code = models.CharField(max_length=100)
     name = models.CharField(max_length=300, unique=False, blank=True, null=True)
     brand = models.CharField(max_length=100, blank=True, null=True)
+    batch = models.ForeignKey(ScrapeBatch, on_delete=models.CASCADE)
 
     VALID_STORES = (
         ('LOBLAWS', 'Loblaws'),
@@ -226,7 +240,7 @@ class NutritionFacts(TimeStampedModel):
 
 class LoblawsProduct(TimeStampedModel):
     """
-        Extension of the generic Product model to store Loblaws specific metadata
+    Extension of the generic Product model to store Loblaws specific metadata
     """
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name="loblaws_product")
     subcategory = models.CharField(max_length=100, blank=True, null=True)
@@ -247,7 +261,7 @@ class LoblawsProduct(TimeStampedModel):
 
 class WalmartProduct(TimeStampedModel):
     """
-        Extension of the generic Product model to store Walmart specific metadata
+    Extension of the generic Product model to store Walmart specific metadata
     """
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name="walmart_product")
     image_directory = models.CharField(max_length=500, blank=True, null=True)
@@ -264,7 +278,7 @@ class WalmartProduct(TimeStampedModel):
 
 class AmazonProduct(TimeStampedModel):
     """
-        Extension of the generic Product model to store Amazon specific metadata
+    Extension of the generic Product model to store Amazon specific metadata
     """
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name="amazon_product")
     bullet_points = models.TextField(null=True, blank=True)  # The Amazon description field

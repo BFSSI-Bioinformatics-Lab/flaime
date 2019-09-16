@@ -24,6 +24,15 @@ from flaim.database import models
 STATIC_ROOT = settings.STATIC_ROOT
 MEDIA_ROOT = settings.MEDIA_ROOT
 
+"""
+TODO: 
+
+-   Upon 400 Bad Request, close the browser window. 
+    Example bad URL: https://www.loblaws.ca/Home-%26-Lifestyle/Medicine-%26-Health/Allergy-%26-Sinus/Allergy-%26-Sinus-Medicine/Jamieson-Multi-Vitamins%2C-100%-Complete%2C-Women-50-/p/20946029_EA
+
+-   Continue to navigate through URLs until a product page is detected. Current scraper is too strict.
+"""
+
 
 class AccidentalRedirect(Exception):
     """ Raised when Selenium gets redirected from the intended URL """
@@ -83,6 +92,7 @@ class LoblawsSection(BaseScraper):
         self.driver.get(self.url)
 
         # Wait for page to load
+        print("Searching for element with product-image class to confirm page has loaded")
         _ = WebDriverWait(driver=self.driver, timeout=15).until(ec.presence_of_element_located((By.CLASS_NAME,
                                                                                                 "product-image")))
 
@@ -117,7 +127,7 @@ class LoblawsSubcategory(BaseScraper):
 
     # Default values
     total_products: int = 0
-    max_products: int = 200
+    max_products: int = 500
     product_urls: Optional[list] = None
     subcategory_name: Optional[str] = None
     outdir: Optional[Path] = None
@@ -131,9 +141,14 @@ class LoblawsSubcategory(BaseScraper):
 
         # Wait for product tracking element to load (represents an individual product shown on the page grid)
         print("Waiting for elements to load...")
-        _ = WebDriverWait(driver=self.driver, timeout=10).until(ec.presence_of_element_located((By.CLASS_NAME,
-                                                                                                "product-tile__details")
-                                                                                               ))
+        try:
+            _ = WebDriverWait(driver=self.driver, timeout=10).until(ec.presence_of_element_located((By.CLASS_NAME,
+                                                                                                    "product-tile__details")
+                                                                                                   ))
+        except:
+            _ = WebDriverWait(driver=self.driver, timeout=10).until(ec.presence_of_element_located((By.CLASS_NAME,
+                                                                                                    "product-info")
+                                                                                                   ))
 
         # Update subcategory name
         self.subcategory_name = self.driver.find_element_by_class_name("page-title__title").text.strip().upper()
@@ -175,6 +190,9 @@ class LoblawsSubcategory(BaseScraper):
         # Exit window
         self.driver.quit()
 
+    def __repr__(self):
+        return f"{self.subcategory_name}"
+
 
 @dataclass
 class ProductPage(BaseScraper):
@@ -185,7 +203,7 @@ class ProductPage(BaseScraper):
     nutrition_present_flag: bool = False
     name: Optional[str] = None
     brand: Optional[str] = None
-    description: Optional[str]= None
+    description: Optional[str] = None
     ingredients: Optional[str] = None
     product_size: Optional[str] = None  # Total product size in grams
     breadcrumbs: Optional[str] = None  # Delimited by '>' symbol
@@ -261,6 +279,26 @@ class ProductPage(BaseScraper):
 
         # Exit window
         self.driver.quit()
+
+    def __iter__(self):
+        for attr, value in self.__dict__.items():
+            yield attr, value
+
+    def dump_to_tsv(self):
+        outfile = self.outdir / f"{self.__repr__()}.tsv"
+        with open(str(outfile), 'w') as f:
+            f.write("attribute\tvalue\n")
+            for attr, value in self:
+                if attr == "image_paths":
+                    value = "\t".join([str(x).replace(str(self.outdir.parent), "") for x in value])
+                    f.write(f"{attr}\t{str(value)}\n")
+                elif attr == "subcategory":
+                    f.write(f"section\t{self.subcategory.section.section_name}\n")
+                    f.write(f"subcategory\t{self.subcategory.subcategory_name}\n")
+                elif attr == "description":
+                    f.write(f'description\t"{value}"\n')
+                else:
+                    f.write(f"{attr}\t{str(value)}\n")
 
     def get_images(self):
         # Grab elements to click through
@@ -462,7 +500,7 @@ class ProductPage(BaseScraper):
         return nutrition_dict
 
     def __repr__(self):
-        return f"{self.product_code}: {self.name} ({self.brand})"
+        return f"{self.product_code}_{self.name}_({self.brand})"
 
 
 def check_if_product_exists(product_code: str) -> bool:
@@ -561,7 +599,8 @@ def generate_product_image_records(image_dir: Path, product_instance: models.Pro
 
 
 @job('high')
-def run_loblaws_scraper(url: str, outdir: Path, filter_keyword: str = None):
+def run_loblaws_scraper(url: str, outdir: Path, filter_keyword: str = None, load_into_db: bool = True,
+                        dump_to_csv: bool = False):
     print(f"Started Loblaws Scraper")
 
     # Get the scraper going -> outdir should always follow /{MEDIA_ROOT}/{store}/{YYYYMMDD}/ pattern
@@ -588,7 +627,14 @@ def run_loblaws_scraper(url: str, outdir: Path, filter_keyword: str = None):
             else:
                 filtered_product_urls.append(product_url)
 
+        existing_products = list(outdir.glob("**"))
+        existing_products = [x for x in existing_products if x.is_dir()]
+        existing_product_codes = [x.name.split("-")[0] for x in existing_products]
+        print(f"Detected {len(existing_product_codes)} total existing product codes in {outdir}")
+        filtered_product_urls = [x for x in filtered_product_urls if Path(x).name not in existing_product_codes]
+
         # Extract information from each product URL with Selenium
+        print(f"Scraping {len(filtered_product_urls)} total products for {subcategory.subcategory_name}")
         for product_url in filtered_product_urls:
             try:
                 product = ProductPage(url=product_url, outdir=subcategory.outdir,
@@ -600,8 +646,14 @@ def run_loblaws_scraper(url: str, outdir: Path, filter_keyword: str = None):
                 print(f"Encountered some other strange exception for {product_url}, skipping...")
                 print(e)
                 continue
+
             product_objects.append(product)
 
             # Load Product data into Postgres
-            update_database(product=product)
+            if load_into_db:
+                update_database(product=product)
+            else:
+                # Procedures to dump output to CSV files
+                if dump_to_csv:
+                    product.dump_to_tsv()
             print(f"Done with product '{product.name}'")

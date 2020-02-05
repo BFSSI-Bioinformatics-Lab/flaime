@@ -5,6 +5,7 @@ from typing import Optional, Union
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from flaim.database.nutrient_coding import VALID_NUTRIENT_COLUMNS
+from simple_history.models import HistoricalRecords
 
 
 def upload_product_image(obj):
@@ -28,6 +29,19 @@ def upload_fop_image(obj):
     suffix = parent_path.suffix
     fop_path = parent_path.with_suffix(f'_FOP{suffix}')
     return fop_path
+
+
+def safe_run(func):
+    """ Decorator to run a method wrapped in a try/except -> returns None upon exception """
+
+    def func_wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            print(e)
+            return None
+
+    return func_wrapper
 
 
 class TimeStampedModel(models.Model):
@@ -77,6 +91,8 @@ class Product(TimeStampedModel):
     nutrition_available = models.BooleanField(blank=True, null=True)
     url = models.URLField(blank=True, null=True)
     scrape_date = models.DateTimeField(auto_now_add=True)
+
+    history = HistoricalRecords()
 
     def __str__(self):
         return f"{self.product_code}: {self.name}"
@@ -157,6 +173,8 @@ class NutritionFacts(TimeStampedModel):
     zinc = models.FloatField(blank=True, null=True)
 
     nutrition_raw_text = models.TextField(blank=True, null=True)
+
+    history = HistoricalRecords()
 
     @staticmethod
     def detect_units(val: str) -> Optional[str]:
@@ -244,6 +262,8 @@ class LoblawsProduct(TimeStampedModel):
     """
     Extension of the generic Product model to store Loblaws specific metadata
     """
+
+    # This data was scraped from Loblaws with Selenium
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name="loblaws_product")
     subcategory = models.CharField(max_length=100, blank=True, null=True)
     section = models.CharField(max_length=100, blank=True, null=True)
@@ -251,12 +271,136 @@ class LoblawsProduct(TimeStampedModel):
     image_directory = models.CharField(max_length=1000, blank=True, null=True)  # TODO: Consider implementing upload_to
     breadcrumbs = models.CharField(max_length=300, blank=True, null=True)
 
+    """
+    TODO:
+    
+    Create methods within this model to load the Loblaws product JSON retrieved from the API into api_data,
+    then create methods that will populate the remaining fields (e.g. product name, brand, price, description, etc.)
+    
+    This will become more complex for images (which must be downloaded) and nutrition facts (which must be parsed)
+    """
+
+    # This JSON data is retrieved from the API. See flaim.data_loaders.loblaws.product_detail_api.py
+    api_data = JSONField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        """
+        Override the save method to autopopulate fields extracted from api_data
+
+        """
+        if self.api_data is not None:
+            self.breadcrumbs = ",".join(self.get_breadcrumbs())
+            self.description = self.get_description()
+        super(LoblawsProduct, self).save(*args, **kwargs)
+
+    @safe_run
+    def get_name(self) -> str:
+        return self.api_data['name']
+
+    @safe_run
+    def get_description(self) -> str:
+        return self.api_data['description']
+
+    @safe_run
+    def get_package_size(self) -> str:
+        return self.api_data['packageSize']
+
+    @safe_run
+    def get_link(self) -> str:
+        return 'https://www.loblaws.ca' + self.api_data['link']
+
+    @safe_run
+    def get_price(self) -> str:
+        return self.api_data['prices']['price']['value']
+
+    @safe_run
+    def get_country_of_origin(self) -> str:
+        return self.api_data['countryOfOrigin']
+
+    @safe_run
+    def get_ingredients(self) -> str:
+        return self.api_data['ingredients']
+
+    @safe_run
+    def get_nutrition_facts(self):
+        # All information is stored in nutritionFacts
+        nutrition_facts = self.api_data['nutritionFacts']
+
+        # Further parsing out nutritionFacts
+        '''
+        List containing serving size, calories, etc
+        '''
+        food_labels = nutrition_facts['foodLabels']
+
+        '''
+        List containing nutrients with values in grams and percent.
+        Values in here can contain additional subnutrients e.g. totalfat -> saturatedfat, polyunsaturatedfat
+        '''
+        nutrients_per_serving = nutrition_facts['nutrientsPerServing']
+
+        '''
+        List containing micronutrients e.g. vitamin A, vitamin C, iron
+        '''
+        micronutrients = nutrition_facts['micronutrients']
+
+        '''
+        Text with nutrition disclaimer that the data is approximate and not necessarily accurate
+        '''
+        disclaimer = nutrition_facts['disclaimer']
+
+        '''
+        This field is not necessarily populated
+        '''
+        ingredients = nutrition_facts['ingredients']
+
+        '''
+        Not sure what this is for, comes up as empty string mostly
+        '''
+        nutrition_heading = nutrition_facts['nutritionHeading']
+
+    @safe_run
+    def get_nutrition_facts_list(self):
+        # TODO: Figure out what this field is used for, comes up as empty list mostly?
+        pass
+
+    @safe_run
+    def get_health_tips(self) -> str:
+        return self.api_data['healthTips']
+
+    @safe_run
+    def get_safety_tips(self) -> str:
+        return self.api_data['safetyTips']
+
+    @safe_run
+    def get_breadcrumbs(self) -> list:
+        """
+        :return:    Returns list of of breadcrumbs in order from highest level to lowest level e.g.
+                    [Food, Fruits & Vegetables, Fruit, Apples]
+        """
+        breadcrumbs = self.api_data['breadcrumbs']
+        breadcrumb_names = [x.name for x in breadcrumbs]
+        return breadcrumb_names
+
+    @safe_run
+    def get_upc_list(self) -> list:
+        return self.api_data['upcs']
+
+    @safe_run
+    def get_average_weight(self) -> str:
+        return self.api_data['averageWeight']
+
+    @safe_run
+    def get_nutrition_disclaimer(self) -> str:
+        return self.api_data['productNutritionDisclaimer']
+
     def __str__(self):
         return f"{self.product.product_code}: {self.product.name}"
 
     class Meta:
         verbose_name = 'Loblaws Product'
         verbose_name_plural = 'Loblaws Products'
+
+    history = HistoricalRecords()
 
 
 # WALMART MODELS
@@ -267,6 +411,8 @@ class WalmartProduct(TimeStampedModel):
     """
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name="walmart_product")
     image_directory = models.CharField(max_length=500, blank=True, null=True)
+
+    history = HistoricalRecords()
 
     def __str__(self):
         return f"{self.product.product_code}: {self.product.name}"
@@ -292,6 +438,8 @@ class AmazonProduct(TimeStampedModel):
     parcel_dimensions = models.CharField(max_length=30, blank=True, null=True)  # e.g. 30 x 30 x 30 cm
     date_first_available = models.DateField(null=True, blank=True)  # from the Additional Information table
     image_directory = models.CharField(max_length=1000, blank=True, null=True)
+
+    history = HistoricalRecords()
 
     def __str__(self):
         return f"{self.product.product_code}: {self.product.name}"

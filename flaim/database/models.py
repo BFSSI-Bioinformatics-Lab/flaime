@@ -3,7 +3,7 @@ from pathlib import Path
 from django.db import models
 from typing import Optional, Union
 from django.conf import settings
-from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.fields import JSONField, ArrayField
 from flaim.database.nutrient_coding import VALID_NUTRIENT_COLUMNS
 from simple_history.models import HistoricalRecords
 
@@ -38,7 +38,6 @@ def safe_run(func):
         try:
             return func(*args, **kwargs)
         except Exception as e:
-            print(e)
             return None
 
     return func_wrapper
@@ -72,9 +71,9 @@ class ScrapeBatch(models.Model):
 
 
 class Product(TimeStampedModel):
-    product_code = models.CharField(max_length=100)
-    name = models.CharField(max_length=300, unique=False, blank=True, null=True)
-    brand = models.CharField(max_length=100, blank=True, null=True)
+    product_code = models.CharField(max_length=500)
+    name = models.CharField(max_length=500, unique=False, blank=True, null=True)
+    brand = models.CharField(max_length=500, blank=True, null=True)
 
     # TODO: Make batch field required upon instantiation once we move towards a more production-ready version of FLAIME
     batch = models.ForeignKey(ScrapeBatch, on_delete=models.CASCADE, blank=True, null=True)
@@ -85,12 +84,17 @@ class Product(TimeStampedModel):
         ('AMAZON', 'Amazon')
     )
     store = models.CharField(max_length=7, choices=VALID_STORES)
-    price = models.CharField(max_length=15, blank=True, null=True)
-    upc_code = models.CharField(max_length=100, blank=True, null=True)
-    manufacturer = models.CharField(max_length=100, blank=True, null=True)  # e.g. from Amazon technical details
+    price = models.CharField(max_length=200, blank=True, null=True)
+    price_float = models.FloatField(blank=True, null=True)
+    price_units = models.CharField(max_length=20, blank=True, null=True)
+    upc_code = models.CharField(max_length=500, blank=True, null=True)
+    manufacturer = models.CharField(max_length=500, blank=True, null=True)  # e.g. from Amazon technical details
     nutrition_available = models.BooleanField(blank=True, null=True)
-    url = models.URLField(blank=True, null=True)
+    url = models.URLField(max_length=1000, blank=True, null=True)
     scrape_date = models.DateTimeField(auto_now_add=True)
+
+    # Note that this is also preesent in NutritionFacts -> this one should take priority
+    ingredients = models.TextField(blank=True, null=True)
 
     history = HistoricalRecords()
 
@@ -100,6 +104,9 @@ class Product(TimeStampedModel):
     class Meta:
         verbose_name = 'Product'
         verbose_name_plural = 'Products'
+        indexes = [
+            models.Index(fields=['product_code'])
+        ]
 
 
 class NutritionFacts(TimeStampedModel):
@@ -113,6 +120,8 @@ class NutritionFacts(TimeStampedModel):
         ('mL', 'millilitres')
     )
     serving_size_units = models.CharField(max_length=11, choices=SERVING_SIZE_UNITS, blank=True, null=True)
+
+    # TODO: Delete this field and move all old data to Product.ingredients
     ingredients = models.TextField(blank=True, null=True)
 
     # Nutrients
@@ -265,61 +274,84 @@ class LoblawsProduct(TimeStampedModel):
 
     # This data was scraped from Loblaws with Selenium
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name="loblaws_product")
-    subcategory = models.CharField(max_length=100, blank=True, null=True)
-    section = models.CharField(max_length=100, blank=True, null=True)
+    subcategory = models.CharField(max_length=300, blank=True, null=True)
+    section = models.CharField(max_length=300, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    image_directory = models.CharField(max_length=1000, blank=True, null=True)  # TODO: Consider implementing upload_to
-    breadcrumbs = models.CharField(max_length=300, blank=True, null=True)
-
-    """
-    TODO:
-    
-    Create methods within this model to load the Loblaws product JSON retrieved from the API into api_data,
-    then create methods that will populate the remaining fields (e.g. product name, brand, price, description, etc.)
-    
-    This will become more complex for images (which must be downloaded) and nutrition facts (which must be parsed)
-    """
+    # TODO: Implement upload_to for image_directory because right now the paths are stored as straight up strings
+    #  including the root. This is not portable at all and will cause issues whenever the server migration occurs.
+    image_directory = models.CharField(max_length=1200, blank=True, null=True)
+    upc_list = ArrayField(models.CharField(max_length=300), blank=True, null=True)
+    breadcrumbs_text = models.CharField(max_length=600, blank=True, null=True)
+    breadcrumbs_array = ArrayField(models.CharField(max_length=300), blank=True, null=True)
+    nutrition_facts_json = JSONField(blank=True, null=True)
 
     # This JSON data is retrieved from the API. See flaim.data_loaders.loblaws.product_detail_api.py
     api_data = JSONField(blank=True, null=True)
 
-    def save(self, *args, **kwargs):
-        """
-        Override the save method to autopopulate fields extracted from api_data
-
-        """
+    def json_to_fields(self):
         if self.api_data is not None:
-            self.breadcrumbs = ",".join(self.get_breadcrumbs())
+            self.breadcrumbs_array = self.get_breadcrumbs()
             self.description = self.get_description()
-        super(LoblawsProduct, self).save(*args, **kwargs)
+            self.upc_list = self.get_upc_list()
+            self.nutrition_facts_json = self.get_nutrition_facts()
+            self.save()
+
+            self.product.store = 'LOBLAWS'
+            self.product.name = self.get_name()
+            self.product.upc_code = self.get_upc_list()[0]
+            self.product.brand = self.get_brand()
+            self.product.ingredients = self.get_ingredients()
+            self.product.price_float, self.product.price_units = self.get_price()
+            self.product.url = self.get_link()
+            self.product.save()
 
     @safe_run
     def get_name(self) -> str:
-        return self.api_data['name']
+        """ Returns plain text; every product should have a name value """
+        return self.api_data['name'].strip()
+
+    @safe_run
+    def get_brand(self) -> str:
+        """ Returns plain text """
+        return self.api_data['brand'].strip()
 
     @safe_run
     def get_description(self) -> str:
-        return self.api_data['description']
+        """ Return the product description, often including HTML tags as well as plain text """
+        return self.api_data['description'].strip()
+
+    @safe_run
+    def get_all_image_urls(self) -> list:
+        """ This will retrieve ALL of the image urls associated with the product; more than we need """
+        return self.api_data['imageAssets']
+
+    @safe_run
+    def get_large_image_urls(self):
+        """ This is typically the image data we want to retrieve per product """
+        images = [x['largeUrl'] for x in self.api_data['imageAssets']]
+        return images
 
     @safe_run
     def get_package_size(self) -> str:
-        return self.api_data['packageSize']
+        return self.api_data['packageSize'].strip()
 
     @safe_run
     def get_link(self) -> str:
-        return 'https://www.loblaws.ca' + self.api_data['link']
+        """ Returns the link to the product on the Loblaws domain; no guarantee the link is still accurate/active """
+        return 'https://www.loblaws.ca' + self.api_data['link'].strip()
 
     @safe_run
-    def get_price(self) -> str:
-        return self.api_data['prices']['price']['value']
+    def get_price(self) -> (int, str):
+        """ Concatenates the price and unit values to produce something like '$6.99 ea' """
+        return float(self.api_data['prices']['price']['value']), self.api_data['prices']['price']['unit']
 
     @safe_run
     def get_country_of_origin(self) -> str:
-        return self.api_data['countryOfOrigin']
+        return self.api_data['countryOfOrigin'].strip()
 
     @safe_run
     def get_ingredients(self) -> str:
-        return self.api_data['ingredients']
+        return self.api_data['ingredients'].strip()
 
     @safe_run
     def get_nutrition_facts(self):
@@ -358,6 +390,8 @@ class LoblawsProduct(TimeStampedModel):
         '''
         nutrition_heading = nutrition_facts['nutritionHeading']
 
+        return nutrition_facts
+
     @safe_run
     def get_nutrition_facts_list(self):
         # TODO: Figure out what this field is used for, comes up as empty list mostly?
@@ -365,11 +399,11 @@ class LoblawsProduct(TimeStampedModel):
 
     @safe_run
     def get_health_tips(self) -> str:
-        return self.api_data['healthTips']
+        return self.api_data['healthTips'].strip()
 
     @safe_run
     def get_safety_tips(self) -> str:
-        return self.api_data['safetyTips']
+        return self.api_data['safetyTips'].strip()
 
     @safe_run
     def get_breadcrumbs(self) -> list:
@@ -378,20 +412,20 @@ class LoblawsProduct(TimeStampedModel):
                     [Food, Fruits & Vegetables, Fruit, Apples]
         """
         breadcrumbs = self.api_data['breadcrumbs']
-        breadcrumb_names = [x.name for x in breadcrumbs]
+        breadcrumb_names = [x['name'].strip() for x in breadcrumbs]
         return breadcrumb_names
 
     @safe_run
     def get_upc_list(self) -> list:
-        return self.api_data['upcs']
+        return [x.strip() for x in self.api_data['upcs']]
 
     @safe_run
     def get_average_weight(self) -> str:
-        return self.api_data['averageWeight']
+        return self.api_data['averageWeight'].strip()
 
     @safe_run
     def get_nutrition_disclaimer(self) -> str:
-        return self.api_data['productNutritionDisclaimer']
+        return self.api_data['productNutritionDisclaimer'].strip()
 
     def __str__(self):
         return f"{self.product.product_code}: {self.product.name}"
@@ -399,6 +433,9 @@ class LoblawsProduct(TimeStampedModel):
     class Meta:
         verbose_name = 'Loblaws Product'
         verbose_name_plural = 'Loblaws Products'
+        indexes = [
+            models.Index(fields=['product'])
+        ]
 
     history = HistoricalRecords()
 
@@ -454,7 +491,7 @@ class AmazonSearchResult(TimeStampedModel):
         Stores information on the search page that a particular product showed up on
     """
     product = models.ForeignKey(AmazonProduct, on_delete=models.CASCADE, related_name="amazon_search_result")
-    search_string = models.CharField(max_length=200)  # Search string used to generate results
+    search_string = models.CharField(max_length=500)  # Search string used to generate results
     page = models.IntegerField()  # Page that the product showed up on
     item_number = models.IntegerField()  # Of products shown on search page, tracks the index of the product (i.e. 2nd)
 
@@ -486,7 +523,7 @@ class ProductImage(TimeStampedModel):
         Model to store relationship between a Product and a path to a product image
     """
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="product_image")
-    image_path = models.ImageField(upload_to=upload_product_image, unique=True, max_length=1000)
+    image_path = models.ImageField(upload_to=upload_product_image, unique=True, max_length=1200)
     image_number = models.IntegerField(blank=True, null=True)  # Order of the image in a set for a product
 
     def __str__(self):

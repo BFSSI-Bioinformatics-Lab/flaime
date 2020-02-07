@@ -34,14 +34,30 @@ def populate_api_data(product_json: Path) -> bool:
         obj.save()
         data = read_json(product_json)
         obj_, created_ = LoblawsProduct.objects.get_or_create(product=obj)
-        obj_.save()
         obj_.api_data = data
         obj_.save()
+        obj_.json_to_fields()
+        print(f'Created record for {product_code}')
     else:
         print(f"JSON data already exists for {product_code}")
     return created
 
 
 if __name__ == "__main__":
-    products = Product.objects.all()
-    print(products[0])
+    json_files = list(DATADIR.glob("*.json"))
+    for j in json_files:
+        populate_api_data(j)
+
+    # Price updates
+    for x in LoblawsProduct.objects.all():
+        if x.api_data:
+            x.product.price_value, x.product.price_units = x.get_price()
+            x.product.save()
+
+    # Breadcrumbs updates
+    for x in LoblawsProduct.objects.all():
+        breadcrumbs = x.get_breadcrumbs()
+        x.breadcrumbs_array = breadcrumbs
+        x.breadcrumbs_text = ",".join(breadcrumbs)
+        x.save()
+

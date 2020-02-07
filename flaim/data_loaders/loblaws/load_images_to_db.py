@@ -14,7 +14,10 @@ if __name__ == "__main__":
     image_dirs = list(Path("/home/forest/PycharmProjects/flaim/flaim/media/LOBLAWS/20200206").glob('*'))
     for d in image_dirs:
         product_code = d.name
-        product = Product.objects.get(product_code=product_code)
+        try:
+            product = Product.objects.get(product_code=product_code)
+        except:
+            continue
         loblaws_product = LoblawsProduct.objects.get(product__product_code=product_code)
 
         # Update image directory

@@ -6,7 +6,7 @@ from django.template.defaulttags import register
 @register.filter
 def format_dv(val):
     # Since dv values are stored from 0 to 1 in the database, *100 and append "%" to make values more readable
-    if val is not None:
+    if val is not None and val is not '':
         return f"{int(val * 100)} %"
     else:
         return ""
@@ -15,7 +15,7 @@ def format_dv(val):
 @register.filter
 def format_nutrient_value(val):
     # Since the data is stored strictly as g in the database; if the value is less than 1, convert to milligrams
-    if val is not None:
+    if val is not None and val is not '':
         if val < 1:
             return f"{int(val * 1000)} mg"
         else:

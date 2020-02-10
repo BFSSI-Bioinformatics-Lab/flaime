@@ -93,9 +93,6 @@ class Product(TimeStampedModel):
     url = models.URLField(max_length=1000, blank=True, null=True)
     scrape_date = models.DateTimeField(auto_now_add=True)
 
-    # Note that this is also preesent in NutritionFacts -> this one should take priority
-    ingredients = models.TextField(blank=True, null=True)
-
     history = HistoricalRecords()
 
     def __str__(self):
@@ -111,9 +108,10 @@ class Product(TimeStampedModel):
 
 class NutritionFacts(TimeStampedModel):
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name="nutrition_facts")
-    total_size = models.CharField(max_length=100, blank=True, null=True)
-    serving_size_raw = models.CharField(max_length=100, blank=True, null=True)
-    serving_size = models.IntegerField(blank=True, null=True)
+    total_size = models.CharField(max_length=200, blank=True,
+                                  null=True)  # Should be serving_size * # of servings in product
+    serving_size_raw = models.CharField(max_length=200, blank=True, null=True)  # Unparsed serving size text
+    serving_size = models.IntegerField(blank=True, null=True)  # Parsed numeric serving size value
 
     SERVING_SIZE_UNITS = (
         ('g', 'grams'),
@@ -121,45 +119,46 @@ class NutritionFacts(TimeStampedModel):
     )
     serving_size_units = models.CharField(max_length=11, choices=SERVING_SIZE_UNITS, blank=True, null=True)
 
-    # TODO: Delete this field and move all old data to Product.ingredients
     ingredients = models.TextField(blank=True, null=True)
 
-    # Nutrients
+    # Nutrients - units should always be represented as grams
     calories = models.IntegerField(blank=True, null=True)
     sodium = models.FloatField(blank=True, null=True)
     sodium_dv = models.FloatField(blank=True, null=True)
     calcium = models.FloatField(blank=True, null=True)
     calcium_dv = models.FloatField(blank=True, null=True)
-    total_fat = models.FloatField(blank=True, null=True)
-    total_fat_dv = models.FloatField(blank=True, null=True)
+    totalfat = models.FloatField(blank=True, null=True)
+    totalfat_dv = models.FloatField(blank=True, null=True)
     monounsaturated_fat = models.FloatField(blank=True, null=True)
     polyunsaturated_fat = models.FloatField(blank=True, null=True)
-    saturated_fat = models.FloatField(blank=True, null=True)
-    saturated_fat_dv = models.FloatField(blank=True, null=True)
-    trans_fat = models.FloatField(blank=True, null=True)
-    trans_fat_dv = models.FloatField(blank=True, null=True)
+    omega3fattyacids = models.FloatField(blank=True, null=True)
+    saturatedfat = models.FloatField(blank=True, null=True)
+    saturatedfat_dv = models.FloatField(blank=True, null=True)
+    transfat = models.FloatField(blank=True, null=True)
+    transfat_dv = models.FloatField(blank=True, null=True)
     potassium = models.FloatField(blank=True, null=True)
     potassium_dv = models.FloatField(blank=True, null=True)
-    total_carbohydrate = models.FloatField(blank=True, null=True)
-    total_carbohydrate_dv = models.FloatField(blank=True, null=True)
-    dietary_fibre = models.FloatField(blank=True, null=True)
-    dietary_fibre_dv = models.FloatField(blank=True, null=True)
-    sugars = models.FloatField(blank=True, null=True)
-    sugars_dv = models.FloatField(blank=True, null=True)
+    totalcarbohydrate = models.FloatField(blank=True, null=True)
+    totalcarbohydrate_dv = models.FloatField(blank=True, null=True)
+    othercarbohydrates = models.FloatField(blank=True, null=True)
+    dietaryfiber = models.FloatField(blank=True, null=True)
+    dietaryfiber_dv = models.FloatField(blank=True, null=True)
+    sugar = models.FloatField(blank=True, null=True)
+    sugar_dv = models.FloatField(blank=True, null=True)
     protein = models.FloatField(blank=True, null=True)
     cholesterol = models.FloatField(blank=True, null=True)
-    vitamin_a = models.FloatField(blank=True, null=True)
-    vitamin_a_dv = models.FloatField(blank=True, null=True)
-    vitamin_c = models.FloatField(blank=True, null=True)
-    vitamin_c_dv = models.FloatField(blank=True, null=True)
-    vitamin_d = models.FloatField(blank=True, null=True)
-    vitamin_e = models.FloatField(blank=True, null=True)
+    vitamina = models.FloatField(blank=True, null=True)
+    vitamina_dv = models.FloatField(blank=True, null=True)
+    vitaminc = models.FloatField(blank=True, null=True)
+    vitaminc_dv = models.FloatField(blank=True, null=True)
+    vitamind = models.FloatField(blank=True, null=True)
+    vitamine = models.FloatField(blank=True, null=True)
     niacin = models.FloatField(blank=True, null=True)
-    vitamin_b6 = models.FloatField(blank=True, null=True)
+    vitaminb6 = models.FloatField(blank=True, null=True)
     folacin = models.FloatField(blank=True, null=True)
     folate = models.FloatField(blank=True, null=True)
-    vitamin_b12 = models.FloatField(blank=True, null=True)
-    pantothenic_acid = models.FloatField(blank=True, null=True)
+    vitaminb12 = models.FloatField(blank=True, null=True)
+    pantothenicacid = models.FloatField(blank=True, null=True)
     pantothenate = models.FloatField(blank=True, null=True)
     alcohol = models.FloatField(blank=True, null=True)
     carbohydrate = models.FloatField(blank=True, null=True)
@@ -185,23 +184,94 @@ class NutritionFacts(TimeStampedModel):
 
     history = HistoricalRecords()
 
+    def load_ingredients(self, api_data: dict):
+        self.ingredients = api_data['ingredients']
+        self.save()
+
+    def load_total_size(self, api_data: dict):
+        self.total_size = api_data['packageSize']
+        self.save()
+
+    def load_loblaws_nutrition_facts_json(self, loblaws_nutrition: dict):
+        """
+        Given LoblawsProduct.nutrition_facts_json field, will parse out all nutrients and dump data into this model
+        """
+        # Grab nutrients available in the NutritionFacts model
+        nutritionfacts_model = NutritionFacts()
+        nutrition_facts_attributes = list(vars(nutritionfacts_model))
+
+        # Parse food labels (serving size, calories, calories from fat?).
+        # Loop over and validate code to ensure we get the right data.
+        if 'foodLabels' in loblaws_nutrition:
+            for item in loblaws_nutrition['foodLabels']:
+                if item['code'] == 'perservesizeamt':
+                    self.serving_size_raw = item['valueInGram'].strip()
+                    self.serving_size_units = self.__detect_units(self.serving_size_raw.lower())
+                if item['code'] == 'calories':
+                    # This is the correct key; just seems to be a naming error in the API
+                    self.calories, unit = self.__extract_number_from_nutrient(item['valueInGram'])
+
+        # Parse the nutrientsPerServing, micronutrients, and subNutrients sections. Flatten into a 1-D list.
+        nutrient_json = loblaws_nutrition['nutrientsPerServing'] + loblaws_nutrition['micronutrients']
+        for n in nutrient_json:
+            if n['subNutrients'] is not None:
+                nutrient_json += n['subNutrients']
+
+        # Verify that expected nutrient keys are present, extract matching model values
+        nutrient_error_detected = False
+        if any(x in ('nutrientsPerServing', 'micronutrients') for x in loblaws_nutrition):
+            for n in nutrient_json:
+                nutrient = n['code']
+                if nutrient in nutrition_facts_attributes:  # Attributes for the NutritionFacts model
+                    # Actual nutrient value
+                    if n['valueInGram']:
+                        try:
+                            val, unit = self.__extract_number_from_nutrient(n['valueInGram'])
+                            setattr(self, nutrient, val)
+                        except TypeError as e:
+                            nutrient_error_detected = True
+
+                    # Percent DV
+                    if n['valuePercent']:
+                        try:
+                            val, unit = self.__extract_number_from_nutrient(n['valuePercent'])
+                            setattr(self, (nutrient + '_dv'), val)
+                        except TypeError as e:
+                            nutrient_error_detected = True
+
+        if nutrient_error_detected:
+            print(f'Detected an error for {self.product} when parsing nutrition facts')
+
+        self.save()
+
     @staticmethod
-    def detect_units(val: str) -> Optional[str]:
+    def __detect_units(val: str) -> Optional[str]:
         """
-        Method to detect units in a nutrient value string.
+        Method to detect units in a nutrient value string. Expects .lower() to be calleded on the input value already
+
+        TODO: This is a super fragile implementation. The order of the if statements is very important, and there is
+            some sketchy implicit logic that isn't clear, e.g. `if 'k' in val` covers both 'kCal' and 'k', and will
+            then split on 'k' to extract the numeric value
+
         :param val: string for nutrient value e.g. 30 g, 50 cal, 500 mg,  etc.
-        :return: string containing units for input value
+        :return: string containing units for input value - this is the value that will be split on when extracting
+                numeric values
         """
+        if any(x in ['<', '>', '<=', '>='] for x in val):  # This junk shows up on rare occasions - ignore it
+            return None
         # Milligrams
-        if 'mg' in val:
+        elif 'mg' in val:
             return 'mg'
         elif 'milligrams' in val:
             return 'milligrams'
-        # Calories
-        elif 'calories' in val:
-            return 'calories'
-        elif 'Cal' in val:
-            return 'Cal'
+        # mL / millilitres
+        elif 'ml' in val:
+            return 'ml'
+        elif 'millilitres' in val:
+            return 'millilitres'
+        # calories / cal
+        elif 'k' in val:
+            return 'k'
         elif 'cal' in val:
             return 'cal'
         # % DV
@@ -212,43 +282,58 @@ class NutritionFacts(TimeStampedModel):
         # Grams
         elif 'g' in val or 'grams' in val:
             return 'g'
+        elif 'l' in val or 'litres' in val:
+            return 'l'
         else:
             print(f"WARNING: Could not detect any units in value ({val})")
             return None
 
-    def extract_number_from_nutrient(self, val: str) -> Union[tuple, None]:
+    def __extract_number_from_nutrient(self, val: str) -> Union[tuple, None]:
         """
         Given an input nutrient string, will return the float value while handling unit conversion if necessary
         """
+        if val is None:
+            return None
+
+        # Check to see if the units are missing, but there is a numeric value. Just toss the data in this case.
+        if val.isnumeric():
+            return None
+
         # Grab the units from the nutrient string
-        nutrient_type = self.detect_units(val)
+        val = val.lower()
+        nutrient_type = self.__detect_units(val)
         if nutrient_type is None:
             return None
 
         # Grab the numeric float value from the string
-        nutrient_float = float(val.split(nutrient_type)[0].strip())
+        try:
+            nutrient_float = float(val.split(nutrient_type)[0].strip())
+        except ValueError as e:
+            print(val)
+            print(nutrient_type)
+            raise e
 
         # Grams & Milligrams (normalizes everything into grams)
         if nutrient_type == 'g':
             return nutrient_float, 'g'
         elif nutrient_type == 'mg' or nutrient_type == "milligrams":
-            return self.convert_milligrams_to_grams(nutrient_float), 'g'
+            return self.__convert_milligrams_to_grams(nutrient_float), 'g'
 
         # Percent DV (values on nutrition labels are integers ranging from 0% -> n%, so we convert to float)
         if nutrient_type == "dv" or nutrient_type == "%":
             return float(nutrient_float / 100), '%'
 
         # Calories
-        if nutrient_type == "cal" or nutrient_type == "Cal" or nutrient_type == "calories":
+        if nutrient_type == "cal" or nutrient_type == "calories" or nutrient_type == "k":
             return int(nutrient_float), 'cal'
         return None
 
     @staticmethod
-    def convert_milligrams_to_grams(val: float) -> float:
+    def __convert_milligrams_to_grams(val: float) -> float:
         return val * 0.001
 
     @staticmethod
-    def valid_nutrient(nutrient: str) -> bool:
+    def __valid_nutrient(nutrient: str) -> bool:
         # Grab list of attributes
         if nutrient in VALID_NUTRIENT_COLUMNS:
             print(f"Detected '{nutrient}'")
@@ -274,8 +359,6 @@ class LoblawsProduct(TimeStampedModel):
 
     # This data was scraped from Loblaws with Selenium
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name="loblaws_product")
-    subcategory = models.CharField(max_length=300, blank=True, null=True)
-    section = models.CharField(max_length=300, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     # TODO: Implement upload_to for image_directory because right now the paths are stored as straight up strings
     #  including the root. This is not portable at all and will cause issues whenever the server migration occurs.

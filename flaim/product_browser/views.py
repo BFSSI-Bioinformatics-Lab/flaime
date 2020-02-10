@@ -20,7 +20,10 @@ class ProductView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Get image paths for the product. This is pretty gross and should be refactored. TODO: Make this not terrible
+        # Get image paths for the product. This is pretty gross and should be refactored.
+        # TODO: Make this not terrible. Currently will raise an exception on product detail pages if it can't
+        #  find an image directory. Fixing this requires changing the LoblawsProduct.image_directory field to be a
+        #  legit FileField instead of a CharField
         images = list(Path(context['product'].loblaws_product.image_directory).glob("*"))
         images = [x for x in images if x.is_file()]
         images_formatted = [str(x).replace(settings.MEDIA_ROOT, settings.MEDIA_URL[:-1]) for x in images]

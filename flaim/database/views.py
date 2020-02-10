@@ -25,8 +25,7 @@ class ProductViewSet(viewsets.ModelViewSet):
                        rest_framework_datatables.filters.DatatablesFilterBackend,
                        filters.SearchFilter
                        ]
-    filterset_fields = ('name', 'store', 'product_code', 'brand',
-                        'loblaws_product__section', 'loblaws_product__subcategory')
+    filterset_fields = ('name', 'store', 'product_code', 'brand')
     search_fields = ['name', 'store', 'brand']
 
 

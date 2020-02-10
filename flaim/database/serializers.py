@@ -11,8 +11,10 @@ class LoblawsProductSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = models.LoblawsProduct
-        # fields = '__all__'
-        fields = ('id', 'section', 'subcategory', 'url', 'description', 'image_directory')
+        fields = (
+            'id', 'url', 'description',
+            'image_directory', 'breadcrumbs_array', 'upc_list'
+        )
 
 
 class WalmartProductSerializer(serializers.HyperlinkedModelSerializer):

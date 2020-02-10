@@ -38,6 +38,9 @@
           $.fn.dataTable.render.hyperlink_url = function () {
               // Custom render method to hyperlink a row value
               return function (data, type, row) {
+                  if (data === null) {
+                      return null
+                  }
                   if (type === 'display') {
                       let str = data.toString(); // cast numbers
                       return '<a href="' + data + '"> Link</a>'
@@ -50,6 +53,9 @@
           $.fn.dataTable.render.link_to_id = function () {
               // Custom render method to hyperlink a row value
               return function (data, type, row) {
+                  if (data === null) {
+                      return null
+                  }
                   if (type === 'display') {
                       let id = data.toString(); // cast numbers
                       let store = row.store.toString().toLowerCase();
@@ -65,7 +71,7 @@
           $(document).ready(function () {
               var table = $('#products').DataTable({
                   "serverSide": true,
-                  "processing": true,
+                  "processing": false,
                   "ajax": "/api/products/?format=datatables",
                   "columns": [
                       {"data": "id", "render": $.fn.dataTable.render.link_to_id()},

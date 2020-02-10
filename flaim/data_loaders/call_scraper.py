@@ -6,8 +6,12 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.local")
 django.setup()
 
 from pathlib import Path
-from django.conf import settings
 from flaim.data_loaders.loblaws_scraper import run_loblaws_scraper
+
+
+"""
+NOTE: Deprecated. Using the undocumented API instead of scraping now.
+"""
 
 
 def enqueue_loblaws_scraper(url: str, outdir: Path, filter_keyword: str = None, load_into_db: bool = True,
@@ -99,7 +103,7 @@ if __name__ == "__main__":
                 url=url,
                 outdir=natural_health_products,
                 load_into_db=False,
-                dump_to_csv=True)
+                dump_to_csv=False)
         except Exception as e:
             print(f"Failed on {url} for some reason - moving to next URL")
             print(e)

@@ -25,8 +25,9 @@ STATIC_ROOT = settings.STATIC_ROOT
 MEDIA_ROOT = settings.MEDIA_ROOT
 
 """
-TODO: 
+NOTE: This script is deprecated for now. We can just directly access the (undocumented) API rather than scraping.
 
+TODO: 
 -   Upon 400 Bad Request, close the browser window. 
     Example bad URL: https://www.loblaws.ca/Home-%26-Lifestyle/Medicine-%26-Health/Allergy-%26-Sinus/Allergy-%26-Sinus-Medicine/Jamieson-Multi-Vitamins%2C-100%-Complete%2C-Women-50-/p/20946029_EA
 
@@ -46,14 +47,12 @@ class RecordExists(Exception):
 
 def safe_run(func):
     """ Decorator to run a method wrapped in a try/except -> returns None upon exception """
-
     def func_wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
         except Exception as e:
             print(e)
             return None
-
     return func_wrapper
 
 
@@ -562,7 +561,7 @@ def nutrition_dict_to_nutrition_facts_instance(product_page: ProductPage,
         nutrient = nutrient.lower().replace(" ", "_").replace(".", "")
 
         # Make sure the nutrient is something we're expecting
-        if nutrition_facts_instance.valid_nutrient(nutrient):
+        if nutrition_facts_instance.__valid_nutrient(nutrient):
 
             # Parse out DV from regular value
             nutrient_dv_raw = None
@@ -578,12 +577,12 @@ def nutrition_dict_to_nutrition_facts_instance(product_page: ProductPage,
 
             # Set the nutrition_value (e.g. 9g total fat)
             if nutrient_value_raw is not None:
-                nutrient_value, unit = nutrition_facts_instance.extract_number_from_nutrient(nutrient_value_raw)
+                nutrient_value, unit = nutrition_facts_instance.__extract_number_from_nutrient(nutrient_value_raw)
                 setattr(nutrition_facts_instance, nutrient, nutrient_value)
 
             # Set the DV (e.g. 5 %)
             if nutrient_dv_raw is not None:
-                nutrient_value_dv, unit = nutrition_facts_instance.extract_number_from_nutrient(nutrient_dv_raw)
+                nutrient_value_dv, unit = nutrition_facts_instance.__extract_number_from_nutrient(nutrient_dv_raw)
                 setattr(nutrition_facts_instance, f"{nutrient}_dv", nutrient_value_dv)
     return nutrition_facts_instance
 

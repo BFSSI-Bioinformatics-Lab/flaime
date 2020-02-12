@@ -6,6 +6,16 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
+class EagerLoadingMixin:
+    @classmethod
+    def setup_eager_loading(cls, queryset):
+        if hasattr(cls, "_SELECT_RELATED_FIELDS"):
+            queryset = queryset.select_related(*cls._SELECT_RELATED_FIELDS)
+        if hasattr(cls, "_PREFETCH_RELATED_FIELDS"):
+            queryset = queryset.prefetch_related(*cls._PREFETCH_RELATED_FIELDS)
+        return queryset
+
+
 class LoblawsProductSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.ReadOnlyField()
 
@@ -41,16 +51,27 @@ class NutritionFactsSerializer(serializers.HyperlinkedModelSerializer):
         fields = '__all__'
 
 
-class ProductSerializer(serializers.HyperlinkedModelSerializer):
+class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixin):
+    _SELECT_RELATED_FIELDS = ['loblaws_product', ]
+    # _SELECT_RELATED_FIELDS = ['nutrition_facts', ]
+
     id = serializers.ReadOnlyField()
+
     loblaws_product = LoblawsProductSerializer()
-    walmart_product = WalmartProductSerializer()
-    amazon_product = AmazonProductSerializer()
-    nutrition_facts = NutritionFactsSerializer()
+
+    # nutrition_facts = NutritionFactsSerializer()
+
+    # walmart_product = WalmartProductSerializer()
+    # amazon_product = AmazonProductSerializer()
 
     class Meta:
         model = models.Product
-        reverse_relationships = ['loblaws_product', 'walmart_product', 'amazon_product', 'nutrition_facts']
+        reverse_relationships = [
+            'loblaws_product',
+            # 'walmart_product',
+            # 'amazon_product',
+            # 'nutrition_facts'
+        ]
         fields = ['id', 'url', 'created', 'modified', 'product_code', 'name', 'brand', 'store', 'price', 'upc_code',
                   'nutrition_available', 'scrape_date'] + reverse_relationships
 
@@ -70,6 +91,29 @@ class FrontOfPackLabelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.FrontOfPackLabel
         fields = '__all__'
+
+
+class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
+    """
+    Serializer for the Advanced Search app. Provides detailed product info + nutrition facts.
+    """
+    _SELECT_RELATED_FIELDS = ['loblaws_product', 'nutrition_facts']
+
+    id = serializers.ReadOnlyField()
+
+    loblaws_product = LoblawsProductSerializer()
+    nutrition_facts = NutritionFactsSerializer()
+
+    class Meta:
+        model = models.Product
+        reverse_relationships = [
+            'loblaws_product',
+            # 'walmart_product',
+            # 'amazon_product',
+            'nutrition_facts'
+        ]
+        fields = ['id', 'url', 'product_code', 'name', 'brand', 'store', 'price',
+                  'upc_code'] + reverse_relationships
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):

@@ -8,7 +8,7 @@
       <strong>Ingredients</strong>
     </div>
     <ul class="list-group list-group-flush">
-      <li class="list-group-item">{{ product.nutrition_facts.ingredients }}</li>
+      <li class="list-group-item">{{ product.nutrition_facts.ingredients|render_ingredients }}</li>
     </ul>
   </div>
 

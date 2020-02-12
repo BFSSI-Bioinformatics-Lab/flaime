@@ -1,128 +1,71 @@
 {% extends "base.html" %}
 {% block content %}
+    {% block extra_head %}
+      <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css">
+    {% endblock extra_head %}
 
   <div class="container-fluid">
-    <h1>Product Search</h1>
+    <h1>Advanced Product Search</h1>
     <hr>
     <form>
-      <div class="row">
 
-        <div class="col-sm-3">
-          <label for="brandSearch">Brand</label>
-          <div class="form-group ui-widget">
-            <input class=form-control" id="brandSearch">
-          </div>
-        </div>
 
-        <div class="col-sm-2">
-          <div class="form-group">
-            <label for="storeSelect">Store</label>
-            <select class="form-control" id="storeSelect">
-              <option>LOBLAWS</option>
-              <option>WALMART</option>
-              <option>AMAZON</option>
-            </select>
-          </div>
-        </div>
-
-          {#        <div class="col-sm-1">#}
-          {#          <div class="form-group">#}
-          {#            <label for="fopPresentSelect">FOP Label</label>#}
-          {#            <select class="form-control" id="fopPresentSelect">#}
-          {#              <option>N/A</option>#}
-          {#              <option>Yes</option>#}
-          {#              <option>No</option>#}
-          {#            </select>#}
-          {#          </div>#}
-          {#        </div>#}
-
-      </div>
-
-        {# Loblaws Metadata #}
-      <div id="loblawsMetadata" style="display: block">
-
-        <div class="row">
-
-          <div class="col-sm-2">
-            <div class="form-group">
-              <label for="loblawsSection">Section</label>
-              <select class="form-control" style="width:auto" id="loblawsSection">
-                <option>N/A</option>
-                <option>BREAKFAST</option>
-                <option>LUNCH</option>
-                <option>DINNER</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="col-sm-1">
-            <div class="form-group">
-              <label for="loblawsSubcategory">Subcategory</label>
-              <select class="form-control" style="width:auto" id="loblawsSubcategory">
-                <option>N/A</option>
-                <option>KIDS CEREAL</option>
-                <option>EVERYDAY CEREAL</option>
-                <option>OATMEAL & HOT CEREALS</option>
-                <option>HEALTH CEREAL</option>
-              </select>
-            </div>
-          </div>
-
-        </div>
-
-        <div id="walmartMetadata" style="display: none">
-        </div>
-
-        <div id="amazonMetadata" style="display: none">
+      <div>
+        <label for="ingredientSearch">Contains Ingredient</label>
+        <div class="form-group ui-widget">
+          <input class=form-control" id="ingredientSearch">
         </div>
       </div>
+
+      <div>
+        <label for="nameSearch">Name</label>
+        <div class="form-group ui-widget">
+          <input class=form-control" id="nameSearch">
+        </div>
+      </div>
+
       <button type="button" class="btn btn-primary search-button" onclick="searchDatabase()">Search</button>
+
     </form>
 
     <hr>
     <div>
-      <p>Found <span class="number-search-results">0</span> products.</p>
+      <p>Found <span id="nSearchResults">0</span> products.</p>
     </div>
-    <div class="table table-sm table-striped results-table" style="width:auto">
-      <table>
+    <div class="table table-sm table-striped" style="width:auto">
+      <table id="resultsTable">
         <thead>
         <tr>
-          <th>Link</th>
+          <th>Code</th>
           <th>Name</th>
-          <th>Brand</th>
-          <th>Product Code</th>
-          <th>Section</th>
-          <th>Subcategory</th>
+          <th>Ingredients</th>
         </tr>
         </thead>
         <tbody class="results-body">
         <tr class="result-row">
           <td></td>
           <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
         </tr>
         </tbody>
       </table>
     </div>
-    <button class="btn btn-success">Export Data</button>
-
 
   </div>
     {% block product_javascript %}
-      <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-      <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+      <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+      <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+      <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"></script>
+      <script src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js"></script>
+      <script src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.bootstrap4.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+      <script src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>
+      <script src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.print.min.js"></script>
 
       <script>
           $(document).ready(function () {
-              // Hide the metadata search elements initially
-              $("#walmartMetadata").hide();
-              $("#amazonMetadata").hide();
-              $("#loblawsMetadata").show();
-
               // Prevent enter key from submitting the form
               $('form input').keydown(function (e) {
                   if (e.keyCode == 13) {
@@ -131,78 +74,42 @@
                       return false;
                   }
               });
-          });
 
-          {# Populate available brands for autocomplete #}
-          $(function () {
-              let availableBrands = {{ brand_json|safe }};
-              $("#brandSearch").autocomplete({
-                  source: availableBrands
-              });
-          });
-
-          {# Change the available metadata filters depending on selected store #}
-          $("#storeSelect").change(function () {
-              let currently_selected_store = $(this).find("option:selected").text();
-              if (currently_selected_store === "LOBLAWS") {
-                  $("#walmartMetadata").hide();
-                  $("#amazonMetadata").hide();
-                  $("#loblawsMetadata").show();
-              } else if (currently_selected_store === "AMAZON") {
-                  $("#walmartMetadata").hide();
-                  $("#loblawsMetadata").hide();
-                  $("#amazonMetadata").show();
-
-              } else {
-                  $("#amazonMetadata").hide();
-                  $("#loblawsMetadata").hide();
-                  $("#walmartMetadata").show();
-
-              }
           });
 
           function searchDatabase() {
-              // Select text from search elements on webpage -> pass vars to API for filtering
-              let brand = $("#brandSearch").val().replace(" ", "+");
-              let store = $("#storeSelect").find("option:selected").text().replace(" ", "+");
-              let loblaws_section = $("#loblawsSection").find("option:selected").text().replace(" ", "+").replace("N/A", "");
-              let loblaws_subcategory = $("#loblawsSubcategory").find("option:selected").text().replace(" ", "+").replace("N/A", "");
+              const base_url = `/api/advanced_product/?format=datatables&`;
 
+              let searchData = {
+                  ingredients_contains: $("#ingredientSearch").val(),
+                  name_contains: $("#nameSearch").val(),
+              };
 
-              // /api/products/?name=&store=&product_code=&brand=GENERAL+MILLS&loblaws_product__section=&loblaws_product__subcategory=
+              console.log(searchData);
 
-              let base_url = `/api/products?brand=${brand}&loblaws_product__section=${loblaws_section}&loblaws_product__subcategory=${loblaws_subcategory}`;
-              console.log(base_url);
+              // Filter out empty keys to simplify the query we pass to the API
+              Object.keys(searchData).forEach((key) => (searchData[key] === '') && delete searchData[key]);
+              console.log(searchData);
 
+              const searchParams = new URLSearchParams(searchData);
 
-              axios.get(base_url)
-                  .then(function (response) {
-                      let results = response.data.results;
-                      console.log(results);
+              let table = $('#resultsTable').DataTable({
+                  "serverSide": true,
+                  "processing": false,
+                  "buttons": ['copy', 'excel', 'pdf'],
+                  "destroy": true,
+                  "dom": 'Bfrtip',
+                  "paging": true,
+                  "ajax": base_url + searchParams.toString(),
+                  "columns": [
+                      {"data": "product_code"},
+                      {"data": "name"},
+                      {"data": "nutrition_facts.ingredients",  "defaultContent": ""},
 
-                      // Update number-search-results
-                      let number_search_results = results.length;
-                      $(".number-search-results").text(number_search_results);
-
-                      // Select all existing rows and remove them
-                      $('.result-row').remove();
-
-                      // Create new rows for each object
-                      results.forEach(function (val) {
-                          $('.results-body').append(`<tr class='result-row'>
-                                                     <td><a href="/product_browser/${val.id}">Detail</a></td>
-                                                     </td><td>${val.name}</td><td>${val.brand}</td>
-                                                     <td>${val.product_code}</td>
-                                                     <td>${val.loblaws_product.section}</td>
-                                                     <td>${val.loblaws_product.subcategory}</td>
-                                                     </tr>`)
-                      });
-
-                  })
-                  .catch(function (error) {
-                      console.log(error);
-                  });
+                  ]
+              });
           }
+
       </script>
     {% endblock %}
   <br>

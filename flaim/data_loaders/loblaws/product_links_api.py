@@ -63,7 +63,7 @@ if __name__ == "__main__":
     # Iterate over each subcategory and simulate clicking through every page to get all product codes
     for subcategory in subcategories:
         collect_data = True
-        page_number = 0
+        page_number = -1
         while collect_data:
             print(f'Working on {subcategory} - page {page_number}')
             page_number += 1

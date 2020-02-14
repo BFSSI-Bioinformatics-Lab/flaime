@@ -9,7 +9,7 @@ from django.db.models import Q
 from flaim.database import models
 from flaim.database import serializers
 from django.contrib.auth import get_user_model
-
+from flaim.database.nutrient_coding import VALID_NUTRIENT_COLUMNS
 from rest_framework.pagination import PageNumberPagination
 
 User = get_user_model()
@@ -63,14 +63,30 @@ class AdvancedProductViewSet(viewsets.ReadOnlyModelViewSet):
         # # Check for ?ingredients_contains={ingredient} parameter, and filter results if necessary
         ingredients_contains = query_params.get('ingredients_contains', None)
         name_contains = query_params.get('name_contains', None)
+        brand_contains = query_params.get('brand_contains', None)
+        # description_contains = query_params.get('description_contains', None)  # TODO: Currently stored in loblaws model, but should be moved to product
         queryset = models.Product.objects.all()
 
+        print(query_params)
+        valid_dv_nutrients = [x for x in VALID_NUTRIENT_COLUMNS if '_dv' in x]
+        for nutrient in valid_dv_nutrients:
+            if nutrient in dict(query_params):
+                min_, max_ = dict(query_params)[nutrient][0].split(',')
+                if min_ == 0 and max_ == 1:
+                    break
+                filter_ = f'nutrition_facts__{nutrient}__range'
+                print(filter_)
+                queryset = queryset.filter(**{filter_: (min_, max_)})
+                # print(f'{n}: {min_} - {max_}')
+
         if ingredients_contains:
-            print('Searching ingredients')
             queryset = queryset.filter(nutrition_facts__ingredients__icontains=ingredients_contains)
         if name_contains:
-            print('Searching names')
             queryset = queryset.filter(name__icontains=name_contains)
+        if brand_contains:
+            queryset = queryset.filter(brand__icontains=brand_contains)
+        # if description_contains:
+        #     queryset = queryset.filter(loblaws_product__description__icontains=description_contains)
 
         # # Return everything by default
         return queryset.order_by('-id')

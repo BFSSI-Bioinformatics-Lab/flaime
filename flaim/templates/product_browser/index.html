@@ -13,12 +13,12 @@
         <table id="products" class="table table-striped table-bordered" style="width:100%">
           <thead>
           <tr>
-            <th>Link</th>
+            <th></th>
             <th>Name</th>
             <th>Brand</th>
             <th>Store</th>
             <th>Product Code</th>
-            <th>URL</th>
+            <th>External URL</th>
             <th>Created</th>
           </tr>
           </thead>
@@ -43,7 +43,7 @@
                   }
                   if (type === 'display') {
                       let str = data.toString(); // cast numbers
-                      return '<a href="' + data + '"> Link</a>'
+                      return '<a href="' + data + '"><i class="fas fa-external-link-alt"></i></a>'
                   }
                   // Search, order and type can use the original data
                   return data;
@@ -58,9 +58,7 @@
                   }
                   if (type === 'display') {
                       let id = data.toString(); // cast numbers
-                      let store = row.store.toString().toLowerCase();
-
-                      return '<a href="/product_browser/' + id + '"> Details</a>'
+                      return '<a href="/product_browser/' + id + '"><i class="fas fa-link"></i></a>'
                   }
                   // Search, order and type can use the original data
                   return data;

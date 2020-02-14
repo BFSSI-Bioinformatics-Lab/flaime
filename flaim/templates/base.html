@@ -55,29 +55,34 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item active">
-          <a class="nav-link" href="{% url 'home' %}">Home <span class="sr-only">(current)</span></a>
+          <a class="nav-link" href="{% url 'home' %}"><i class="fas fa-home"></i> Home <span
+                  class="sr-only">(current)</span></a>
         </li>
           {% if request.user.is_authenticated %}
             <li class="nav-item">
               <a class="nav-link"
-                 href="{% url 'product_browser:index' %}">{% trans "Product Browser" %}</a>
+                 href="{% url 'product_browser:index' %}"><i class="fas fa-table"></i>{% trans " Product Browser" %}</a>
             </li>
             <li class="nav-item">
               <a class="nav-link"
-                 href="{% url 'product_search:index' %}">{% trans "Advanced Product Search" %}</a>
+                 href="{% url 'product_search:index' %}"><i
+                      class="fas fa-search"></i>{% trans " Advanced Product Search" %}</a>
             </li>
             <li class="nav-item">
               <a class="nav-link"
-                 href="{% url 'visualizer:index' %}">{% trans "Data Visualization" %}</a>
+                 href="{% url 'visualizer:index' %}"><i class="fas fa-chart-bar"></i>{% trans " Data Visualization" %}
+              </a>
             </li>
             <li class="nav-item">
                 {# URL provided by django-allauth/account/urls.py #}
               <a class="nav-link"
-                 href="{% url 'users:detail' request.user.username %}">{% trans "My Profile" %}</a>
+                 href="{% url 'users:detail' request.user.username %}"><i
+                      class="fas fa-user"></i>{% trans " My Profile" %}</a>
             </li>
             <li class="nav-item">
                 {# URL provided by django-allauth/account/urls.py #}
-              <a class="nav-link" href="{% url 'account_logout' %}">{% trans "Sign Out" %}</a>
+              <a class="nav-link" href="{% url 'account_logout' %}"><i
+                      class="fas fa-sign-out-alt"></i>{% trans " Sign Out" %}</a>
             </li>
           {% else %}
             <li class="nav-item">
@@ -87,7 +92,8 @@
             </li>
             <li class="nav-item">
                 {# URL provided by django-allauth/account/urls.py #}
-              <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}">{% trans "Sign In" %}</a>
+              <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}"><i
+                      class="fas fa-sign-in-alt"></i>{% trans " Sign In" %}</a>
             </li>
           {% endif %}
       </ul>
@@ -128,6 +134,8 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
           integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
           crossorigin="anonymous"></script>
+
+  <script src="https://kit.fontawesome.com/74ba7275a8.js" crossorigin="anonymous"></script>
 
   <!-- Your stuff: Third-party javascript libraries go here -->
     {#    <script src="{% static 'js/axios.min.js' %}"></script>#}

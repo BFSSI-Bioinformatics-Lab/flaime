@@ -12,7 +12,7 @@ django.setup()
 from flaim.database.models import Product, LoblawsProduct
 
 # TODO: Put this stuff somewhere more permanent, like the media dir?
-DATADIR = Path('/home/forest/loblaws_api/product_data_04022020')
+DATADIR = Path('/home/forest/loblaws_api/product_data_13022020')
 
 
 def read_json(json_file):
@@ -32,7 +32,11 @@ def populate_api_data(product_json: Path) -> bool:
     obj, created = Product.objects.get_or_create(product_code=product_code)
     if created:
         obj.save()
-        data = read_json(product_json)
+        try:
+            data = read_json(product_json)
+        except json.decoder.JSONDecodeError as e:
+            print(f'Skipping product JSON {product_json} due to exception:\n{e}')
+            return False
         obj_, created_ = LoblawsProduct.objects.get_or_create(product=obj)
         obj_.api_data = data
         obj_.save()
@@ -56,8 +60,7 @@ if __name__ == "__main__":
 
     # Breadcrumbs updates
     for x in LoblawsProduct.objects.all():
-        breadcrumbs = x.get_breadcrumbs()
-        x.breadcrumbs_array = breadcrumbs
-        x.breadcrumbs_text = ",".join(breadcrumbs)
+        x.breadcrumbs_array = x.get_breadcrumbs()
+        x.breadcrumbs_text = ",".join(x.breadcrumbs_array)
         x.save()
 

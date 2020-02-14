@@ -78,6 +78,9 @@ class Product(TimeStampedModel):
     # TODO: Make batch field required upon instantiation once we move towards a more production-ready version of FLAIME
     batch = models.ForeignKey(ScrapeBatch, on_delete=models.CASCADE, blank=True, null=True)
 
+    # TODO: Move loblaws_product description field here
+    # product_description = models.TextField(blank=True, null=True)
+
     VALID_STORES = (
         ('LOBLAWS', 'Loblaws'),
         ('WALMART', 'Walmart'),
@@ -144,7 +147,6 @@ class NutritionFacts(TimeStampedModel):
     dietaryfiber = models.FloatField(blank=True, null=True)
     dietaryfiber_dv = models.FloatField(blank=True, null=True)
     sugar = models.FloatField(blank=True, null=True)
-    sugar_dv = models.FloatField(blank=True, null=True)
     protein = models.FloatField(blank=True, null=True)
     cholesterol = models.FloatField(blank=True, null=True)
     vitamina = models.FloatField(blank=True, null=True)
@@ -235,6 +237,10 @@ class NutritionFacts(TimeStampedModel):
                     if n['valuePercent']:
                         try:
                             val, unit = self.__extract_number_from_nutrient(n['valuePercent'])
+                            if unit != '%':
+                                print(f'Error detected for percent DV of {nutrient} -> found {val, unit}. '
+                                      f'Setting values to null.')
+                                val, unit = None, None
                             setattr(self, (nutrient + '_dv'), val)
                         except TypeError as e:
                             nutrient_error_detected = True
@@ -381,7 +387,10 @@ class LoblawsProduct(TimeStampedModel):
 
             self.product.store = 'LOBLAWS'
             self.product.name = self.get_name()
-            self.product.upc_code = self.get_upc_list()[0]
+
+            if self.upc_list is not None:
+                self.product.upc_code = self.get_upc_list()[0]
+
             self.product.brand = self.get_brand()
             self.product.ingredients = self.get_ingredients()
             self.product.price_float, self.product.price_units = self.get_price()
@@ -423,10 +432,14 @@ class LoblawsProduct(TimeStampedModel):
         """ Returns the link to the product on the Loblaws domain; no guarantee the link is still accurate/active """
         return 'https://www.loblaws.ca' + self.api_data['link'].strip()
 
-    @safe_run
     def get_price(self) -> (int, str):
         """ Concatenates the price and unit values to produce something like '$6.99 ea' """
-        return float(self.api_data['prices']['price']['value']), self.api_data['prices']['price']['unit']
+        try:
+            price, unit = float(self.api_data['prices']['price']['value']), self.api_data['prices']['price']['unit']
+        except (TypeError, KeyError) as e:
+            print(f'Could not retrieve price for {self.product}')
+            price, unit = None, None
+        return price, unit
 
     @safe_run
     def get_country_of_origin(self) -> str:

@@ -7,44 +7,77 @@
   <div class="container-fluid">
     <h1>Advanced Product Search</h1>
     <hr>
-    <form>
+    <h4>Metadata</h4>
 
-
-      <div>
-        <label for="ingredientSearch">Contains Ingredient</label>
-        <div class="form-group ui-widget">
-          <input class=form-control" id="ingredientSearch">
-        </div>
+    <div class="row">
+      <div class="col-lg-2">
+        <div>Name</div>
+        <input class=form-control" type="text" id="nameSearch" placeholder="Product name">
       </div>
 
-      <div>
-        <label for="nameSearch">Name</label>
-        <div class="form-group ui-widget">
-          <input class=form-control" id="nameSearch">
-        </div>
+      <div class="col-lg-2">
+        <div>Brand</div>
+        <input class=form-control" type="text" id="brandSearch" placeholder="Brand name">
       </div>
 
-      <button type="button" class="btn btn-primary search-button" onclick="searchDatabase()">Search</button>
-
-    </form>
+      <div class="col-lg-2">
+        <div>Contains Ingredient</div>
+        <input class=form-control" id="ingredientSearch" placeholder="Ingredient">
+      </div>
+    </div>
 
     <hr>
-    <div>
-      <p>Found <span id="nSearchResults">0</span> products.</p>
+
+    <!-- TODO: Nutrient dropdown with slider displaying min and max values for a) DV and b) raw nutrient amount  -->
+
+    <div class="row">
+      <div class="col">
+        <h4>Nutrient Daily Value (DV) Filtering</h4>
+      </div>
     </div>
+    <div class="row">
+      <div class="col">
+        <div class="btn btn-success" onclick="addNutrientDV()">Add Nutrient (+)</div>
+      </div>
+    </div>
+    <br>
+
+    <div id="nutrientDVZone"></div>
+
+    <hr>
+
+    <button type="button" class="btn btn-primary search-button" onclick="searchDatabase()">Search</button>
+
+
+      {#      <div>#}
+      {#        <label for="descriptionSearch">Description</label>#}
+      {#        <div class="form-group ui-widget">#}
+      {#          <input class=form-control" id="descriptionSearch">#}
+      {#        </div>#}
+      {#      </div>#}
+
+    <hr>
+
     <div class="table table-sm table-striped" style="width:auto">
       <table id="resultsTable">
         <thead>
         <tr>
+          <th></th>
           <th>Code</th>
           <th>Name</th>
+          <th>Brand</th>
           <th>Ingredients</th>
+            {#          <th>Description</th>#}
         </tr>
         </thead>
         <tbody class="results-body">
         <tr class="result-row">
           <td></td>
           <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+            {#          <td></td>#}
         </tr>
         </tbody>
       </table>
@@ -63,6 +96,8 @@
       <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
       <script src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>
       <script src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.print.min.js"></script>
+      <script src="https://d3js.org/d3.v5.js"></script>
+      <script src="https://unpkg.com/d3-simple-slider"></script>
 
       <script>
           $(document).ready(function () {
@@ -77,35 +112,166 @@
 
           });
 
+          const nutrientMarkup = (nutrientID) =>
+              `
+              <div class="row" id="nutrientRow-${nutrientID}">
+
+                {# Nutrient #}
+              <div class="col-lg-2">
+                <div>Nutrient</div>
+                <select class="form-control nutrientDVSelect" id="nutrientDVSearch-${nutrientID}">
+                    {% for key, val in available_nutrients_dv.items %}
+                      <option value="{{ key }}">{{ val }}</option>
+                    {% endfor %}
+                </select>
+              </div>
+
+                {# Minimum #}
+              <div class="col-lg-1">
+                <div>Minimum value (%)</div>
+                <input readonly class="form-control nutrientDVMin" id="minDV-${nutrientID}">
+              </div>
+
+                {# Maximum #}
+              <div class="col-lg-1">
+                <div>Maximum value (%)</div>
+                <input readonly class="form-control nutrientDVMax" id="maxDV-${nutrientID}">
+              </div>
+
+                {# Slider #}
+              <div class="col-lg-2">
+                <div id="nutrientDVslider-${nutrientID}"></div>
+              </div>
+
+              <div class="col">
+                <div style="align-items: center; display: flex; justify-content: start; height: 100%">
+                  <div class="btn btn-danger" onclick="deleteNutrient(this)" value="${nutrientID}"  id="btn-${nutrientID}">Delete (-)</div>
+                </div>
+              </div>
+
+            </div>
+           `;
+
+          let nutrientID = 0;
+
+          function addNutrientDV() {
+              let nutrientRow = $(nutrientMarkup(nutrientID)).appendTo('#nutrientDVZone');
+              let minDV = nutrientRow.find(`#minDV-${nutrientID}`);
+              let maxDV = nutrientRow.find(`#maxDV-${nutrientID}`);
+
+              // Default values for text boxes
+              minDV.attr('value', 0);
+              maxDV.attr('value', 100);
+
+              // Instead, just disabling typing in the input fields o7
+              // Add listener for updating the value attribute for input fields
+              // minDV.keyup(function () {
+              //     let val = Number($(this).val());
+              //     minDV.attr('value', val);
+              // });
+
+              // maxDV.keyup(function () {
+              //     let val = Number($(this).val());
+              //     maxDV.attr('value', val);
+              // });
+
+              // Simple slider
+              let sliderDV = d3
+                  .sliderBottom()
+                  .min(0)
+                  .max(1)
+                  .width(250)
+                  .tickFormat(d3.format('.2%'))
+                  .ticks(5)
+                  .step(0.01)
+                  .default([0, 1])
+                  .fill('#2196f3')
+                  .on('onchange', val => {
+                      minDV.attr('value', (val[0] * 100).toFixed(2));
+                      maxDV.attr('value', (val[1] * 100).toFixed(2));
+                  });
+
+              d3.select(`#nutrientDVslider-${nutrientID}`)
+                  .append('svg')
+                  .attr('width', 500)
+                  .attr('height', 75)
+                  .append('g')
+                  .attr('transform', 'translate(35,35)')
+                  .call(sliderDV);
+
+              nutrientID += 1;
+          }
+
+          function deleteNutrient(element) {
+              let btnID = $(element).attr('value');
+              $(`#nutrientRow-${btnID}`).remove();
+          }
+
           function searchDatabase() {
               const base_url = `/api/advanced_product/?format=datatables&`;
+
+              let nutrientObject = {};
+              $('#nutrientDVZone').children().toArray().forEach(x => {
+                  let nutrient = $(x).find('.nutrientDVSelect option:selected').val();
+                  let min = $(x).find('.nutrientDVMin').val();
+                  let max = $(x).find('.nutrientDVMax').val();
+                  nutrientObject[nutrient] = [parseFloat(min) / 100, parseFloat(max) / 100]
+              });
 
               let searchData = {
                   ingredients_contains: $("#ingredientSearch").val(),
                   name_contains: $("#nameSearch").val(),
+                  brand_contains: $("#brandSearch").val(),
               };
 
-              console.log(searchData);
 
               // Filter out empty keys to simplify the query we pass to the API
               Object.keys(searchData).forEach((key) => (searchData[key] === '') && delete searchData[key]);
-              console.log(searchData);
 
-              const searchParams = new URLSearchParams(searchData);
+              // Append the nutrients and their DV ranges to the searchParams object
+              let searchParams = new URLSearchParams(searchData);
+              Object.keys(nutrientObject).forEach(nutrient => {
+                  searchParams.append(nutrient, nutrientObject[nutrient].join(','))
+              });
 
+
+              $.fn.dataTable.render.link_to_id = function () {
+                  // Custom render method to hyperlink a row value
+                  return function (data, type, row) {
+                      if (data === null) {
+                          return null
+                      }
+                      if (type === 'display') {
+                          let id = data.toString(); // cast numbers
+                          return '<a href="/product_browser/' + id + '"><i class="fas fa-link"></i></a>'
+                      }
+                      // Search, order and type can use the original data
+                      return data;
+                  }
+              };
+
+              // Draw the table
               let table = $('#resultsTable').DataTable({
                   "serverSide": true,
-                  "processing": false,
-                  "buttons": ['copy', 'excel', 'pdf'],
+                  "processing": true,
+                  "buttons": [
+                      'copy',
+                      'excel',
+                      'pdf'
+                  ],
+                  {#"searching": false,#}
                   "destroy": true,
-                  "dom": 'Bfrtip',
+                  "lengthMenu": [10, 100, 1000],
+                  "dom": 'Bfrltip',
                   "paging": true,
                   "ajax": base_url + searchParams.toString(),
                   "columns": [
+                      {"data": "id", "render": $.fn.dataTable.render.link_to_id()},
                       {"data": "product_code"},
                       {"data": "name"},
-                      {"data": "nutrition_facts.ingredients",  "defaultContent": ""},
-
+                      {"data": "brand"},
+                      {"data": "nutrition_facts.ingredients", "defaultContent": ""},
+                      {#{"data": "loblaws_product.description", "defaultContent": ""},#}
                   ]
               });
           }

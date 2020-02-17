@@ -24,9 +24,13 @@ class ProductView(DetailView):
         # TODO: Make this not terrible. Currently will raise an exception on product detail pages if it can't
         #  find an image directory. Fixing this requires changing the LoblawsProduct.image_directory field to be a
         #  legit FileField instead of a CharField
-        images = list(Path(context['product'].loblaws_product.image_directory).glob("*"))
-        images = [x for x in images if x.is_file()]
-        images_formatted = [str(x).replace(settings.MEDIA_ROOT, settings.MEDIA_URL[:-1]) for x in images]
+
+        try:
+            images = list(Path(context['product'].loblaws_product.image_directory).glob("*"))
+            images = [x for x in images if x.is_file()]
+            images_formatted = [str(x).replace(settings.MEDIA_ROOT, settings.MEDIA_URL[:-1]) for x in images]
+        except Exception as e:
+            images_formatted = None
         context['product_images'] = images_formatted
 
         # Images

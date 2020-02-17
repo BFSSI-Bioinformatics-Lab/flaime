@@ -11,10 +11,23 @@ from flaim.database import serializers
 from django.contrib.auth import get_user_model
 from flaim.database.nutrient_coding import VALID_NUTRIENT_COLUMNS
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
 
 User = get_user_model()
 
 logger = logging.getLogger(__name__)
+
+
+class Select2PaginationClass(PageNumberPagination):
+    def get_paginated_response(self, data):
+        return Response({
+            'links': {
+                'next': self.get_next_link(),
+                'previous': self.get_previous_link()
+            },
+            'count': self.page.paginator.count,
+            'results': data
+        })
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -90,6 +103,30 @@ class AdvancedProductViewSet(viewsets.ReadOnlyModelViewSet):
 
         # # Return everything by default
         return queryset.order_by('-id')
+
+
+class ProductNameViewSet(viewsets.ModelViewSet):
+    pagination_class = Select2PaginationClass
+    serializer_class = serializers.ProductNameSerializer
+
+    def get_queryset(self):
+        search = self.request.query_params.get('search', None)
+        if search is not None:
+            return models.Product.objects.filter(name__icontains=search)
+        else:
+            return models.Product.objects.all()
+
+
+class BrandNameViewSet(viewsets.ModelViewSet):
+    pagination_class = Select2PaginationClass
+    serializer_class = serializers.BrandNameSerializer
+
+    def get_queryset(self):
+        search = self.request.query_params.get('search', None)
+        if search is not None:
+            return models.Product.objects.filter(brand__icontains=search)
+        else:
+            return models.Product.objects.all()
 
 
 class LoblawsProductViewSet(viewsets.ModelViewSet):

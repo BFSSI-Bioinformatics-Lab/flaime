@@ -116,6 +116,26 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
                   'upc_code'] + reverse_relationships
 
 
+class ProductNameSerializer(serializers.ModelSerializer):
+    """ Simple serializer for storing only product names """
+    id = serializers.ReadOnlyField()
+    text = serializers.CharField(source='name')
+
+    class Meta:
+        model = models.Product
+        fields = ['id', 'text']
+
+
+class BrandNameSerializer(serializers.ModelSerializer):
+    """ Simple serializer for storing only product names """
+    id = serializers.ReadOnlyField()
+    text = serializers.CharField(source='brand')
+
+    class Meta:
+        model = models.Product
+        fields = ['id', 'text']
+
+
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User

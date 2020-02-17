@@ -12,12 +12,12 @@
     <div class="row">
       <div class="col-lg-2">
         <div>Name</div>
-        <input class=form-control" type="text" id="nameSearch" placeholder="Product name">
+        <select id="nameSearch" style="width: 75%"></select>
       </div>
 
       <div class="col-lg-2">
         <div>Brand</div>
-        <input class=form-control" type="text" id="brandSearch" placeholder="Brand name">
+        <select id="brandSearch" style="width: 75%"></select>
       </div>
 
       <div class="col-lg-2">
@@ -47,7 +47,6 @@
     <hr>
 
     <button type="button" class="btn btn-primary search-button" onclick="searchDatabase()">Search</button>
-
 
       {#      <div>#}
       {#        <label for="descriptionSearch">Description</label>#}
@@ -110,6 +109,68 @@
                   }
               });
 
+
+              // Configure select2 for nameSearch
+              $('#nameSearch').select2(
+                  {
+                      placeholder: '',
+                      allowClear: true,
+                      cache: true,
+                      tags: true,
+                      {#minimumInputLength: 3,#}
+                      ajax: {
+                          url: '/api/product_name/',
+                          data: function (params) {
+                              // Query parameters will be ?search=[term]
+                              return {
+                                  page: params.page || 1,
+                                  search: params.term || ""
+                              };
+                          },
+                          processResults: function (data, params) {
+                              let page = params.page || 1;
+                              // Transforms the top-level key of the response object from 'items' to 'results'
+                              return {
+                                  results: data.results,
+                                  pagination: {
+                                      more: (page * 10) <= data.count
+                                  }
+                              };
+                          }
+                      }
+                  }
+              )
+
+
+              $('#brandSearch').select2(
+                  {
+                      placeholder: '',
+                      allowClear: true,
+                      cache: true,
+                      tags: true,
+                      ajax: {
+                          url: '/api/brand_name/',
+                          data: function (params) {
+                              // Query parameters will be ?search=[term]
+                              return {
+                                  page: params.page || 1,
+                                  search: params.term || ""
+                              };
+                          },
+                          processResults: function (data, params) {
+                              let page = params.page || 1;
+                              // Transforms the top-level key of the response object from 'items' to 'results'
+                              return {
+                                  results: data.results,
+                                  pagination: {
+                                      more: (page * 10) <= data.count
+                                  }
+                              };
+                          }
+                      }
+                  }
+              )
+
           });
 
           const nutrientMarkup = (nutrientID) =>
@@ -158,6 +219,9 @@
               let nutrientRow = $(nutrientMarkup(nutrientID)).appendTo('#nutrientDVZone');
               let minDV = nutrientRow.find(`#minDV-${nutrientID}`);
               let maxDV = nutrientRow.find(`#maxDV-${nutrientID}`);
+
+              // Upgrade the select
+              $('.nutrientDVSelect').select2();
 
               // Default values for text boxes
               minDV.attr('value', 0);
@@ -220,10 +284,9 @@
 
               let searchData = {
                   ingredients_contains: $("#ingredientSearch").val(),
-                  name_contains: $("#nameSearch").val(),
-                  brand_contains: $("#brandSearch").val(),
+                  name_contains: $('#nameSearch :selected').text(),
+                  brand_contains: $('#brandSearch :selected').text(),
               };
-
 
               // Filter out empty keys to simplify the query we pass to the API
               Object.keys(searchData).forEach((key) => (searchData[key] === '') && delete searchData[key]);

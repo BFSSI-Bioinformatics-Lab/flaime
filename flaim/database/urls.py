@@ -1,6 +1,6 @@
 from django.urls import include, path
 from rest_framework import routers
-from flaim.database import views
+from flaim.database.api import views
 
 router = routers.DefaultRouter()
 router.register(r'products', views.ProductViewSet)

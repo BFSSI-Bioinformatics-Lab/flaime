@@ -109,6 +109,11 @@ class Product(TimeStampedModel):
         ]
 
 
+class ProductLink(TimeStampedModel):
+    # TODO: Table to store relationships between linked products, e.g. 100g corn pops vs. 1kg corn pops
+    pass
+
+
 class NutritionFacts(TimeStampedModel):
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name="nutrition_facts")
     total_size = models.CharField(max_length=200, blank=True,

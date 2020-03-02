@@ -12,17 +12,20 @@
     <div class="row">
       <div class="col-lg-2">
         <div>Name</div>
-        <select id="nameSearch" style="width: 75%"></select>
+        <select id="nameSearch" style="width: 80%"></select>
       </div>
 
       <div class="col-lg-2">
         <div>Brand</div>
-        <select id="brandSearch" style="width: 75%"></select>
+        <select id="brandSearch" style="width: 80%"></select>
       </div>
 
+    </div>
+    <br>
+    <div class="row">
       <div class="col-lg-2">
-        <div>Contains Ingredient</div>
-        <input class=form-control" id="ingredientSearch" placeholder="Ingredient">
+        <div>Contains Ingredient(s)</div>
+        <select id="ingredientSearch" style="width: 100%" multiple="multiple"></select>
       </div>
     </div>
 
@@ -110,6 +113,12 @@
               });
 
 
+              $('#ingredientSearch').select2({
+                  tags: true,
+                  tokenSeparators: [','],
+                  allowClear: true,
+              });
+
               // Configure select2 for nameSearch
               $('#nameSearch').select2(
                   {
@@ -139,7 +148,7 @@
                           }
                       }
                   }
-              )
+              );
 
 
               $('#brandSearch').select2(
@@ -170,7 +179,6 @@
                       }
                   }
               )
-
           });
 
           const nutrientMarkup = (nutrientID) =>
@@ -195,7 +203,7 @@
 
                 {# Maximum #}
               <div class="col-lg-1">
-                <div>Maximum value (%)</div>
+                <div>Max value (%)</div>
                 <input readonly class="form-control nutrientDVMax" id="maxDV-${nutrientID}">
               </div>
 
@@ -283,7 +291,7 @@
               });
 
               let searchData = {
-                  ingredients_contains: $("#ingredientSearch").val(),
+                  ingredients_contains: $("#ingredientSearch").val(),  // Array of ingredients
                   name_contains: $('#nameSearch :selected').text(),
                   brand_contains: $('#brandSearch :selected').text(),
               };

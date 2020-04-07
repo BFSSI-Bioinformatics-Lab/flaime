@@ -71,7 +71,7 @@ class ScrapeBatch(models.Model):
 
 
 class Product(TimeStampedModel):
-    product_code = models.CharField(max_length=500)
+    product_code = models.CharField(max_length=500, unique=True)
     name = models.CharField(max_length=500, unique=False, blank=True, null=True)
     brand = models.CharField(max_length=500, blank=True, null=True)
 
@@ -93,6 +93,7 @@ class Product(TimeStampedModel):
     upc_code = models.CharField(max_length=500, blank=True, null=True)
     manufacturer = models.CharField(max_length=500, blank=True, null=True)  # e.g. from Amazon technical details
     nutrition_available = models.BooleanField(blank=True, null=True)
+    nielsen_product = models.BooleanField(blank=True, null=True)
     url = models.URLField(max_length=1000, blank=True, null=True)
     scrape_date = models.DateTimeField(auto_now_add=True)
 
@@ -120,6 +121,11 @@ class NutritionFacts(TimeStampedModel):
                                   null=True)  # Should be serving_size * # of servings in product
     serving_size_raw = models.CharField(max_length=200, blank=True, null=True)  # Unparsed serving size text
     serving_size = models.IntegerField(blank=True, null=True)  # Parsed numeric serving size value
+    nutrition_data_source = models.CharField(max_length=25, blank=True, null=True, choices=(
+        ('OCR', 'Optical Character Recognition'),
+        ('HTML', 'HTML')
+    )
+                                             )
 
     SERVING_SIZE_UNITS = (
         ('g', 'grams'),
@@ -128,6 +134,10 @@ class NutritionFacts(TimeStampedModel):
     serving_size_units = models.CharField(max_length=11, choices=SERVING_SIZE_UNITS, blank=True, null=True)
 
     ingredients = models.TextField(blank=True, null=True)
+    ingredients_data_source = models.CharField(max_length=25, blank=True, null=True, choices=(
+        ('OCR', 'Optical Character Recognition'),
+        ('HTML', 'HTML')
+    ))
 
     # Nutrients - units should always be represented as grams
     calories = models.IntegerField(blank=True, null=True)
@@ -198,6 +208,9 @@ class NutritionFacts(TimeStampedModel):
     def load_total_size(self, api_data: dict):
         self.total_size = api_data['packageSize']
         self.save()
+
+    def load_walmart_nutrition_facts_json(self):
+        pass
 
     def load_loblaws_nutrition_facts_json(self, loblaws_nutrition: dict):
         """
@@ -549,6 +562,14 @@ class WalmartProduct(TimeStampedModel):
     """
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name="walmart_product")
     image_directory = models.CharField(max_length=500, blank=True, null=True)
+
+    sku = models.CharField(max_length=100, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    bullets = models.TextField(blank=True, null=True)
+    dietary_info = models.TextField(blank=True, null=True)  # Corresponds to "Lifestyle and Dietary Need" in JSON
+    nutrition_facts_json = JSONField(blank=True, null=True)
+    breadcrumbs_text = models.CharField(max_length=600, blank=True, null=True)
+    breadcrumbs_array = ArrayField(models.CharField(max_length=300), blank=True, null=True)
 
     history = HistoricalRecords()
 

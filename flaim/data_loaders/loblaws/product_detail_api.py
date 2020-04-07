@@ -3,8 +3,9 @@ import time
 import json
 from pathlib import Path
 
-PRODUCT_LIST_DIR = Path("/home/forest/loblaws_api/page_data_04022020")
-OUTDIR = Path("/home/forest/loblaws_api/product_data_04022020")
+PRODUCT_LIST_DIR = Path("/home/forest/Documents/FLAIME/loblaws_data/page_data_03042020")
+OUTDIR = Path("/home/forest/Documents/FLAIME/loblaws_data/product_data_03042020")
+OUTDIR.mkdir(exist_ok=True)
 
 DEFAULT_PARAMETERS = {
     'cookies': {
@@ -58,6 +59,7 @@ def read_product_list_file(product_list: Path) -> list:
 
 if __name__ == "__main__":
     product_list_files = list(PRODUCT_LIST_DIR.glob("*"))
+    product_list_files = [x for x in product_list_files if x.is_file()]
     for p in product_list_files:
         codes_ = read_product_list_file(p)
         for product_code_ in codes_:

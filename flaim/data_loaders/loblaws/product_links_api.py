@@ -10,7 +10,8 @@ get ingredients, nutrients, etc.
 """
 
 if __name__ == "__main__":
-    outdir = Path("/home/forest/loblaws_api/page_data_04022020")
+    outdir = Path("/home/forest/loblaws_api/page_data_03042020")
+    outdir.mkdir(exist_ok=True)
 
     cookies = {
         'lcl_lang_pref': 'en',
@@ -53,7 +54,10 @@ if __name__ == "__main__":
                      "LSL017030000000000",
                      "LSL0170160000000",
                      "LSL017010000000",
-                     "LSL002001000000",
+
+                     # Baby care, includes formula and feeding stuff but also diapers and other non-food products
+                     # "LSL002001000000",
+
                      "LSL001012000000",
                      "LSL001020007000",
                      "LSL001030000000",
@@ -65,8 +69,14 @@ if __name__ == "__main__":
         collect_data = True
         page_number = -1
         while collect_data:
-            print(f'Working on {subcategory} - page {page_number}')
             page_number += 1
+            outname = f'{subcategory}_page_{page_number}.json'
+
+            # Skip if we've already retrieved this page
+            if (outdir / outname).exists():
+                continue
+
+            print(f'Working on {subcategory} - page {page_number}')
             params = (
                 ('pageSize', '48'),
                 ('pageNumber', page_number),
@@ -76,13 +86,22 @@ if __name__ == "__main__":
             response = requests.get(f'https://www.loblaws.ca/api/category/{subcategory}/products', headers=headers,
                                     params=params,
                                     cookies=cookies)
-            json_response = response.json()
-            product_results = json_response['results']
+
+            try:
+                json_response = response.json()
+            except:
+                continue
+
+            try:
+                product_results = json_response['results']
+            except KeyError as e:
+                print(f'Encountered issue retrieving response for {subcategory}, page {page_number}')
+                continue
 
             max_pages = json_response['pagination']['totalResults'] / 48
             if page_number >= max_pages:
                 collect_data = False
 
-            with open(outdir / f'page_{page_number}_{subcategory}.json', 'w') as f:
+            with open(outdir / outname, 'w') as f:
                 json.dump(product_results, f)
             time.sleep(2)

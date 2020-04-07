@@ -10,7 +10,7 @@ django.setup()
 
 from pathlib import Path
 from datetime import datetime
-from flaim.database.models import LoblawsProduct
+from flaim.database.models import LoblawsProduct, ProductImage
 from django.conf import settings
 
 # Output directory should represent day script was run
@@ -33,11 +33,19 @@ def download_image(url: str, outfile: Path) -> bool:
 
 if __name__ == "__main__":
     products = LoblawsProduct.objects.filter(api_data__isnull=False)
+
     for p in products:
+        # Check if we already have images in the DB
+        images = ProductImage.objects.filter(product=p.product)
+        if len(images) > 0:
+            continue
         image_urls = get_image_urls_from_product(p)
+        if image_urls is None:
+            continue
         download_dir = OUTDIR / p.product.product_code
         download_dir.mkdir(exist_ok=True, parents=True)
         status = False
+
         for i in image_urls:
             outfile = download_dir / Path(i).name
             if outfile.exists():

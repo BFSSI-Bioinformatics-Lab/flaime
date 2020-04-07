@@ -11,7 +11,7 @@ from django.conf import settings
 from django.db import IntegrityError
 
 if __name__ == "__main__":
-    image_dirs = list(Path("/home/forest/PycharmProjects/flaim/flaim/media/LOBLAWS/20200206").glob('*'))
+    image_dirs = list(Path("/home/forest/PycharmProjects/flaim/flaim/media/LOBLAWS/20200214").glob('*'))
     for d in image_dirs:
         product_code = d.name
         try:

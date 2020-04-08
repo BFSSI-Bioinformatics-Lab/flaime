@@ -54,7 +54,11 @@
               </tr>
               <tr>
                 <td class="row-label">Price</td>
-                <td>{{ product.price_float }} {{ product.price_units }}</td>
+                  {% if product.price_float == None %}
+                    <td>N/A</td>
+                  {% else %}
+                    <td>{{ product.price_float }} {{ product.price_units }}</td>
+                  {% endif %}
               </tr>
               <tr>
                 <td class="row-label">URL</td>

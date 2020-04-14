@@ -20,6 +20,7 @@
             <th>Product Code</th>
             <th>External URL</th>
             <th>Created</th>
+            <th>Modified</th>
           </tr>
           </thead>
         </table>
@@ -79,6 +80,7 @@
                       {"data": "product_code"},
                       {"data": "url", "render": $.fn.dataTable.render.hyperlink_url()},
                       {"data": "created"},
+                      {"data": "modified"},
                   ]
               });
           });

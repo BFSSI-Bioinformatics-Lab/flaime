@@ -1,0 +1,88 @@
+{% block content %}
+  <h4>Changelog</h4>
+  <hr>
+  <div id="history-container">
+
+    <div class="product-changes">
+      <h5>General product changes</h5>
+        {% if product_changes != None %}
+          <table class="table table-striped table-bordered" style="width:100%">
+            <thead>
+            <tr>
+              <th>Field</th>
+              <th>Old</th>
+              <th>New</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for change in product_changes %}
+              <tr>
+                <td>{{ change.field }}</td>
+                <td class="bg-danger">{{ change.old }}</td>
+                <td class="bg-success">{{ change.new }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p>No changes detected</p>
+        {% endif %}
+    </div>
+
+
+    <div class="store-changes">
+      <h5>Retailer specific changes</h5>
+        {% if store_changes != None %}
+          <table class="table table-striped table-bordered" style="width:100%">
+            <thead>
+            <tr>
+              <th>Field</th>
+              <th>Old</th>
+              <th>New</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for change in store_changes %}
+              <tr>
+                <td>{{ change.field }}</td>
+                <td class="bg-danger">{{ change.old }}</td>
+                <td class="bg-success">{{ change.new }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p>No changes detected</p>
+        {% endif %}
+    </div>
+
+
+    <div class="nutrition-changes">
+      <h5>Nutrition changes</h5>
+        {% if nutrition_changes != None %}
+          <table class="table table-striped table-bordered" style="width:100%">
+            <thead>
+            <tr>
+              <th>Field</th>
+              <th>Old</th>
+              <th>New</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for change in nutrition_changes %}
+              <tr>
+                <td>{{ change.field }}</td>
+                <td class="bg-danger">{{ change.old }}</td>
+                <td class="bg-success">{{ change.new }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p>No changes detected</p>
+        {% endif %}
+    </div>
+
+
+  </div>
+{% endblock %}

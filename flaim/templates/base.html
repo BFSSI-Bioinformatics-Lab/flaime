@@ -1,6 +1,8 @@
 {% load static i18n %}<!DOCTYPE html>
 <html lang="en">
 <head>
+
+    {# TODO: Move all CDN scripts/CSS files to a static directory! #}
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <title>{% block title %}FLAIM{% endblock title %}</title>
@@ -22,9 +24,9 @@
 
     {% block css %}
       <!-- Latest compiled and minified Bootstrap CSS -->
-        {#        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"#}
-        {#              integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"#}
-        {#              crossorigin="anonymous">#}
+        {#                <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"#}
+        {#                      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"#}
+        {#                      crossorigin="anonymous">#}
         {# Bootswatch United template#}
       <link rel="stylesheet" href="https://bootswatch.com/4/united/bootstrap.min.css">
 
@@ -33,7 +35,6 @@
       <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet"/>
 
       <!-- This file stores project-specific CSS -->
-
       <link href="{% static 'css/project.css' %}" rel="stylesheet">
 
 
@@ -43,81 +44,93 @@
 
 <body>
 
-<div class="mb-1">
-  <nav class="navbar navbar-expand-md navbar-dark bg-primary">
-    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
-            data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
-            aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <a class="navbar-brand" href="{% url 'home' %}">FLAIME</a>
+<nav class="navbar navbar-dark fixed-top bg-primary flex-md-nowrap p-0 shadow">
 
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav mr-auto">
-        <li class="nav-item active">
-          <a class="nav-link" href="{% url 'home' %}"><i class="fas fa-home"></i> Home <span
-                  class="sr-only">(current)</span></a>
+  <a class="navbar-brand col-sm-2 col-md-2 mr-0" href="{% url 'home' %}">FLAIME</a>
+  <div class="col-md-8 mr-0"></div>
+    {% if request.user.is_authenticated %}
+      <ul class="navbar-nav px-3">
+
+        <li class="nav-item text-nowrap">
+          <a class="nav-link"
+             href="{% url 'users:detail' request.user.username %}"><i
+                  class="fas fa-user"></i>{% trans " My Profile" %}</a>
         </li>
-          {% if request.user.is_authenticated %}
-            <li class="nav-item">
-              <a class="nav-link"
-                 href="{% url 'product_browser:index' %}"><i class="fas fa-table"></i>{% trans " Product Browser" %}</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link"
-                 href="{% url 'product_search:index' %}"><i
-                      class="fas fa-search"></i>{% trans " Advanced Product Search" %}</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link"
-                 href="{% url 'visualizer:index' %}"><i class="fas fa-chart-bar"></i>{% trans " Data Visualization" %}
-              </a>
-            </li>
-            <li class="nav-item">
-                {# URL provided by django-allauth/account/urls.py #}
-              <a class="nav-link"
-                 href="{% url 'users:detail' request.user.username %}"><i
-                      class="fas fa-user"></i>{% trans " My Profile" %}</a>
-            </li>
-            <li class="nav-item">
-                {# URL provided by django-allauth/account/urls.py #}
-              <a class="nav-link" href="{% url 'account_logout' %}"><i
-                      class="fas fa-sign-out-alt"></i>{% trans " Sign Out" %}</a>
-            </li>
-          {% else %}
-            <li class="nav-item">
-                {# URL provided by django-allauth/account/urls.py #}
-              <a id="sign-up-link" class="nav-link"
-                 href="{% url 'account_signup' %}">{% trans "Sign Up" %}</a>
-            </li>
-            <li class="nav-item">
-                {# URL provided by django-allauth/account/urls.py #}
-              <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}"><i
-                      class="fas fa-sign-in-alt"></i>{% trans " Sign In" %}</a>
-            </li>
-          {% endif %}
       </ul>
-    </div>
-  </nav>
+      <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+          <a class="nav-link" href="{% url 'account_logout' %}"><i
+                  class="fas fa-sign-out-alt"></i>{% trans " Sign Out" %}</a>
+        </li>
+      </ul>
+    {% else %}
+      <ul class="navbar-nav px-3">
 
-</div>
+        <li class="nav-item text-nowrap">
+          <a id="sign-up-link" class="nav-link"
+             href="{% url 'account_signup' %}">{% trans "Sign Up" %}</a>
+        </li>
+      </ul>
+      <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+          <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}"><i
+                  class="fas fa-sign-in-alt"></i>{% trans " Sign In" %}</a>
+        </li>
+      </ul>
+    {% endif %}
+  </ul>
+</nav>
+
 
 <div class="container-fluid">
+  <div class="row">
+    <nav class="col-md-2 d-none d-md-block bg-light sidebar">
 
-    {% if messages %}
-        {% for message in messages %}
-          <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
-                    aria-hidden="true">&times;</span>
-            </button>
-          </div>
-        {% endfor %}
-    {% endif %}
+      <div class="sidebar-sticky">
+        <ul class="nav flex-column">
+          <li class="nav-item active">
+            <a class="nav-link" href="{% url 'home' %}"><i class="fas fa-home"></i> Home <span
+                    class="sr-only">(current)</span></a>
+          </li>
+            {% if request.user.is_authenticated %}
+              <li class="nav-item">
+                <a class="nav-link"
+                   href="{% url 'product_browser:index' %}"><i class="fas fa-table"></i>{% trans " Product Browser" %}
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link"
+                   href="{% url 'product_search:index' %}"><i
+                        class="fas fa-search"></i>{% trans " Advanced Product Search" %}</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link"
+                   href="{% url 'visualizer:index' %}"><i
+                        class="fas fa-chart-bar"></i>{% trans " Data Visualization" %}
+                </a>
+              </li>
+            {% endif %}
+        </ul>
+      </div>
 
-    {% block content %}
-      <p>Use this document as a way to quick start any new project.</p>
-    {% endblock content %}
+    </nav>
 
+    <main class="col-md-9 ml-sm-auto col-lg-10 px-4">
+        {% if messages %}
+            {% for message in messages %}
+              <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+                        aria-hidden="true">&times;</span>
+                </button>
+              </div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}
+          <p>Use this document as a way to quick start any new project.</p>
+        {% endblock content %}
+    </main>
+  </div>
 </div> <!-- /container -->
 
 {% block modal %}{% endblock modal %}

@@ -18,11 +18,9 @@
   <nav>
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
       <a class="nav-item nav-link active" id="nav-overview-tab" data-toggle="tab" href="#nav-overview" role="tab"
-         aria-controls="nav-overview" aria-selected="true">Home</a>
-      <a class="nav-item nav-link" id="nav-fop-tab" data-toggle="tab" href="#nav-fop" role="tab"
-         aria-controls="nav-fop" aria-selected="false">FOP Analysis</a>
-      <a class="nav-item nav-link" id="nav-other-tab" data-toggle="tab" href="#nav-other" role="tab"
-         aria-controls="nav-other" aria-selected="false">Other</a>
+         aria-controls="nav-overview" aria-selected="true">Overview</a>
+      <a class="nav-item nav-link" id="nav-fop-tab" data-toggle="tab" href="#nav-history" role="tab"
+         aria-controls="nav-fop" aria-selected="false">Product History</a>
     </div>
   </nav>
   <br>
@@ -92,13 +90,10 @@
     </div>
 
 
-    <div class="tab-pane fade" id="nav-fop" role="tabpanel" aria-labelledby="nav-fop-tab">
-        {% include 'product_browser/fop_detail.html' %}
+    <div class="tab-pane fade" id="nav-history" role="tabpanel" aria-labelledby="nav-history-tab">
+        {% include 'product_browser/product_history.html' %}
     </div>
 
-    <div class="tab-pane fade" id="nav-other" role="tabpanel" aria-labelledby="nav-other-tab">
-      <p>temp</p>
-    </div>
   </div>
   <br>
 

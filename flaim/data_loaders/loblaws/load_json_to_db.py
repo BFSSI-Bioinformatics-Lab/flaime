@@ -10,7 +10,7 @@ import django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.local")
 django.setup()
 
-from flaim.database.models import Product, LoblawsProduct, NutritionFacts
+from flaim.database.models import Product, LoblawsProduct, NutritionFacts, ScrapeBatch
 
 # TODO: Put this stuff somewhere more permanent, like the media dir?
 DATADIR = Path('/home/forest/Documents/FLAIME/loblaws_data/product_data_03042020')
@@ -177,13 +177,29 @@ def get_nutrition_disclaimer(api_data) -> str:
 
 if __name__ == "__main__":
     json_files = list(DATADIR.glob("*.json"))
-    for j in json_files:
 
-        # Flag if the JSON file is bad
-        if j.stat().st_size < 1000:
-            print(f'JSON file {j} is less than 1000 bytes, skipping. The product is probably removed from Loblaws.')
-            continue
+    # Total valid products scraped
+    filtered_json_files = [f for f in json_files if f.stat().st_size > 1000]
+    total_products = len(filtered_json_files)
 
+    # All product codes
+    product_codes = [f.with_suffix("").name for f in filtered_json_files]
+
+    # All Loblaws products in the DB
+    existing_products = [x.product.product_code for x in LoblawsProduct.objects.all()]
+
+    # Total number of products
+    missing_products = len(list(set(existing_products) - set(product_codes)))
+    new_products = len([x for x in product_codes if x not in existing_products])
+
+    # Create scrape batch
+    scrape = ScrapeBatch.objects.create(
+        missing_products=missing_products,
+        new_products=new_products,
+        total_products=total_products,
+    )
+
+    for j in filtered_json_files:
         product_code = j.with_suffix("").name  # Files are named after product code
 
         try:

@@ -2,21 +2,50 @@ import os
 import json
 from pathlib import Path
 from django.conf import settings
+from django.utils.dateparse import parse_date
 from django.utils import timezone
-import pytz
+from django.db import IntegrityError
+
 import django
 
 # Need to do this in order to access the flaim database models
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.local")
 django.setup()
 
-from flaim.database.models import Product, LoblawsProduct, NutritionFacts, ScrapeBatch
+from flaim.database.models import Product, LoblawsProduct, NutritionFacts, ScrapeBatch, ProductImage
 
 # TODO: Put this stuff somewhere more permanent, like the media dir?
-DATADIR = Path('/home/forest/Documents/FLAIME/loblaws_data/product_data_03042020')
-
-# For Django historical model
+DATADIR = Path('/home/forest/Documents/FLAIME/loblaws_data/product_data_04022020')
+SCRAPE_DATE = '2020-02-04'  # YYYY-MM-DD
 CHANGE_REASON = 'New Loblaws Scrape Batch'
+IMAGE_DIRS = list(Path("/home/forest/PycharmProjects/flaim/flaim/media/LOBLAWS/20200206").glob('*'))
+
+
+def load_images(image_dirs: list):
+    for d in image_dirs:
+        product_code = d.name
+        try:
+            product = Product.objects.get(product_code=product_code)
+        except:
+            continue
+        loblaws_product = LoblawsProduct.objects.get(product__product_code=product_code)
+
+        # Update image directory
+        if loblaws_product.image_directory is None:
+            loblaws_product.image_directory = str(d)
+            loblaws_product.save()
+
+        # Strip out MEDIA_ROOT for paths to behave properly with image field in ProductImage
+        images = [str(x).replace(settings.MEDIA_ROOT + "/", "") for x in list(d.glob('*')) if x.is_file()]
+        for i in images:
+            try:
+                ProductImage.objects.create(product=product,
+                                            image_path=i)
+            # Skip if the file path already exists
+            except IntegrityError as e:
+                pass
+
+        print(f'Done with {product_code}')
 
 
 def read_json(json_file):
@@ -197,6 +226,7 @@ if __name__ == "__main__":
         missing_products=missing_products,
         new_products=new_products,
         total_products=total_products,
+        scrape_date=parse_date(SCRAPE_DATE)
     )
 
     for j in filtered_json_files:
@@ -223,7 +253,10 @@ if __name__ == "__main__":
         # Generic fields for Product model
         obj.store = 'LOBLAWS'
         obj.name = get_name(data)
-        obj.price_float, obj.price_units = get_price(data)
+
+        price_float, price_units = get_price(data)
+        obj.price_float, obj.price_units = price_float, price_units
+        obj.price = f'${price_float} {price_units}'
         obj.brand = get_brand(data)
 
         upc_list = get_upc_list(data)
@@ -235,15 +268,14 @@ if __name__ == "__main__":
         obj.url = get_url(data)
         obj.scrape_date = timezone.now()
         obj.nutrition_available = None  # Figure out how to populate this
+        obj.breadcrumbs_array = get_breadcrumbs(data)
+        obj.breadcrumbs_text = ",".join(get_breadcrumbs(data))
+        obj.description = get_description(data)
+        obj.batch = scrape
 
         # Loblaws fields for LoblawsProduct model
         product.api_data = data
-        product.breadcrumbs_array = get_breadcrumbs(data)
-        product.breadcrumbs_text = ",".join(get_breadcrumbs(data))
-        product.description = get_description(data)
-
         nutrition_facts_json = get_nutrition_facts(data)
-        product.nutrition_facts_json = nutrition_facts_json  # this is the source for NFT
 
         if not created_:
             product.changeReason = CHANGE_REASON
@@ -268,3 +300,5 @@ if __name__ == "__main__":
             print(f'Successfully SAVED {product} to database')
         else:
             print(f'Successfully UPDATED {product}')
+
+    load_images(IMAGE_DIRS)

@@ -1,10 +1,8 @@
 import os
 import json
 from pathlib import Path
-from django.conf import settings
 from django.utils.dateparse import parse_date
 from django.utils import timezone
-from django.db import IntegrityError
 
 import django
 
@@ -12,40 +10,12 @@ import django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.local")
 django.setup()
 
-from flaim.database.models import Product, LoblawsProduct, NutritionFacts, ScrapeBatch, ProductImage
+from flaim.database.models import Product, LoblawsProduct, NutritionFacts, ScrapeBatch
 
-# TODO: Put this stuff somewhere more permanent, like the media dir?
-DATADIR = Path('/home/forest/Documents/FLAIME/loblaws_data/product_data_04022020')
-SCRAPE_DATE = '2020-02-04'  # YYYY-MM-DD
+SCRAPE_DATE = parse_date('2020-04-17')  # YYYY-MM-DD
+DATADIR = Path(f'/home/forest/Documents/FLAIME/loblaws_data/product_data_{str(SCRAPE_DATE)}')
+IMAGE_DIRS = list(Path(f"/home/forest/PycharmProjects/flaim/flaim/media/LOBLAWS/{str(SCRAPE_DATE)}").glob('*'))
 CHANGE_REASON = 'New Loblaws Scrape Batch'
-IMAGE_DIRS = list(Path("/home/forest/PycharmProjects/flaim/flaim/media/LOBLAWS/20200206").glob('*'))
-
-
-def load_images(image_dirs: list):
-    for d in image_dirs:
-        product_code = d.name
-        try:
-            product = Product.objects.get(product_code=product_code)
-        except:
-            continue
-        loblaws_product = LoblawsProduct.objects.get(product__product_code=product_code)
-
-        # Update image directory
-        if loblaws_product.image_directory is None:
-            loblaws_product.image_directory = str(d)
-            loblaws_product.save()
-
-        # Strip out MEDIA_ROOT for paths to behave properly with image field in ProductImage
-        images = [str(x).replace(settings.MEDIA_ROOT + "/", "") for x in list(d.glob('*')) if x.is_file()]
-        for i in images:
-            try:
-                ProductImage.objects.create(product=product,
-                                            image_path=i)
-            # Skip if the file path already exists
-            except IntegrityError as e:
-                pass
-
-        print(f'Done with {product_code}')
 
 
 def read_json(json_file):
@@ -226,7 +196,8 @@ if __name__ == "__main__":
         missing_products=missing_products,
         new_products=new_products,
         total_products=total_products,
-        scrape_date=parse_date(SCRAPE_DATE)
+        scrape_date=SCRAPE_DATE,
+        store='LOBLAWS'
     )
 
     for j in filtered_json_files:
@@ -300,5 +271,3 @@ if __name__ == "__main__":
             print(f'Successfully SAVED {product} to database')
         else:
             print(f'Successfully UPDATED {product}')
-
-    load_images(IMAGE_DIRS)

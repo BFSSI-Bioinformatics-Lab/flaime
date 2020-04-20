@@ -3,8 +3,9 @@ import time
 import json
 from pathlib import Path
 
-PRODUCT_LIST_DIR = Path("/home/forest/Documents/FLAIME/loblaws_data/page_data_03042020")
-OUTDIR = Path("/home/forest/Documents/FLAIME/loblaws_data/product_data_03042020")
+SCRAPE_DATE = '2020-04-17'
+PRODUCT_LIST_DIR = Path(f"/home/forest/Documents/FLAIME/loblaws_data/page_data{SCRAPE_DATE}")
+OUTDIR = Path(f"/home/forest/Documents/FLAIME/loblaws_data/product_data_{SCRAPE_DATE}")
 OUTDIR.mkdir(exist_ok=True)
 
 DEFAULT_PARAMETERS = {

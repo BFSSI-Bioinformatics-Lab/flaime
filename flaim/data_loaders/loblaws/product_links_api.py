@@ -9,8 +9,10 @@ that contain ~48 products each. Product codes can be retrieved from these files 
 get ingredients, nutrients, etc. 
 """
 
+SCRAPE_DATE = '2020-04-17'
+
 if __name__ == "__main__":
-    outdir = Path("/home/forest/loblaws_api/page_data_03042020")
+    outdir = Path(f"/home/forest/Documents/FLAIME/loblaws_data/page_data_{SCRAPE_DATE}")
     outdir.mkdir(exist_ok=True)
 
     cookies = {
@@ -54,6 +56,7 @@ if __name__ == "__main__":
                      "LSL017030000000000",
                      "LSL0170160000000",
                      "LSL017010000000",
+                     "LSL001016000001",  # cold and flu, lots of junk here
 
                      # Baby care, includes formula and feeding stuff but also diapers and other non-food products
                      # "LSL002001000000",
@@ -96,6 +99,7 @@ if __name__ == "__main__":
                 product_results = json_response['results']
             except KeyError as e:
                 print(f'Encountered issue retrieving response for {subcategory}, page {page_number}')
+                print(e)
                 continue
 
             max_pages = json_response['pagination']['totalResults'] / 48

@@ -4,16 +4,18 @@ import django
 from pathlib import Path
 from django.conf import settings
 from django.db import IntegrityError
+from django.utils.dateparse import parse_date
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.local")
 django.setup()
 
 from flaim.database.models import Product, WalmartProduct, NutritionFacts, ProductImage, ScrapeBatch
 
+SCRAPE_DATE = parse_date('2020-04-07')
 CHANGE_REASON = 'New Walmart Scrape Batch'
-POTENTIAL_KEYS = {'ingredients_txt', 'url', 'nutrition', 'SKU', 'created_date', 'nielsen_product', 'product_code',
-                  'breadcrumbs', 'bullets', 'size', 'nft_american', 'website', 'images', 'product_name', 'UPC', 'Brand',
-                  'nft_present', 'nielsen_upc', 'price', 'long_desc', 'Lifestyle & Dietary Need'}
+EXPECTED_KEYS = {'ingredients_txt', 'url', 'nutrition', 'SKU', 'created_date', 'nielsen_product', 'product_code',
+                 'breadcrumbs', 'bullets', 'size', 'nft_american', 'website', 'images', 'product_name', 'UPC', 'Brand',
+                 'nft_present', 'nielsen_upc', 'price', 'long_desc', 'Lifestyle & Dietary Need'}
 
 
 def read_json(json_file):
@@ -42,14 +44,21 @@ if __name__ == "__main__":
         missing_products=missing_products,
         new_products=new_products,
         total_products=total_products,
+        scrape_date=SCRAPE_DATE,
+        store='WALMART'
     )
 
+    # Iterate over all products
     for p in j:
-
         # Make sure all of the expected keys are populated at least with None.
-        for k in POTENTIAL_KEYS:
+        # Also rename the carbohydrate and carbohydrate_dv columns to match the DB
+        for k in EXPECTED_KEYS:
             if k not in p:
                 p[k] = None
+            if k == 'carbohydrate':
+                p['totalcarbohydrate'] = p.pop('carbohydrate')
+            if k == 'carbohydrate_dv':
+                p['totalcarbohydrate_dv'] = p.pop('carbohydrate_dv')
 
         product, created = Product.objects.get_or_create(product_code=p['product_code'])
 
@@ -58,19 +67,29 @@ if __name__ == "__main__":
         product.store = 'WALMART'
 
         # TODO: Make sure the UPC code is just the first entry
-        first_upc_code = p['UPC'].split(',')[0]
-        product.upc_code = first_upc_code
-        product.url = p['url']
 
+        if p['UPC'] is not None:
+            first_upc_code = p['UPC'].split(',')[0]
+            product.upc_code = first_upc_code
+        product.url = p['url']
         product.brand = p['Brand']
+        product.description = p['long_desc']
+        if p['breadcrumbs'] is not None:
+            product.breadcrumbs_text = p['breadcrumbs'].strip()
+            product.breadcrumbs_array = [x.strip() for x in p['breadcrumbs'].strip().split('>')]
 
         if p['price'] == 'price unavailable':
             product.price = None
-        else:
+        elif p['price'] is not None:
+            if '¢' in p['price']:
+                product.price_float = float(p['price'].replace('¢', '')) / 100
+            elif '$' in p['price']:
+                product.price_float = float(p['price'].replace('$', ''))
             product.price = p['price']
         product.nutrition_available = p['nft_present']
         product.nielsen_product = p['nielsen_product']
         product.nft_american = p['nft_american']
+        product.batch = scrape
 
         if not created:
             product.changeReason = CHANGE_REASON
@@ -82,13 +101,13 @@ if __name__ == "__main__":
         # Walmart fields
         walmart, created_ = WalmartProduct.objects.get_or_create(product=product)
         walmart.nutrition_facts_json = p['nutrition']
-        walmart.image_directory = str(Path(p['images']['image_paths'][0]).parent)  # TODO: This is bad
-        walmart.description = p['long_desc']
+        if len(p['images']['image_paths']) > 0:
+            walmart.image_directory = str(Path(p['images']['image_paths'][0]).parent)
+        else:
+            walmart.image_directory = None
         walmart.dietary_info = p['Lifestyle & Dietary Need']
         walmart.bullets = p['bullets']
         walmart.sku = p['SKU']
-        walmart.breadcrumbs_text = p['breadcrumbs'].strip()
-        walmart.breadcrumbs_array = [x.strip() for x in p['breadcrumbs'].strip().split('>')]
         if not created_:
             walmart.changeReason = CHANGE_REASON
         walmart.save()
@@ -123,10 +142,11 @@ if __name__ == "__main__":
         nutrition.ingredients = p['ingredients_txt']
 
         # TODO: There's a bug where the size value can just be a crazy string. Here's a temporary hack to get around it.
-        if len(p['size']) < 100:
-            nutrition.total_size = p['size']
-        else:
-            nutrition.total_size = None
+        if p['size'] is not None:
+            if len(p['size']) < 100:
+                nutrition.total_size = p['size']
+            else:
+                nutrition.total_size = None
 
         if not c:
             nutrition.changeReason = CHANGE_REASON
@@ -141,12 +161,14 @@ if __name__ == "__main__":
         image_paths = p['images']['image_paths']
         image_labels = p['images']['image_labels']
 
-        for i, val in enumerate(image_paths):
-            image_path = str(image_dir / val).replace(settings.MEDIA_ROOT + "/", "")
-            try:
-                image = ProductImage.objects.create(product=product, image_path=image_path, image_label=image_labels[i],
-                                                    image_number=i)
-                image.save()
-            # Skip if the file path already exists
-            except IntegrityError as e:
-                pass
+        if len(image_paths) > 0:
+            for i, val in enumerate(image_paths):
+                image_path = str(image_dir / val).replace(settings.MEDIA_ROOT + "/", "")
+                try:
+                    image = ProductImage.objects.create(product=product, image_path=image_path,
+                                                        image_label=image_labels[i],
+                                                        image_number=i)
+                    image.save()
+                # Skip if the file path already exists
+                except IntegrityError as e:
+                    pass

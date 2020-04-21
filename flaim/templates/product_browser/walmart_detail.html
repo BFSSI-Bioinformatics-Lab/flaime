@@ -1,20 +1,11 @@
 {% block content %}
-    {% load product_browser_extras %}
 
   <h4>Walmart Metadata</h4>
   <table class="table table-hover">
     <tbody>
     <tr>
-      <td class="row-label">Breadcrumbs</td>
-      <td>{{ product.walmart_product.breadcrumbs_text|render_breadcrumbs_walmart|safe }}</td>
-    </tr>
-    <tr>
       <td class="row-label">SKU</td>
       <td>{{ product.walmart_product.sku }}</td>
-    </tr>
-    <tr>
-      <td class="row-label">Description</td>
-      <td>{{ product.walmart_product.description|safe }}</td>
     </tr>
     <tr>
       <td class="row-label">Bullets</td>

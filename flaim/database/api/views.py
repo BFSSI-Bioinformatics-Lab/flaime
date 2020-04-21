@@ -7,7 +7,7 @@ from rest_framework import viewsets, filters
 from django_filters import rest_framework as df_filters
 from django.db.models import Q
 from flaim.database import models
-from flaim.database import serializers
+from flaim.database.api import serializers
 from django.contrib.auth import get_user_model
 from flaim.database.nutrient_coding import VALID_NUTRIENT_COLUMNS
 from rest_framework.pagination import PageNumberPagination
@@ -80,7 +80,7 @@ class AdvancedProductViewSet(viewsets.ReadOnlyModelViewSet):
         # description_contains = query_params.get('description_contains', None)  # TODO: Currently stored in loblaws model, but should be moved to product
         queryset = models.Product.objects.all()
 
-        print(query_params)
+        # print(query_params)
         valid_dv_nutrients = [x for x in VALID_NUTRIENT_COLUMNS if '_dv' in x]
         for nutrient in valid_dv_nutrients:
             if nutrient in dict(query_params):
@@ -93,7 +93,9 @@ class AdvancedProductViewSet(viewsets.ReadOnlyModelViewSet):
                 # print(f'{n}: {min_} - {max_}')
 
         if ingredients_contains:
-            queryset = queryset.filter(nutrition_facts__ingredients__icontains=ingredients_contains)
+            ingredients = ingredients_contains.split(',')
+            for i in ingredients:
+                queryset = queryset.filter(nutrition_facts__ingredients__icontains=i)
         if name_contains:
             queryset = queryset.filter(name__icontains=name_contains)
         if brand_contains:
@@ -132,6 +134,12 @@ class BrandNameViewSet(viewsets.ModelViewSet):
 class LoblawsProductViewSet(viewsets.ModelViewSet):
     queryset = models.LoblawsProduct.objects.all().order_by('-created')
     serializer_class = serializers.LoblawsProductSerializer
+
+
+class LoblawsBreadcrumbViewSet(viewsets.ModelViewSet):
+    pagination_class = None
+    queryset = models.LoblawsProduct.objects.all().order_by('-created')
+    serializer_class = serializers.LoblawsBreadcrumbSerializer
 
 
 class WalmartProductViewSet(viewsets.ModelViewSet):

@@ -10,9 +10,9 @@ class EagerLoadingMixin:
     @classmethod
     def setup_eager_loading(cls, queryset):
         if hasattr(cls, "_SELECT_RELATED_FIELDS"):
-            queryset = queryset.select_related(*cls._SELECT_RELATED_FIELDS)
+            queryset = queryset.select_related(*cls._SELECT_RELATED_FIELDS)  # One-to-One
         if hasattr(cls, "_PREFETCH_RELATED_FIELDS"):
-            queryset = queryset.prefetch_related(*cls._PREFETCH_RELATED_FIELDS)
+            queryset = queryset.prefetch_related(*cls._PREFETCH_RELATED_FIELDS)  # Many-to-Many or reverse foreign keys
         return queryset
 
 
@@ -22,8 +22,7 @@ class LoblawsProductSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.LoblawsProduct
         fields = (
-            'id', 'url', 'description',
-            'image_directory', 'breadcrumbs_array', 'upc_list'
+            'id', 'url', 'upc_list'
         )
 
 
@@ -52,6 +51,8 @@ class NutritionFactsSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixin):
+    # TODO: Serialize ScrapeBatch model and get access
+
     _SELECT_RELATED_FIELDS = ['loblaws_product', ]
     # _SELECT_RELATED_FIELDS = ['nutrition_facts', ]
 
@@ -61,19 +62,21 @@ class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixi
 
     # nutrition_facts = NutritionFactsSerializer()
 
-    # walmart_product = WalmartProductSerializer()
+    walmart_product = WalmartProductSerializer()
+
     # amazon_product = AmazonProductSerializer()
 
     class Meta:
         model = models.Product
         reverse_relationships = [
             'loblaws_product',
-            # 'walmart_product',
+            'walmart_product',
             # 'amazon_product',
             # 'nutrition_facts'
         ]
-        fields = ['id', 'url', 'created', 'modified', 'product_code', 'name', 'brand', 'store', 'price', 'upc_code',
-                  'nutrition_available', 'scrape_date'] + reverse_relationships
+        fields = ['id', 'url', 'created', 'modified', 'product_code', 'description', 'breadcrumbs_array', 'name',
+                  'brand', 'store', 'price', 'upc_code',
+                  'nutrition_available'] + reverse_relationships
 
 
 class ProductImageSerializer(serializers.HyperlinkedModelSerializer):
@@ -134,6 +137,16 @@ class BrandNameSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Product
         fields = ['id', 'text']
+
+
+class LoblawsBreadcrumbSerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField()
+
+    class Meta:
+        model = models.LoblawsProduct
+        fields = (
+            'id', 'product', 'breadcrumbs_array'
+        )
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):

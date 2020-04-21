@@ -71,21 +71,22 @@ def download_all_images():
 
         image_urls = get_large_image_urls(data)
         if image_urls is None:
+            print(f'No images for {p} found')
             continue
+
         download_dir = OUTDIR / p.product.product_code
         download_dir.mkdir(exist_ok=True, parents=True)
-        status = False
 
+        status = False
         for i in image_urls:
+            if type(i) != str:
+                continue
             outfile = download_dir / Path(i).name
-            try:
-                if outfile.exists():
-                    continue
-            except TypeError as e:
-                print(e)
+            if outfile.exists():
+                print(f'Skipping {outfile.name}')
                 continue
             status = download_image(url=i, outfile=outfile)
-        print(f'Images Retrieved: {status}\t{p.product.product_code}')
+            print(f'Retrieved {outfile.name}: {status}')
         time.sleep(1.5)
 
 

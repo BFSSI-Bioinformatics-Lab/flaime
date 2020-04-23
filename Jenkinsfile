@@ -28,7 +28,9 @@ pipeline {
     }
     stage('test') {
       steps {
-        sh 'pytest'
+        sh '''
+        pytest --create-db
+        '''
       }
     }
   }

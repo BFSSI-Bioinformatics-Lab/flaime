@@ -29,6 +29,7 @@ pipeline {
     stage('test') {
       steps {
         sh '''
+        psql flaim forest
         pytest --create-db
         '''
       }

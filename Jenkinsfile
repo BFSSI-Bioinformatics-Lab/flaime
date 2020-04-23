@@ -1,6 +1,6 @@
 
 pipeline {
-  agent { docker { image 'python:3.7.3' } }
+  agent { docker { image 'python:3.7-slim-buster' } }
   stages {
     stage('build') {
       steps {
@@ -14,4 +14,3 @@ pipeline {
     }
   }
 }
-JENKINSFILE

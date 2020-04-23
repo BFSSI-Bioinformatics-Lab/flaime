@@ -23,7 +23,6 @@ pipeline {
       steps {
         sh '''
         pip install -r requirements/local.txt
-        systemctl start postgresql
         '''
       }
     }

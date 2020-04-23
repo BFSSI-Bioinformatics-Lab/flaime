@@ -13,6 +13,7 @@ pipeline {
     FLAIM_DB_USER = credentials('flaim-db-user')
     FLAIM_DB_PASSWORD = credentials('flaim-db-password')
     REDIS_PASSWORD = credentials('flaim-redis-password')
+    POSTGRESQL_URL = credentials('flaim-postgresql-url')
     DEBUG = 'on'
   }
 

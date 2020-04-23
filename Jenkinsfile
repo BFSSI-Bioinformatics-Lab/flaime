@@ -4,7 +4,7 @@ pipeline {
   stages {
     stage('build') {
       steps {
-        sh 'pip install -r requirements/local.txt'
+        sh 'pip install --user -r requirements/local.txt'
       }
     }
     stage('test') {

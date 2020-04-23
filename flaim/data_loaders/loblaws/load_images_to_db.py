@@ -15,12 +15,18 @@ SCRAPE_DATE = parse_date('2020-04-17')  # YYYY-MM-DD
 IMAGE_DIRS = list(Path(f"/home/forest/PycharmProjects/flaim/flaim/media/LOBLAWS/{str(SCRAPE_DATE)}").glob('*'))
 
 
+"""
+TODO: Fix issue where with every scrape uploaded, duplicate images are added!
+"""
+
+
 def load_images(image_dirs: list):
     for d in image_dirs:
         product_code = d.name
         try:
             product = Product.objects.get(product_code=product_code)
         except:
+            print(f'Could not find corresponding product in database for {product_code}')
             continue
 
         # Strip out MEDIA_ROOT for paths to behave properly with image field in ProductImage
@@ -38,3 +44,4 @@ def load_images(image_dirs: list):
 
 if __name__ == "__main__":
     load_images(IMAGE_DIRS)
+    print(f'\nDone loading Loblaws-{str(SCRAPE_DATE)} images to database!')

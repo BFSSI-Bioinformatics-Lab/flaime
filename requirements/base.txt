@@ -18,3 +18,4 @@ django-redis==4.10.0  # https://github.com/niwinz/django-redis
 djangorestframework==3.10.2  # https://github.com/encode/django-rest-framework
 coreapi==2.3.3  # https://github.com/core-api/python-client
 django-simple-history==2.8.0
+djangorestframework-datatables==0.5.2

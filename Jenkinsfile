@@ -20,5 +20,11 @@ pipeline {
                 sh ''' pip install -r requirements/local.txt '''
             }
         }
+
+        stage('test') {
+            steps {
+                sh ''' pytest '''
+            }
+        }
     }
 }

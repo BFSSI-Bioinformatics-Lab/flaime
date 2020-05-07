@@ -24,7 +24,10 @@ pipeline {
         stage('test') {
             agent any
             steps {
-                sh ''' pytest '''
+                sh '''
+                source ./venv/bin/activate
+                pytest
+                '''
             }
         }
     }

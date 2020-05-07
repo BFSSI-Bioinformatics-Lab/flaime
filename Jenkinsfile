@@ -33,8 +33,7 @@ pipeline {
 
                 steps {
                     sh '''
-                       psql flaim forest
-                       pytest --create-db
+                       echo 'test'
                        '''
                 }
             }

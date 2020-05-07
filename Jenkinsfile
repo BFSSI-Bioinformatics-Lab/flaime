@@ -10,9 +10,11 @@ pipeline {
     agent none
     stages {
         stage('build') {
-            docker {
-                image 'python:3.7-slim-buster'
-                args '--user 0:0'
+            agent {
+                docker {
+                    image 'python:3.7-slim-buster'
+                    args '--user 0:0'
+                }
             }
             steps {
                 sh ''' pip install -r requirements/local.txt '''

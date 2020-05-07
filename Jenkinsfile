@@ -25,7 +25,10 @@ pipeline {
             agent any
             steps {
                 sh '''
-                source ./venv/bin/activate
+                pwd
+                ll
+                echo hello
+                source venv/bin/activate
                 pytest
                 '''
             }

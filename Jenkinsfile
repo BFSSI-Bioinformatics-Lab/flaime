@@ -28,8 +28,8 @@ pipeline {
         stage('database') {
             agent {
                 docker {
-                    image 'postgres:12.2'
-                    args '-p 5432:5432 -v /var/run/postgresql:/var/run/postgresql -d --name postgres-jenkins postgres'
+                    image 'postgres:10.12'
+                    args '-p 5432:5432 -v /var/run/postgresql:/var/run/postgresql -d '
                 }
             }
             steps {

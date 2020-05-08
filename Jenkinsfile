@@ -26,7 +26,12 @@ pipeline {
         }
 
         stage('test') {
-            agent any
+            agent {
+                docker {
+                    image 'python:3.7-slim-buster'
+                    args '--user 0:0'
+                }
+            }            
             steps {
                 sh '''
                 source ./venv/bin/activate

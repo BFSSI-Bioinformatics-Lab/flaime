@@ -34,7 +34,7 @@ pipeline {
             }
             steps {
                 sh '''
-                psql
+                psql -d flaim
                 '''
             }
         }

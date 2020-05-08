@@ -25,13 +25,27 @@ pipeline {
             }
         }
 
+        stage('database') {
+            agent {
+                docker {
+                    image 'postgres:12.2'
+                    args '--user 0:0'
+                }
+            }
+            steps {
+                sh '''
+                psql
+                '''
+            }
+        }
+
         stage('test') {
             agent {
                 docker {
                     image 'python:3.7-slim-buster'
                     args '--user 0:0'
                 }
-            }            
+            }
             steps {
                 sh '''
                 source ./venv/bin/activate

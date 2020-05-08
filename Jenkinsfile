@@ -29,7 +29,7 @@ pipeline {
             agent {
                 docker {
                     image 'postgres:12.2'
-                    args '--user 0:0 -p 5432:5432 -v /var/run/postgresql:/var/run/postgresql -d'
+                    args '--user 0:0 -p 5432:5432 -v /var/run/postgresql:/var/run/postgresql -d --host localhost'
                 }
             }
             steps {

@@ -34,7 +34,7 @@ pipeline {
             }
             steps {
                 sh '''
-                psql -d flaim
+                echo "mounted postgres"
                 '''
             }
         }

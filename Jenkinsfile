@@ -17,7 +17,11 @@ pipeline {
                 }
             }
             steps {
-                sh ''' pip install -r requirements/local.txt '''
+                sh '''
+                 python3 -m venv ./venv
+                 source ./venv/bin/activate
+                 pip install -r requirements/local.txt
+                  '''
             }
         }
 
@@ -25,10 +29,7 @@ pipeline {
             agent any
             steps {
                 sh '''
-                pwd
-                ll
-                echo hello
-                source venv/bin/activate
+                source ./venv/bin/activate
                 pytest
                 '''
             }

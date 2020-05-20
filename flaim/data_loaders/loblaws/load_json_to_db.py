@@ -1,5 +1,6 @@
 import os
 import json
+import click
 from pathlib import Path
 from django.utils.dateparse import parse_date
 from django.utils import timezone
@@ -12,9 +13,6 @@ django.setup()
 
 from flaim.database.models import Product, LoblawsProduct, NutritionFacts, ScrapeBatch
 
-SCRAPE_DATE = parse_date('2020-04-17')  # YYYY-MM-DD
-DATADIR = Path(f'/home/forest/Documents/FLAIME/loblaws_data/product_data_{str(SCRAPE_DATE)}')
-IMAGE_DIRS = list(Path(f"/home/forest/PycharmProjects/flaim/flaim/media/LOBLAWS/{str(SCRAPE_DATE)}").glob('*'))
 CHANGE_REASON = 'New Loblaws Scrape Batch'
 
 
@@ -174,8 +172,25 @@ def get_nutrition_disclaimer(api_data) -> str:
     return api_data['productNutritionDisclaimer'].strip()
 
 
-if __name__ == "__main__":
-    json_files = list(DATADIR.glob("*.json"))
+@click.command(
+    help="Given an input product JSON directory (created by the Loblaws scraper), will load entries into the database."
+)
+@click.option(
+    "-i", "--input-dir",
+    type=click.Path(exists=True),
+    required=True,
+    help="Path to input product JSON directory"
+)
+@click.option(
+    "-d", "--date",
+    type=click.STRING,
+    required=True,
+    help="Date in YYYY-MM-DD format. This should be the date that the scrape was executed."
+)
+def load_json_pipeline(product_json_dir, scrape_date):
+    scrape_date = parse_date('scrape_date')  # YYYY-MM-DD
+    product_json_dir = Path(product_json_dir)
+    json_files = list(product_json_dir.glob("*.json"))
 
     # Total valid products scraped
     filtered_json_files = [f for f in json_files if f.stat().st_size > 1000]
@@ -196,7 +211,7 @@ if __name__ == "__main__":
         missing_products=missing_products,
         new_products=new_products,
         total_products=total_products,
-        scrape_date=SCRAPE_DATE,
+        scrape_date=scrape_date,
         store='LOBLAWS'
     )
 
@@ -206,7 +221,7 @@ if __name__ == "__main__":
         try:
             data = read_json(j)
         except json.decoder.JSONDecodeError as e:
-            print(f'Skipping product JSON {j} due to exception:\n{e}')
+            print(f'ERROR: Skipping product JSON {j} due to exception:\n{e}')
             continue
 
         # Get or create generic Product
@@ -268,6 +283,12 @@ if __name__ == "__main__":
         nutrition_facts.save()
 
         if created_:
-            print(f'Successfully SAVED {product} to database')
+            print(f'SAVED {product}')
         else:
-            print(f'Successfully UPDATED {product}')
+            print(f'UPDATED {product}')
+
+    print(f'\nDone loading Loblaws-{str(scrape_date)} products to database!')
+
+
+if __name__ == "__main__":
+    load_json_pipeline()

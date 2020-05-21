@@ -43,7 +43,10 @@ def get_name(api_data) -> str:
 @safe_run
 def get_brand(api_data) -> str:
     """ Returns plain text """
-    return api_data['brand'].strip()
+    brand = api_data['brand'].strip()
+    if brand is None or brand is "":
+        brand = "n/a"
+    return brand
 
 
 @safe_run
@@ -250,7 +253,7 @@ def load_json_pipeline(product_json_dir, scrape_date):
             obj.upc_code = upc_list[0]  # Set the representative UPC code to the first entry in the list
 
         obj.manufacturer = None  # Not sure if we have this
-        obj.nielsen_product = None  # Might need to be populated posthoc
+        obj.nielsen_product = None  # TODO: Probably populate this post-hoc. Ask Adrian about this.
         obj.url = get_url(data)
         obj.scrape_date = timezone.now()
         obj.nutrition_available = None  # Figure out how to populate this
@@ -273,6 +276,9 @@ def load_json_pipeline(product_json_dir, scrape_date):
 
         if nutrition_facts_json is not None:
             nutrition_facts.load_loblaws_nutrition_facts_json(nutrition_facts_json)
+            obj.nutrition_available = True
+        else:
+            obj.nutrition_available = False
 
         if not c:
             nutrition_facts.changeReason = CHANGE_REASON

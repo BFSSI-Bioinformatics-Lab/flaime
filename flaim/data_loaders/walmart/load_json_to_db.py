@@ -93,7 +93,7 @@ if __name__ == "__main__":
 
         product.nutrition_available = p['nft_present']
         product.nielsen_product = p['nielsen_product']
-        product.nft_american = p['nft_american']
+        product.unidentified_nft_format = p['nft_american']
         product.batch = scrape
 
         if not created:

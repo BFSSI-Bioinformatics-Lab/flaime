@@ -96,6 +96,8 @@ class Product(TimeStampedModel):
     name = models.CharField(max_length=500, unique=False, blank=True, null=True)
     brand = models.CharField(max_length=500, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
+
+    # TODO: Accomodate the possibility for multiple breadcrumb trails, i.e. change to ArrayField(ArrayField)
     breadcrumbs_text = models.CharField(max_length=600, blank=True, null=True)
     breadcrumbs_array = ArrayField(models.CharField(max_length=300), blank=True, null=True)
 
@@ -113,7 +115,7 @@ class Product(TimeStampedModel):
     price_units = models.CharField(max_length=20, blank=True, null=True)
     upc_code = models.CharField(max_length=500, blank=True, null=True)
     nutrition_available = models.BooleanField(blank=True, null=True)
-    nft_american = models.BooleanField(default=False)  # Bool flag for whether the NFT is American or not
+    unidentified_nft_format = models.BooleanField(default=False)  # Bool flag for whether the NFT is American or not
     nielsen_product = models.BooleanField(blank=True, null=True)
     url = models.URLField(max_length=1000, blank=True, null=True)
 

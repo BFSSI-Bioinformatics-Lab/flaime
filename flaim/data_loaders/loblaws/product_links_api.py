@@ -2,6 +2,7 @@ import requests
 import json
 import time
 from pathlib import Path
+from flaim.data_loaders.loblaws.get_loblaws_categories import generate_category_list
 
 """
 Helper script to collect all Loblaws' product code data. Data retrieved with this script is stored in JSON files
@@ -39,33 +40,7 @@ if __name__ == "__main__":
     }
 
     # Retrieved list from Loblaws main grocery product page
-    subcategories = ["LSL001050000000",
-                     "LSL001001000000",
-                     "LSL001002009000",
-                     "LSL001003000000",
-                     "LSL001004000000",
-                     "LSL001005000000",
-                     "LSL001006000000",
-                     "LSL001007000000",
-                     "LSL001002000000",
-                     "LSL001008000000",
-                     "LSL001009000000",
-                     "LSLC017016000000",
-                     "LSL001010000000",
-                     "LSL001011000000",
-                     "LSL017030000000000",
-                     "LSL0170160000000",
-                     "LSL017010000000",
-                     "LSL001016000001",  # cold and flu, lots of junk here
-
-                     # Baby care, includes formula and feeding stuff but also diapers and other non-food products
-                     # "LSL002001000000",
-
-                     "LSL001012000000",
-                     "LSL001020007000",
-                     "LSL001030000000",
-                     "LSL001017000000",
-                     "LSL001022000000"]
+    subcategories = generate_category_list()
 
     # Iterate over each subcategory and simulate clicking through every page to get all product codes
     for subcategory in subcategories:

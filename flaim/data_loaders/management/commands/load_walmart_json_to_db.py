@@ -18,6 +18,10 @@ EXPECTED_KEYS = {'ingredients_txt', 'url', 'nutrition', 'SKU', 'created_date', '
                  'nft_present', 'nielsen_upc', 'price', 'long_desc', 'Lifestyle & Dietary Need'}
 
 
+# TODO: Implement CLI
+# TODO: Implement automatic scanning/calling of this script upon finding new data
+
+
 def read_json(json_file):
     with open(json_file, 'r') as f:
         data = json.load(f)

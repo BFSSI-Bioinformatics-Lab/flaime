@@ -397,7 +397,7 @@ class LoblawsProduct(TimeStampedModel):
     #  including the root. This is not portable at all and will cause issues whenever the server migration occurs.
     upc_list = ArrayField(models.CharField(max_length=300), blank=True, null=True)
 
-    # This JSON data is retrieved from the API. See flaim.data_loaders.loblaws.product_detail_api.py
+    # This JSON data is retrieved from the Loblaws API
     api_data = JSONField(blank=True, null=True)
 
     def __str__(self):

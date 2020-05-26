@@ -45,4 +45,5 @@ jobs:
           REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
           POSTGRESQL_URL: ${{ secrets.POSTGRESQL_URL }}
         run: |
+          echo "test"
           pytest

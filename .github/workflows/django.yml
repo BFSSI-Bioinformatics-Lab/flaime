@@ -13,18 +13,12 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.7, 3.8]
 
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v1
-        env:
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          FLAIM_DB_USER: ${{ secrets.FLAIM_DB_USER }}
-          FLAIM_DB_PASSWORD: ${{ secrets.FLAIM_DB_PASSWORD }}
-          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
-          POSTGRESQL_URL: ${{ secrets.POSTGRESQL_URL }}
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install Dependencies
@@ -32,5 +26,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements/local.txt
       - name: Run Tests
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          FLAIM_DB_USER: ${{ secrets.FLAIM_DB_USER }}
+          FLAIM_DB_PASSWORD: ${{ secrets.FLAIM_DB_PASSWORD }}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+          POSTGRESQL_URL: ${{ secrets.POSTGRESQL_URL }}
         run: |
           python manage.py test

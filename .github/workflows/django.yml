@@ -27,6 +27,13 @@ jobs:
         # needed because the postgres container does not provide a healthcheck
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
+  env:
+    SECRET_KEY: ${{ secrets.SECRET_KEY }}
+    FLAIM_DB_USER: ${{ secrets.FLAIM_DB_USER }}
+    FLAIM_DB_PASSWORD: ${{ secrets.FLAIM_DB_PASSWORD }}
+    REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+    POSTGRESQL_URL: ${{ secrets.POSTGRESQL_URL }}
+
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -42,11 +49,6 @@ jobs:
           python manage.py makemigrations
           python manage.py migrate
       - name: Run Tests
-        env:
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          FLAIM_DB_USER: ${{ secrets.FLAIM_DB_USER }}
-          FLAIM_DB_PASSWORD: ${{ secrets.FLAIM_DB_PASSWORD }}
-          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
-          POSTGRESQL_URL: ${{ secrets.POSTGRESQL_URL }}
+
         run: |
           pytest

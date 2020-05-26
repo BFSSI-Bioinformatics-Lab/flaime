@@ -18,6 +18,10 @@ EXPECTED_KEYS = {'ingredients_txt', 'url', 'nutrition', 'SKU', 'created_date', '
                  'nft_present', 'nielsen_upc', 'price', 'long_desc', 'Lifestyle & Dietary Need'}
 
 
+# TODO: Implement CLI
+# TODO: Implement automatic scanning/calling of this script upon finding new data
+
+
 def read_json(json_file):
     with open(json_file, 'r') as f:
         data = json.load(f)
@@ -40,6 +44,7 @@ if __name__ == "__main__":
     new_products = len([x for x in product_codes if x not in existing_products])
     total_products = len(j)
 
+    # TODO: If the script fails this will still be created, should probably clean up after itself
     scrape = ScrapeBatch.objects.create(
         missing_products=missing_products,
         new_products=new_products,
@@ -69,7 +74,7 @@ if __name__ == "__main__":
         # TODO: Make sure the UPC code is just the first entry
 
         if p['UPC'] is not None:
-            first_upc_code = p['UPC'].split(',')[0]
+            first_upc_code = str(p['UPC']).split(',')[0]
             product.upc_code = first_upc_code
         product.url = p['url']
         product.brand = p['Brand']
@@ -79,16 +84,20 @@ if __name__ == "__main__":
             product.breadcrumbs_array = [x.strip() for x in p['breadcrumbs'].strip().split('>')]
 
         if p['price'] == 'price unavailable':
-            product.price = None
+            product.price = 'price unavailable'
         elif p['price'] is not None:
             if '¢' in p['price']:
                 product.price_float = float(p['price'].replace('¢', '')) / 100
+            elif '\u00a2' in p['price']:  # Weird character that represents cents
+                product.price_float = float(p['price'].replace('\u00a2', '')) / 100
             elif '$' in p['price']:
                 product.price_float = float(p['price'].replace('$', ''))
             product.price = p['price']
+            product.price_units = "ea"  # TODO: This is just assumed because there is no value provided by the Walmart scraper
+
         product.nutrition_available = p['nft_present']
         product.nielsen_product = p['nielsen_product']
-        product.nft_american = p['nft_american']
+        product.unidentified_nft_format = p['nft_american']
         product.batch = scrape
 
         if not created:
@@ -155,6 +164,12 @@ if __name__ == "__main__":
         for key, val in nutrition_dict.items():
             if val is not None:
                 setattr(nutrition, key, val)
+
+        # Serving size is weird
+        nutrition.serving_size_raw = f'{p["serving_size"]} {p["serving_size_unit"]}'
+        nutrition.serving_size = p["serving_size"]
+        nutrition.serving_size_units = p["serving_size_unit"]
+
         nutrition.save()
 
         # Images
@@ -172,3 +187,4 @@ if __name__ == "__main__":
                 # Skip if the file path already exists
                 except IntegrityError as e:
                     pass
+    print(f'\nDone loading Walmart-{str(SCRAPE_DATE)} products to database!')

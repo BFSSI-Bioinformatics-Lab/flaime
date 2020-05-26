@@ -10,11 +10,9 @@ from .base import env
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
 DEBUG = False
 # https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
-SECRET_KEY = env(
-    "DJANGO_SECRET_KEY",
-    default="d7kbAWpK3HaSWmedwRI84vwYKc4hChk5eNNLrFErOFiYQRQ5RkIzOznVYxpc5jtp",
-)
-# https://docs.djangoproject.com/en/dev/ref/settings/#test-runner
+SECRET_KEY = env("SECRET_KEY")
+# https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
+ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1", "*"]  # TODO: Stop using '*'
 TEST_RUNNER = "django.test.runner.DiscoverRunner"
 
 # CACHES

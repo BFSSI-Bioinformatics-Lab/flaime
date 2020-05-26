@@ -46,12 +46,14 @@ LOCALE_PATHS = [ROOT_DIR.path("locale")]
 DATABASES = {
     "default": env.db("DATABASE_URL", default="postgres:///flaim")
 }
-DATABASES["default"]["ATOMIC_REQUESTS"] = False
+DATABASES['default']['ATOMIC_REQUESTS'] = False
+DATABASES['default']['DATABASE_URL'] = env('POSTGRESQL_URL')
 DATABASES['default']['NAME'] = 'flaim'
 DATABASES['default']['USER'] = env('FLAIM_DB_USER')
 DATABASES['default']['PASSWORD'] = env('FLAIM_DB_PASSWORD')
 DATABASES['default']['HOST'] = 'localhost'
 DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
+DATABASES['default']['PORT'] = '5432'
 
 # URLS
 # ------------------------------------------------------------------------------

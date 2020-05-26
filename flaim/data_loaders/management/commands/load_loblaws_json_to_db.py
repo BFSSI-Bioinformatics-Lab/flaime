@@ -182,6 +182,7 @@ class Command(BaseCommand):
         CHANGE_REASON = 'New Loblaws Scrape Batch'
 
         json_files = list(product_json_dir.glob("*.json"))
+        self.stdout.write(self.style.SUCCESS(f'Found {len(json_files)} JSON files in {product_json_dir}'))
 
         # Total valid products scraped
         filtered_json_files = [f for f in json_files if f.stat().st_size > 1000]

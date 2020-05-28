@@ -4,6 +4,32 @@ from django.template.defaulttags import register
 
 
 @register.filter
+def render_breadcrumbs(val):
+    if val is None:
+        return ''
+    breadcrumbs = ['<btn class="btn btn-sm btn-primary">' + x + '</btn>' for x in val][:-1]
+    breadcrumbs_pretty = ' <strong>></strong> '.join(breadcrumbs)
+    return breadcrumbs_pretty
+
+
+@register.filter
+def render_breadcrumbs_walmart(val):
+    if val is None:
+        return ''
+    breadcrumbs = val.split('>')
+    breadcrumbs = ['<btn class="btn btn-sm btn-primary">' + x + '</btn>' for x in breadcrumbs]
+    breadcrumbs_pretty = ' <strong>></strong> '.join(breadcrumbs)
+    return breadcrumbs_pretty
+
+
+@register.filter
+def render_ingredients(val):
+    if val is not None:
+        return val.title()
+    return "N/A"
+
+
+@register.filter
 def format_dv(val):
     # Since dv values are stored from 0 to 1 in the database, *100 and append "%" to make values more readable
     if val is not None and val is not '':

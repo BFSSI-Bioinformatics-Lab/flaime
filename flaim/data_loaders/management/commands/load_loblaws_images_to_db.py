@@ -39,7 +39,8 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--input_dir', type=str, help='Path to input product image directory')
-        parser.add_argument('--delete_images', type=bool, help='WARNING: Will delete all images in the database')
+        parser.add_argument('--delete_images', action='store_true',
+                            help='WARNING: Will delete all images in the database')
 
     def handle(self, *args, **options):
         if options['delete_images']:

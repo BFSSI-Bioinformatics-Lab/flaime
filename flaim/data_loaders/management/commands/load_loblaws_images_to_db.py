@@ -24,7 +24,7 @@ def load_images(image_dirs: list):
         product_image_paths = []
         for i in images:
             # Strip out MEDIA_ROOT for paths to behave properly with image field in ProductImage
-            i = str(i).replace(settings.MEDIA_ROOT + "/", "")
+            i = str(i).replace(settings.MEDIA_URL + settings.MEDIA_ROOT + "/", "")
             try:
                 product_image = ProductImage.objects.create(product=product,
                                                             image_path=i)

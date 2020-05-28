@@ -41,8 +41,8 @@ class Command(BaseCommand):
         parser.add_argument('--input_dir', type=str, help='Path to input product image directory')
 
     def handle(self, *args, **options):
-        input_dir = options['input_dir']
-        image_dirs = Path(input_dir.glob("*"))
+        input_dir = Path(options['input_dir'])
+        image_dirs = input_dir.glob("*")
         image_dirs = [x for x in image_dirs if x.is_dir()]
         load_images(image_dirs)
         self.stdout.write(self.style.SUCCESS(f'\nDone loading Loblaws images to database!'))

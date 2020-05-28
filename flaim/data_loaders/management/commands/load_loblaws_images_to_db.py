@@ -21,17 +21,19 @@ def load_images(image_dirs: list):
             continue
 
         images = [x for x in list(d.glob('*')) if x.is_file()]
+        product_image_paths = []
         for i in images:
             # Strip out MEDIA_ROOT for paths to behave properly with image field in ProductImage
-            i = str(i).replace(settings.MEDIA_URL, "")
+            i = str(i).replace(settings.MEDIA_ROOT + "/", "")
             try:
-                ProductImage.objects.create(product=product,
-                                            image_path=i)
+                product_image = ProductImage.objects.create(product=product,
+                                                            image_path=i)
+                product_image_paths.append(product_image.image_path)
             # Skip if the file path already exists
             except IntegrityError as e:
                 pass
 
-        print(f'Done with {product_code}')
+        print(f'Done with {product_code}: {product_image_paths}')
 
 
 class Command(BaseCommand):

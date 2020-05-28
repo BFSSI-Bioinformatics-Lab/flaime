@@ -20,9 +20,10 @@ def load_images(image_dirs: list):
             print(f'Already have image records for {product}; skipping!')
             continue
 
-        # Strip out MEDIA_ROOT for paths to behave properly with image field in ProductImage
-        images = [str(x).replace(settings.MEDIA_ROOT + "/", "") for x in list(d.glob('*')) if x.is_file()]
+        images = [x for x in list(d.glob('*')) if x.is_file()]
         for i in images:
+            # Strip out MEDIA_ROOT for paths to behave properly with image field in ProductImage
+            i = str(i).replace(settings.MEDIA_URL, "")
             try:
                 ProductImage.objects.create(product=product,
                                             image_path=i)
@@ -44,10 +45,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if options['delete_images']:
-            self.stdout.write(self.style.WARNING(f'\nDeleting all Loblaws images in the database...'))
+            self.stdout.write(self.style.WARNING(f'Deleting all Loblaws images in the database...'))
             product_image_records = ProductImage.objects.filter(product__store="LOBLAWS")
             product_image_records.delete()
-            self.stdout.write(self.style.SUCCESS(f'\nDeleted all Loblaws product image records in the database!'))
+            self.stdout.write(self.style.SUCCESS(f'Deleted all Loblaws product image records in the database!'))
             quit()
         input_dir = Path(options['input_dir'])
         image_dirs = input_dir.glob("*")

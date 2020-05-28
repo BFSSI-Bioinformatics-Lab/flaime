@@ -1,14 +1,7 @@
-import os
-import click
 from pathlib import Path
 from django.conf import settings
 from django.db import IntegrityError
-
-import django
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.local")
-django.setup()
-
+from django.core.management.base import BaseCommand
 from flaim.database.models import Product, ProductImage
 
 
@@ -40,21 +33,16 @@ def load_images(image_dirs: list):
         print(f'Done with {product_code}')
 
 
-@click.command(
-    help="Given an input product image directory (created by the Loblaws scraper), will load entries into the database."
-)
-@click.option(
-    "-i", "--input-dir",
-    type=click.Path(exists=True),
-    required=True,
-    help="Path to input product image directory"
-)
-def cli(input_dir):
-    image_dirs = Path(input_dir.glob("*"))
-    image_dirs = [x for x in image_dirs if x.is_dir()]
-    load_images(image_dirs)
-    print(f'\nDone loading Loblaws images to database!')
+class Command(BaseCommand):
+    help = 'Given an input product image directory (created by the Loblaws scraper), ' \
+           'will load entries into the database.'
 
+    def add_arguments(self, parser):
+        parser.add_argument('--input_dir', type=str, help='Path to input product image directory')
 
-if __name__ == "__main__":
-    cli()
+    def handle(self, *args, **options):
+        input_dir = options['input_dir']
+        image_dirs = Path(input_dir.glob("*"))
+        image_dirs = [x for x in image_dirs if x.is_dir()]
+        load_images(image_dirs)
+        self.stdout.write(self.style.SUCCESS(f'\nDone loading Loblaws images to database!'))

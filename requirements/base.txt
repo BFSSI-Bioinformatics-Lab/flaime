@@ -1,29 +1,45 @@
-pytz==2019.2  # https://github.com/stub42/pytz
-python-slugify==3.0.3  # https://github.com/un33k/python-slugify
-Pillow==6.1.0  # https://github.com/python-pillow/Pillow
-argon2-cffi==19.1.0  # https://github.com/hynek/argon2_cffi
-whitenoise==4.1.3  # https://github.com/evansd/whitenoise
-redis==3.5.2  # https://github.com/antirez/redis
+argon2-cffi==20.1.0
+asgiref==3.2.7
+certifi==2020.4.5.1
+cffi==1.14.0
+chardet==3.0.4
+click==7.1.2
+coreapi==2.3.3
+coreschema==0.0.4
+defusedxml==0.6.0
+environ==1.0
+idna==2.9
+itypes==1.2.0
+Jinja2==2.11.2
+MarkupSafe==1.1.1
+oauthlib==3.1.0
+Pillow==7.1.2
+pycparser==2.20
+python-slugify==4.0.0
+python3-openid==3.1.0
+pytz==2020.1
+redis==3.5.2
+requests==2.23.0
+requests-oauthlib==1.3.0
+rq==1.4.2
+selenium==3.141.0
+six==1.15.0
+sqlparse==0.3.1
+text-unidecode==1.3
+uritemplate==3.0.1
+urllib3==1.25.9
+whitenoise==5.1.0
 
 # Django
-# ------------------------------------------------------------------------------
 Django==3.0.6
 django-allauth==0.42.0
 django-crispy-forms==1.9.1
 django-environ==0.4.5
 django-filter==2.2.0
 django-model-utils==4.0.0
-django-redis==4.11.0
+django-redis==4.12.1
 django-rq==2.3.2
 django-simple-history==2.10.0
 djangorestframework==3.11.0
 djangorestframework-datatables==0.5.2
-
-coreapi==2.3.3  # https://github.com/core-api/python-client
-
-# Other
-click==7.1.2
-environ==1.0
-selenium==3.141.0
-requests==2.22.0
 

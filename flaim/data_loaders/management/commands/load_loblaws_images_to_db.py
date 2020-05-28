@@ -39,8 +39,15 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--input_dir', type=str, help='Path to input product image directory')
+        parser.add_argument('--delete_images', type=bool, help='WARNING: Will delete all images in the database')
 
     def handle(self, *args, **options):
+        if options['delete_images']:
+            self.stdout.write(self.style.WARNING(f'\nDeleting all Loblaws images in the database...'))
+            product_image_records = ProductImage.objects.filter(product__store="LOBLAWS")
+            product_image_records.delete()
+            self.stdout.write(self.style.SUCCESS(f'\nDeleted all Loblaws product image records in the database!'))
+            quit()
         input_dir = Path(options['input_dir'])
         image_dirs = input_dir.glob("*")
         image_dirs = [x for x in image_dirs if x.is_dir()]

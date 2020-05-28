@@ -28,7 +28,7 @@ def load_images(image_dirs: list):
             try:
                 product_image = ProductImage.objects.create(product=product,
                                                             image_path=i)
-                product_image_paths.append(product_image.image_path)
+                product_image_paths.append(product_image.image_path.url)
             # Skip if the file path already exists
             except IntegrityError as e:
                 pass

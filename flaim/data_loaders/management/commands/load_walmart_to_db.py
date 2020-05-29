@@ -43,8 +43,7 @@ class Command(BaseCommand):
         image_dir = [x for x in tmp if x.is_dir()][0]
         assert image_dir.exists()
 
-        # Cleanup
-        Product.objects.filter(store='WALMART').delete()
+        self.stdout.write(self.style.SUCCESS(f'Started loading Walmart products to database'))
 
         # Create scrape batch
         # All Walmart products in the DB
@@ -63,6 +62,8 @@ class Command(BaseCommand):
             store='WALMART'
         )
 
+        self.stdout.write(self.style.SUCCESS(f'Created new scrape batch for {scrape.scrape_date}'))
+
         # Iterate over all products
         for p in j:
             # Make sure all of the expected keys are populated at least with None.
@@ -80,6 +81,8 @@ class Command(BaseCommand):
             # Product fields
             product.name = p['product_name']
             product.store = 'WALMART'
+
+            self.stdout.write(self.style.SUCCESS(f'Processing {product.name}'))
 
             # TODO: Make sure the UPC code is just the first entry
 
@@ -114,8 +117,6 @@ class Command(BaseCommand):
                 product.changeReason = CHANGE_REASON
 
             product.save()
-
-            print(product)
 
             # Walmart fields
             walmart, created_ = WalmartProduct.objects.get_or_create(product=product)
@@ -182,6 +183,7 @@ class Command(BaseCommand):
 
             nutrition.save()
 
+            self.stdout.write(self.style.SUCCESS(f'Loading images...'))
             # Images
             image_paths = p['images']['image_paths']
             image_labels = p['images']['image_labels']
@@ -197,4 +199,4 @@ class Command(BaseCommand):
                     # Skip if the file path already exists
                     except IntegrityError as e:
                         pass
-        print(f'\nDone loading Walmart-{str(scrape_date)} products to database!')
+        self.stdout.write(self.style.SUCCESS(f'\nDone loading Walmart-{str(scrape_date)} products to database!'))

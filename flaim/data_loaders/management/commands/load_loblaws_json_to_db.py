@@ -175,8 +175,17 @@ class Command(BaseCommand):
         parser.add_argument('--input_dir', type=str, help='Path to input product JSON directory')
         parser.add_argument('--date', type=str,
                             help='Date in YYYY-MM-DD format. This should be the date that the scrape was executed.')
+        parser.add_argument('--delete_products', action='store_true',
+                            help='WARNING: Will delete all Loblaws products in the database!')
 
     def handle(self, *args, **options):
+        if options['delete_products']:
+            self.stdout.write(self.style.WARNING(f'Deleting all Loblaws products in the database...'))
+            product_records = Product.objects.filter(store="LOBLAWS")
+            product_records.delete()
+            self.stdout.write(self.style.ERROR(f'Deleted all Loblaws records in the database!'))
+            quit()
+
         product_json_dir = Path(options['input_dir'])
         scrape_date = parse_date(options['date'])
         CHANGE_REASON = 'New Loblaws Scrape Batch'

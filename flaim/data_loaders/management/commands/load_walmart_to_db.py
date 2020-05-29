@@ -29,8 +29,17 @@ class Command(BaseCommand):
         parser.add_argument('--input_dir', type=str, help='Path to input Walmart directory')
         parser.add_argument('--date', type=str,
                             help='Date in YYYY-MM-DD format. This should be the date that the scrape was executed.')
+        parser.add_argument('--delete_products', action='store_true',
+                            help='WARNING: Will delete all Walmart products in the database!')
 
     def handle(self, *args, **options):
+        if options['delete_products']:
+            self.stdout.write(self.style.WARNING(f'Deleting all Walmart products in the database...'))
+            product_records = Product.objects.filter(store="WALMART")
+            product_records.delete()
+            self.stdout.write(self.style.ERROR(f'Deleted all Walmart records in the database!'))
+            quit()
+
         scrape_date = parse_date(options['date'])
 
         # Read main json file
@@ -200,6 +209,7 @@ class Command(BaseCommand):
 
             if len(image_paths) > 0:
                 for i, val in enumerate(image_paths):
+                    # TODO: This is broken
                     image_path = str(image_dir / val).replace(settings.MEDIA_ROOT, "")
                     try:
                         image = ProductImage.objects.create(product=product, image_path=image_path,

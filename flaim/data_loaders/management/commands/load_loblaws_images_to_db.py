@@ -50,7 +50,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING(f'Deleting all Loblaws images in the database...'))
             product_image_records = ProductImage.objects.filter(product__store="LOBLAWS")
             product_image_records.delete()
-            self.stdout.write(self.style.SUCCESS(f'Deleted all Loblaws product image records in the database!'))
+            self.stdout.write(self.style.ERROR(f'Deleted all Loblaws product image records in the database!'))
             quit()
         input_dir = Path(options['input_dir'])
         image_dirs = input_dir.glob("*")

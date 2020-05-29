@@ -177,10 +177,20 @@ class Command(BaseCommand):
                 if val is not None:
                     setattr(nutrition, key, val)
 
-            # Serving size is weird
-            nutrition.serving_size_raw = f'{nutrition_dict["serving_size"]} {nutrition_dict["serving_size_unit"]}'
-            nutrition.serving_size = nutrition_dict["serving_size"]
-            nutrition.serving_size_units = nutrition_dict["serving_size_unit"]
+            # Serving size is weird. These keys are also not consistently in the nutrition dict.
+            nutrition.serving_size_raw = None
+            if 'serving_size' in nutrition_dict.keys() and 'serving_size_unit' in nutrition_dict.keys():
+                nutrition.serving_size_raw = f'{nutrition_dict["serving_size"]} {nutrition_dict["serving_size_unit"]}'
+            else:
+                self.stdout.write(self.style.WARNING(f'Issues detected with serving size values'))
+
+            nutrition.serving_size = None
+            if 'serving_size' in nutrition_dict.keys():
+                nutrition.serving_size = nutrition_dict["serving_size"]
+
+            nutrition.serving_size_units = None
+            if 'serving_size_unit' in nutrition_dict.keys():
+                nutrition.serving_size_units = nutrition_dict["serving_size_unit"]
 
             nutrition.save()
 

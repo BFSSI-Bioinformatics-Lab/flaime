@@ -161,7 +161,8 @@ class Command(BaseCommand):
             nutrition, c = NutritionFacts.objects.get_or_create(product=product)
             nutrition.ingredients = p['ingredients_txt']
 
-            # TODO: There's a bug where the size value can just be a crazy string. Here's a temporary hack to get around it.
+            # TODO: There's a bug where the size value can just be a crazy string.
+            #  Here's a temporary hack to get around it.
             if p['size'] is not None:
                 if len(p['size']) < 100:
                     nutrition.total_size = p['size']
@@ -177,9 +178,9 @@ class Command(BaseCommand):
                     setattr(nutrition, key, val)
 
             # Serving size is weird
-            nutrition.serving_size_raw = f'{p["serving_size"]} {p["serving_size_unit"]}'
-            nutrition.serving_size = p["serving_size"]
-            nutrition.serving_size_units = p["serving_size_unit"]
+            nutrition.serving_size_raw = f'{nutrition_dict["serving_size"]} {nutrition_dict["serving_size_unit"]}'
+            nutrition.serving_size = nutrition_dict["serving_size"]
+            nutrition.serving_size_units = nutrition_dict["serving_size_unit"]
 
             nutrition.save()
 

@@ -194,7 +194,6 @@ class Command(BaseCommand):
 
             nutrition.save()
 
-            self.stdout.write(self.style.SUCCESS(f'Loading images...'))
             # Images
             image_paths = p['images']['image_paths']
             image_labels = p['images']['image_labels']

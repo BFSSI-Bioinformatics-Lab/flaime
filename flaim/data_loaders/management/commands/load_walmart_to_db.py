@@ -7,7 +7,6 @@ from django.core.management.base import BaseCommand
 from flaim.database.models import Product, WalmartProduct, NutritionFacts, ProductImage, ScrapeBatch
 
 # TODO: Implement automatic scanning/calling of this script upon finding new data
-# TODO: Ask Adrian not to .tar.gz the image directory so I can access it directly
 
 CHANGE_REASON = 'New Walmart Scrape Batch'
 EXPECTED_KEYS = {'ingredients_txt', 'url', 'nutrition', 'SKU', 'created_date', 'nielsen_product', 'product_code',
@@ -209,8 +208,11 @@ class Command(BaseCommand):
 
             if len(image_paths) > 0:
                 for i, val in enumerate(image_paths):
-                    # TODO: This is broken
-                    image_path = str(image_dir / val).replace(settings.MEDIA_ROOT, "")
+                    # Note image_dir is the absolute path to the image directory
+                    image_path = image_dir.parent / val
+                    assert image_path.exists()
+                    # Strip out media root so images behave correctly
+                    image_path = str(image_path).replace(settings.MEDIA_ROOT, '')
                     try:
                         image = ProductImage.objects.create(product=product, image_path=image_path,
                                                             image_label=image_labels[i],

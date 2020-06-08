@@ -93,6 +93,7 @@ LOCAL_APPS = [
     'flaim.data_loaders',
     'flaim.product_browser',
     'flaim.product_search',
+    'flaim.batch_browser',
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

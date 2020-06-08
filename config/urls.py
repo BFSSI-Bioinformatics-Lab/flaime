@@ -19,6 +19,7 @@ urlpatterns = [
     path("api/", include("flaim.database.urls")),
     path("product_browser/", include("flaim.product_browser.urls", namespace="product_browser")),
     path("product_search/", include("flaim.product_search.urls", namespace="product_search")),
+    path("batch_browser/", include("flaim.batch_browser.urls", namespace="batch_browser")),
     path("visualizer/", include("flaim.visualizer.urls", namespace="visualizer"))
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

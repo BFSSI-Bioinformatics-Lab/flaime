@@ -254,7 +254,7 @@ class Command(BaseCommand):
             obj.nielsen_product = None  # TODO: Probably populate this post-hoc. Ask Adrian about this.
             obj.url = get_url(data)
             obj.scrape_date = timezone.now()
-            obj.nutrition_available = None  # Figure out how to populate this
+            obj.nutrition_available = None
             obj.breadcrumbs_array = get_breadcrumbs(data)
             obj.breadcrumbs_text = ",".join(get_breadcrumbs(data))
             obj.description = get_description(data)

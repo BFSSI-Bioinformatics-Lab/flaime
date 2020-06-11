@@ -338,3 +338,5 @@ flaim/media/
 .pytest_cache/
 
 
+flaim/config/uwsgi_config.ini
+flaim/config/uwsgi_params

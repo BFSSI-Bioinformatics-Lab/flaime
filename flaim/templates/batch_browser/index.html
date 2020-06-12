@@ -7,8 +7,11 @@
 
   <div class="container-fluid">
     <h1>Batch Browser</h1>
-
-
+    <ol>
+        {% for batch in batches %}
+          <li>{{ batch }}</li>
+        {% endfor %}
+    </ol>
   </div>
 
 

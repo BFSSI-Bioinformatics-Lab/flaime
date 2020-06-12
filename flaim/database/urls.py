@@ -18,6 +18,7 @@ router.register(r'product_images', views.ProductImageViewSet)
 router.register(r'front_of_pack', views.FrontOfPackLabelViewSet)
 router.register(r'users', views.UserViewSet)
 router.register(r'groups', views.GroupViewSet)
+router.register(r'scrape_batches', views.ScrapeBatchViewSet, basename='scrape_batches')
 
 urlpatterns = [
     path('', include(router.urls)),

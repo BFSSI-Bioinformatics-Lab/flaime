@@ -206,6 +206,13 @@ class Command(BaseCommand):
             image_paths = p['images']['image_paths']
             image_labels = p['images']['image_labels']
 
+            # Check if the product already has images associated with it
+            existing_images = ProductImage.objects.filter(product=product)
+            if len(existing_images) > 0:
+                print(f'Already have image records for {product}; skipping!')
+                continue
+
+            # Upload images if there are any
             if len(image_paths) > 0:
                 for i, val in enumerate(image_paths):
                     # Note image_dir is the absolute path to the image directory

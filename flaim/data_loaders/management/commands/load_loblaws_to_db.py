@@ -220,13 +220,13 @@ class Command(BaseCommand):
             quit()
 
         # Product JSON
-        self.stdout.write(self.style.INFO(f'\nStarted loading Loblaws product JSON to database'))
+        self.stdout.write(self.style.SUCCESS(f'\nStarted loading Loblaws product JSON to database'))
         product_json_dir = Path(options['input_dir']) / 'product_json'
         scrape_date = parse_date(options['date'])
         self.load_loblaws(product_json_dir=product_json_dir, scrape_date=scrape_date)
 
         # Images
-        self.stdout.write(self.style.INFO(f'\nStarted loading Loblaws images to database'))
+        self.stdout.write(self.style.SUCCESS(f'\nStarted loading Loblaws images to database'))
         input_dir = Path(options['input_dir']) / 'product_images'
         image_dirs = input_dir.glob("*")
         image_dirs = [x for x in image_dirs if x.is_dir()]

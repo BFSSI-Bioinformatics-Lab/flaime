@@ -5,14 +5,54 @@
 {% block content %}
 
 
-  <div class="container-fluid">
-    <h1>Batch Browser</h1>
-    <ol>
-        {% for batch in batches %}
-          <li>{{ batch }}</li>
-        {% endfor %}
-    </ol>
+<div class="container-fluid">
+  <h1>Batch Browser</h1>
+  <div class="row">
+    <div class="col-sm-12">
+      <table id="products" class="table table-striped table-bordered" style="width:100%">
+        <thead>
+        <tr>
+          <th></th>
+          <th>ID</th>
+          <th>Store</th>
+          <th>Total Products</th>
+          <th>New Products</th>
+          <th>Missing Products</th>
+          <th>Notes</th>
+        </tr>
+        </thead>
+      </table>
+    </div>
   </div>
+</div>
 
+{% block javascript %}
+    {% block product_javascript %}
+      <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+      <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+      <script src="https://cdn.datatables.net/1.10.19/js/dataTables.jqueryui.min.js"></script>
+      <script src="https://cdn.datatables.net/scroller/1.5.1/js/dataTables.scroller.min.js"></script>
+      <script src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>
+
+      <script>
+
+          $(document).ready(function () {
+              var table = $('#products').DataTable({
+                  "serverSide": true,
+                  "processing": false,
+                  "ajax": "/api/scrape_batches/?format=datatables",
+                  "columns": [
+                      {"data": "id"},
+                      {"data": "store"},
+                      {"data": "total_products"},
+                      {"data": "new_products"},
+                      {"data": "missing_products"},
+                      {"data": "notes"},
+                  ]
+              });
+          });
+      </script>
+
+    {% endblock %}
 
 {% endblock %}

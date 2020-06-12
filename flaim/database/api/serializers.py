@@ -16,7 +16,7 @@ class EagerLoadingMixin:
         return queryset
 
 
-class ScrapeBatchSerializer(serializers.HyperlinkedModelSerializer):
+class ScrapeBatchSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
 
     class Meta:

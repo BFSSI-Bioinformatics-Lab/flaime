@@ -131,6 +131,11 @@ class BrandNameViewSet(viewsets.ModelViewSet):
             return models.Product.objects.all()
 
 
+class ScrapeBatchViewSet(viewsets.ModelViewSet):
+    queryset = models.ScrapeBatch.objects.all().order_by('-created')
+    serializer_class = serializers.ScrapeBatchSerializer
+
+
 class LoblawsProductViewSet(viewsets.ModelViewSet):
     queryset = models.LoblawsProduct.objects.all().order_by('-created')
     serializer_class = serializers.LoblawsProductSerializer

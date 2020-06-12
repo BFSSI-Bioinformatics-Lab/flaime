@@ -16,6 +16,14 @@ class EagerLoadingMixin:
         return queryset
 
 
+class ScrapeBatchSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.ReadOnlyField()
+
+    class Meta:
+        model = models.ScrapeBatch
+        fields = '__all__'
+
+
 class LoblawsProductSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.ReadOnlyField()
 
@@ -51,8 +59,6 @@ class NutritionFactsSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixin):
-    # TODO: Serialize ScrapeBatch model and get access
-
     _SELECT_RELATED_FIELDS = ['loblaws_product', ]
     # _SELECT_RELATED_FIELDS = ['nutrition_facts', ]
 

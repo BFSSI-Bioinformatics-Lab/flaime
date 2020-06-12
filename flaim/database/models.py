@@ -219,9 +219,6 @@ class NutritionFacts(TimeStampedModel):
         self.total_size = api_data['packageSize']
         self.save()
 
-    def load_walmart_nutrition_facts_json(self):
-        pass
-
     def load_loblaws_nutrition_facts_json(self, loblaws_nutrition: dict):
         """
         Given LoblawsProduct.nutrition_facts_json field, will parse out all nutrients and dump data into this model

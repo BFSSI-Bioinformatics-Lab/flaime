@@ -197,7 +197,7 @@ def load_images(image_dirs: list):
             except IntegrityError as e:
                 pass
 
-        print(f'Done with {product_code}: {product_image_paths}')
+        print(f'Done with {product_code}')
 
 
 class Command(BaseCommand):

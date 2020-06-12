@@ -2,8 +2,10 @@ import json
 from pathlib import Path
 from django.utils.dateparse import parse_date
 from django.utils import timezone
+from django.conf import settings
+from django.db import IntegrityError
 from django.core.management.base import BaseCommand
-from flaim.database.models import Product, LoblawsProduct, NutritionFacts, ScrapeBatch
+from flaim.database.models import Product, LoblawsProduct, NutritionFacts, ScrapeBatch, ProductImage
 
 
 # TODO: Implement automatic scanning/calling of this script upon finding new data
@@ -167,6 +169,37 @@ def get_nutrition_disclaimer(api_data) -> str:
     return api_data['productNutritionDisclaimer'].strip()
 
 
+def load_images(image_dirs: list):
+    for d in image_dirs:
+        product_code = d.name
+        try:
+            product = Product.objects.get(product_code=product_code)
+        except:
+            print(f'Could not find corresponding product in database for {product_code}')
+            continue
+
+        # Check if the product already has images associated with it
+        existing_images = ProductImage.objects.filter(product=product)
+        if len(existing_images) > 0:
+            print(f'Already have image records for {product}; skipping!')
+            continue
+
+        images = [x for x in list(d.glob('*')) if x.is_file()]
+        product_image_paths = []
+        for i in images:
+            # Strip out MEDIA_ROOT for paths to behave properly with image field in ProductImage
+            i = str(i).replace(settings.MEDIA_ROOT, "")
+            try:
+                product_image = ProductImage.objects.create(product=product,
+                                                            image_path=i)
+                product_image_paths.append(product_image.image_path.url)
+            # Skip if the file path already exists
+            except IntegrityError as e:
+                pass
+
+        print(f'Done with {product_code}: {product_image_paths}')
+
+
 class Command(BaseCommand):
     help = 'Given an input product JSON directory (created by the Loblaws scraper), ' \
            'will load entries into the database.'
@@ -186,10 +219,23 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR(f'Deleted all Loblaws records in the database!'))
             quit()
 
-        product_json_dir = Path(options['input_dir'])
+        # Product JSON
+        self.stdout.write(self.style.INFO(f'\nStarted loading Loblaws product JSON to database'))
+        product_json_dir = Path(options['input_dir']) / 'product_json'
         scrape_date = parse_date(options['date'])
-        CHANGE_REASON = 'New Loblaws Scrape Batch'
+        self.load_loblaws(product_json_dir=product_json_dir, scrape_date=scrape_date)
 
+        # Images
+        self.stdout.write(self.style.INFO(f'\nStarted loading Loblaws images to database'))
+        input_dir = Path(options['input_dir']) / 'product_images'
+        image_dirs = input_dir.glob("*")
+        image_dirs = [x for x in image_dirs if x.is_dir()]
+        load_images(image_dirs)
+        self.stdout.write(self.style.SUCCESS(f'\nDone loading Loblaws images to database!'))
+
+    def load_loblaws(self, product_json_dir: Path, scrape_date: str):
+
+        CHANGE_REASON = 'New Loblaws Scrape Batch'
         json_files = list(product_json_dir.glob("*.json"))
         self.stdout.write(self.style.SUCCESS(f'Found {len(json_files)} JSON files in {product_json_dir}'))
 

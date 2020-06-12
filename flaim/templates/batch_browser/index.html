@@ -34,19 +34,26 @@
       <script>
 
           $(document).ready(function () {
-              var table = $('#scrape_batches').DataTable({
-                  "serverSide": true,
-                  "processing": false,
-                  "ajax": "/api/scrape_batches/?format=datatables",
-                  "columns": [
-                      {"data": "id"},
-                      {"data": "scrape_date"},
-                      {"data": "store"},
-                      {"data": "total_products"},
-                      {"data": "new_products"},
-                      {"data": "missing_products"}
-                  ]
-              });
+
+              if ($.fn.dataTable.isDataTable('#scrape_batches')) {
+                  let table = $('#scrape_batches').DataTable();
+              } else {
+                  let table = $('#scrape_batches').DataTable({
+                      "serverSide": true,
+                      "processing": false,
+                      "ajax": "/api/scrape_batches/?format=datatables",
+                      "columns": [
+                          {"data": "id"},
+                          {"data": "scrape_date"},
+                          {"data": "store"},
+                          {"data": "total_products"},
+                          {"data": "new_products"},
+                          {"data": "missing_products"}
+                      ]
+                  });
+              }
+
+
           });
       </script>
 

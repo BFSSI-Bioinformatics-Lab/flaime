@@ -8,10 +8,11 @@
     <h1>Batch Browser</h1>
     <div class="row">
       <div class="col-sm-12">
-        <table id="products" class="table table-striped table-bordered" style="width:100%">
+        <table id="scrape_batches" class="table table-striped table-bordered" style="width:100%">
           <thead>
           <tr>
             <th>ID</th>
+            <th>Scrape Date</th>
             <th>Store</th>
             <th>Total Products</th>
             <th>New Products</th>
@@ -33,12 +34,13 @@
       <script>
 
           $(document).ready(function () {
-              var table = $('#products').DataTable({
+              var table = $('#scrape_batches').DataTable({
                   "serverSide": true,
                   "processing": false,
                   "ajax": "/api/scrape_batches/?format=datatables",
                   "columns": [
                       {"data": "id"},
+                      {"data": "scrape_date"},
                       {"data": "store"},
                       {"data": "total_products"},
                       {"data": "new_products"},
@@ -48,6 +50,6 @@
           });
       </script>
 
-    {% endblock javascript %}
+    {% endblock %}
 
 {% endblock %}

@@ -119,7 +119,7 @@ class Product(TimeStampedModel):
     nielsen_product = models.BooleanField(blank=True, null=True)
     url = models.URLField(max_length=1000, blank=True, null=True)
 
-    history = HistoricalRecords()
+    history = HistoricalRecords(related_name='product_history')
 
     def __str__(self):
         return f"{self.product_code}: {self.name}"

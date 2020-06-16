@@ -64,17 +64,16 @@ class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadi
     id = serializers.ReadOnlyField()
     loblaws_product = LoblawsProductSerializer()
     walmart_product = WalmartProductSerializer()
-    batch = ScrapeBatchSerializer()
+    scrape_date = serializers.ReadOnlyField(source='batch.scrape_date')
 
     class Meta:
         model = models.Product
         reverse_relationships = [
             'loblaws_product',
-            'walmart_product',
-            'batch'
+            'walmart_product'
         ]
         fields = ['id', 'url', 'created', 'modified', 'product_code', 'description', 'breadcrumbs_array', 'name',
-                  'brand', 'store', 'price', 'upc_code', 'nutrition_available'] + reverse_relationships
+                  'brand', 'store', 'price', 'upc_code', 'nutrition_available', 'scrape_date'] + reverse_relationships
 
 
 class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixin):

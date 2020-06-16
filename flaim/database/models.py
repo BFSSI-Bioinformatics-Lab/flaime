@@ -363,7 +363,7 @@ class NutritionFacts(TimeStampedModel):
         elif 'l' in val or 'litres' in val:
             return 'l'
         else:
-            print(f"WARNING: Could not detect any units in value ({val})")
+            # print(f"WARNING: Could not detect any units in value ({val})")
             return None
 
     def __extract_number_from_nutrient(self, val: str) -> Union[tuple, None]:

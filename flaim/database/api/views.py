@@ -49,6 +49,19 @@ class ProductViewSet(viewsets.ModelViewSet):
     search_fields = ['name', 'store', 'brand']
 
 
+# Create your views here.
+class RecentProductViewSet(viewsets.ModelViewSet):
+    # pagination_class = StandardResultsSetPagination
+    queryset = models.Product.objects.filter(most_recent=True).order_by('-created')
+    serializer_class = serializers.ProductSerializer
+    filter_backends = [df_filters.DjangoFilterBackend,
+                       rest_framework_datatables.filters.DatatablesFilterBackend,
+                       filters.SearchFilter
+                       ]
+    filterset_fields = ('name', 'store', 'product_code', 'brand')
+    search_fields = ['name', 'store', 'brand']
+
+
 class NutritionFactsViewSet(viewsets.ModelViewSet):
     queryset = models.NutritionFacts.objects.all().order_by('-created')
     serializer_class = serializers.NutritionFactsSerializer

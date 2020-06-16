@@ -4,6 +4,7 @@ from flaim.database.api import views
 
 router = routers.DefaultRouter()
 router.register(r'products', views.ProductViewSet)
+router.register(r'recent_products', views.RecentProductViewSet)
 router.register(r'loblaws_products', views.LoblawsProductViewSet)
 router.register(r'walmart_products', views.WalmartProductViewSet)
 router.register(r'amazon_products', views.AmazonProductViewSet)

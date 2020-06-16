@@ -58,6 +58,24 @@ class NutritionFactsSerializer(serializers.HyperlinkedModelSerializer):
         fields = '__all__'
 
 
+class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixin):
+    _SELECT_RELATED_FIELDS = ['loblaws_product', ]
+
+    id = serializers.ReadOnlyField()
+    loblaws_product = LoblawsProductSerializer()
+    walmart_product = WalmartProductSerializer()
+
+    class Meta:
+        model = models.Product
+        reverse_relationships = [
+            'loblaws_product',
+            'walmart_product',
+        ]
+        fields = ['id', 'url', 'created', 'modified', 'product_code', 'description', 'breadcrumbs_array', 'name',
+                  'brand', 'store', 'price', 'upc_code',
+                  'nutrition_available'] + reverse_relationships
+
+
 class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixin):
     _SELECT_RELATED_FIELDS = ['loblaws_product', ]
     # _SELECT_RELATED_FIELDS = ['nutrition_facts', ]

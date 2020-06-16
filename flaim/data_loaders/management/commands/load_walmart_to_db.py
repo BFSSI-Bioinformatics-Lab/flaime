@@ -215,7 +215,7 @@ class Command(BaseCommand):
             image_labels = p['images']['image_labels']
 
             # Check if the product already has images associated with it
-            existing_images = ProductImage.objects.filter(product=product)
+            existing_images = ProductImage.objects.filter(product__product_code=product.product_code)
             if len(existing_images) > 0:
                 # print(f'Already have image records for {product}; skipping!')
                 continue

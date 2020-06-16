@@ -181,7 +181,7 @@ def load_images(image_dirs: list):
         # Check if the product already has images associated with it
         existing_images = ProductImage.objects.filter(product=product)
         if len(existing_images) > 0:
-            print(f'Already have image records for {product}; skipping!')
+            # print(f'Already have image records for {product}; skipping!')
             continue
 
         images = [x for x in list(d.glob('*')) if x.is_file()]

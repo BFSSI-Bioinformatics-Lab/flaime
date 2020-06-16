@@ -5,6 +5,7 @@ from django.db import IntegrityError
 from django.utils.dateparse import parse_date
 from django.core.management.base import BaseCommand
 from flaim.database.models import Product, WalmartProduct, NutritionFacts, ProductImage, ScrapeBatch
+from tqdm import tqdm
 
 # TODO: Implement automatic scanning/calling of this script upon finding new data
 
@@ -74,7 +75,7 @@ class Command(BaseCommand):
 
         # Iterate over all products
         existing_codes_dict = Product.generate_existing_product_codes_dict(store='WALMART')
-        for p in j:
+        for p in tqdm(j, desc="Loading Walmart JSON"):
             # Make sure all of the expected keys are populated at least with None.
             # Also rename the carbohydrate and carbohydrate_dv columns to match the DB
             for k in EXPECTED_KEYS:
@@ -91,7 +92,7 @@ class Command(BaseCommand):
             product.name = p['product_name']
             product.store = 'WALMART'
 
-            self.stdout.write(self.style.SUCCESS(f'Processing {product.name}'))
+            # self.stdout.write(self.style.SUCCESS(f'Processing {product.name}'))
 
             # TODO: Make sure the UPC code is just the first entry
 
@@ -199,7 +200,8 @@ class Command(BaseCommand):
             if 'serving_size' in nutrition_dict.keys() and 'serving_size_unit' in nutrition_dict.keys():
                 nutrition.serving_size_raw = f'{nutrition_dict["serving_size"]} {nutrition_dict["serving_size_unit"]}'
             else:
-                self.stdout.write(self.style.WARNING(f'Issues detected with serving size values'))
+                pass
+                # self.stdout.write(self.style.WARNING(f'Issues detected with serving size values'))
 
             nutrition.serving_size = None
             if 'serving_size' in nutrition_dict.keys():
@@ -218,7 +220,7 @@ class Command(BaseCommand):
             # Check if the product already has images associated with it
             existing_images = ProductImage.objects.filter(product=product)
             if len(existing_images) > 0:
-                print(f'Already have image records for {product}; skipping!')
+                # print(f'Already have image records for {product}; skipping!')
                 continue
 
             # Upload images if there are any

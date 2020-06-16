@@ -6,7 +6,7 @@ from django.conf import settings
 from django.db import IntegrityError
 from django.core.management.base import BaseCommand
 from flaim.database.models import Product, LoblawsProduct, NutritionFacts, ScrapeBatch, ProductImage
-
+from tqdm import tqdm
 
 # TODO: Implement automatic scanning/calling of this script upon finding new data
 
@@ -264,13 +264,13 @@ class Command(BaseCommand):
 
         # Iterate over product json files
         existing_codes_dict = Product.generate_existing_product_codes_dict(store='LOBLAWS')
-        for j in filtered_json_files:
+        for j in tqdm(filtered_json_files, desc="Uploading JSON"):
             product_code = j.with_suffix("").name  # Files are named after product code
 
             try:
                 data = read_json(j)
             except json.decoder.JSONDecodeError as e:
-                self.stdout.write(self.style.ERROR(f'Skipping product JSON {j} due to exception:\n{e}'))
+                # self.stdout.write(self.style.ERROR(f'Skipping product JSON {j} due to exception:\n{e}'))
                 continue
 
             # Get or create generic Product
@@ -341,9 +341,9 @@ class Command(BaseCommand):
             product.save()
             nutrition_facts.save()
 
-            if created_:
-                self.stdout.write(self.style.SUCCESS(f'SAVED {product}'))
-            else:
-                self.stdout.write(self.style.SUCCESS(f'UPDATED {product}'))
+            # if created_:
+            #     self.stdout.write(self.style.SUCCESS(f'SAVED {product}'))
+            # else:
+            #     self.stdout.write(self.style.SUCCESS(f'UPDATED {product}'))
 
         self.stdout.write(self.style.SUCCESS(f'\nDone loading Loblaws-{str(scrape_date)} products to database!'))

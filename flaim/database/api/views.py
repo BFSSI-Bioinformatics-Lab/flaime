@@ -53,7 +53,7 @@ class ProductViewSet(viewsets.ModelViewSet):
 class RecentProductViewSet(viewsets.ModelViewSet):
     # pagination_class = StandardResultsSetPagination
     queryset = models.Product.objects.filter(most_recent=True).order_by('-created')
-    serializer_class = serializers.ProductSerializer
+    serializer_class = serializers.RecentProductSerializer
     filter_backends = [df_filters.DjangoFilterBackend,
                        rest_framework_datatables.filters.DatatablesFilterBackend,
                        filters.SearchFilter

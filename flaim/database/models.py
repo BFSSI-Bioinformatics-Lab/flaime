@@ -161,10 +161,10 @@ class Product(TimeStampedModel):
         :param id_list: list of integer IDs
         """
         if len(id_list) > 0:
-            for _id in id_list:
-                o = Product.objects.get(id=_id)
-                o.most_recent = False
-                o.save()
+            products = Product.objects.filter(id__in=id_list)
+            for p in products:
+                p.most_recent = False
+                p.save()
 
     def __str__(self):
         return f"{self.product_code}: {self.name}"

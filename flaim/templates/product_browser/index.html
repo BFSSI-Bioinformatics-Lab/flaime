@@ -68,10 +68,10 @@
 
 
           $(document).ready(function () {
-              var table = $('#products').DataTable({
+              let table = $('#products').DataTable({
                   "serverSide": true,
                   "processing": false,
-                  "ajax": "/api/products/?format=datatables",
+                  "ajax": "/api/recent_products/?format=datatables",
                   "columns": [
                       {"data": "id", "render": $.fn.dataTable.render.link_to_id()},
                       {"data": "name"},

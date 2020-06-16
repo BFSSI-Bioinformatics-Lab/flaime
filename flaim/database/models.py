@@ -310,8 +310,8 @@ class NutritionFacts(TimeStampedModel):
                         try:
                             val, unit = self.__extract_number_from_nutrient(n['valuePercent'])
                             if unit != '%':
-                                print(f'Error detected for percent DV of {nutrient} -> found {val, unit}. '
-                                      f'Setting values to null.')
+                                # print(f'Error detected for percent DV of {nutrient} -> found {val, unit}. '
+                                #       f'Setting values to null.')
                                 val, unit = None, None
                             setattr(self, (nutrient + '_dv'), val)
                         except TypeError as e:

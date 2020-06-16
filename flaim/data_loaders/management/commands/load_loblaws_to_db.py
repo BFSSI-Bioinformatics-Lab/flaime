@@ -174,13 +174,14 @@ def load_images(image_dirs: list):
     for d in tqdm(image_dirs, desc="Loading images"):
         product_code = d.name
         try:
-            product = Product.objects.get(product_code=product_code)
+            # Grab most recent version of product
+            product = Product.objects.filter(product_code=product_code).order_by('-created')[0]
         except:
             print(f'Could not find corresponding product in database for {product_code}')
             continue
 
         # Check if the product already has images associated with it
-        existing_images = ProductImage.objects.filter(product=product)
+        existing_images = ProductImage.objects.filter(product__product_code=product_code)
         if len(existing_images) > 0:
             # print(f'Already have image records for {product}; skipping!')
             continue

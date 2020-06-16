@@ -170,7 +170,7 @@ def get_nutrition_disclaimer(api_data) -> str:
 
 
 def load_images(image_dirs: list):
-    for d in image_dirs:
+    for d in tqdm(image_dirs, desc="Loading images"):
         product_code = d.name
         try:
             product = Product.objects.get(product_code=product_code)
@@ -196,8 +196,6 @@ def load_images(image_dirs: list):
             # Skip if the file path already exists
             except IntegrityError as e:
                 pass
-
-        print(f'Done with {product_code}')
 
 
 class Command(BaseCommand):

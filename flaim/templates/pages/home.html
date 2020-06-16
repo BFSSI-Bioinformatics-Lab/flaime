@@ -15,7 +15,7 @@
 
   <div class="row">
 
-    <div id="myDiv"></div>
+    <div id="scrapeChart"></div>
 
 
   </div>
@@ -27,7 +27,23 @@
 
           axios.get("/api/scrape_batches")
               .then(function (response) {
-                  console.log(response)
+                  console.log(response);
+                  let results = response.data.results;
+
+                  // TODO: Sort these YYYY-MM-DD dates somehow
+                  let scrape_dates = results.map(a => a.scrape_date);
+                  let total_products = results.map(a => a.total_products);
+
+                  let data = [
+                      {
+                          x: scrape_dates,
+                          y: total_products,
+                          type: 'bar'
+                      }
+                  ];
+
+                  Plotly.newPlot('scrapeChart', data);
+
               })
               .catch(function (error) {
                   console.log(error)
@@ -36,15 +52,6 @@
                   console.log("finally")
               });
 
-          let data = [
-              {
-                  x: ['giraffes', 'orangutans', 'monkeys'],
-                  y: [20, 14, 23],
-                  type: 'bar'
-              }
-          ];
-
-          Plotly.newPlot('myDiv', data);
 
       </script>
 

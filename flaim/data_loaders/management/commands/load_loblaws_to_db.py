@@ -262,6 +262,8 @@ class Command(BaseCommand):
             store='LOBLAWS'
         )
 
+        # Iterate over product json files
+        existing_names_dict = Product.generate_existing_full_names_dict(store='LOBLAWS')
         for j in filtered_json_files:
             product_code = j.with_suffix("").name  # Files are named after product code
 
@@ -305,6 +307,14 @@ class Command(BaseCommand):
             obj.breadcrumbs_text = ",".join(get_breadcrumbs(data))
             obj.description = get_description(data)
             obj.batch = scrape
+            obj.most_recent = True
+
+            # Update most_recent flag of older duplicate products if necessary
+            full_name = f'{obj.name}:{obj.brand}'
+            if full_name in existing_names_dict.values():
+                ids_to_demote = Product.test_if_most_recent(name=obj.name, brand=obj.brand,
+                                                            existing_names_dict=existing_names_dict)
+                Product.demote_most_recent_product_list(ids_to_demote)
 
             # Loblaws fields for LoblawsProduct model
             product.api_data = data

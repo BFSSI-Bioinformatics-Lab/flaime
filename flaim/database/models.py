@@ -2,10 +2,11 @@ from time import strftime
 from pathlib import Path
 from django.db import models
 from typing import Optional, Union
-from django.conf import settings
 from django.contrib.postgres.fields import JSONField, ArrayField
+from django.db.models.functions import Concat
 from flaim.database.nutrient_coding import VALID_NUTRIENT_COLUMNS
 from simple_history.models import HistoricalRecords
+from django.db.models import Value
 
 
 def upload_product_image(obj):
@@ -92,10 +93,11 @@ class ScrapeBatch(models.Model):
 
 
 class Product(TimeStampedModel):
-    product_code = models.CharField(max_length=500, unique=True)
-    name = models.CharField(max_length=500, unique=False, blank=True, null=True)
+    product_code = models.CharField(max_length=500)
+    name = models.CharField(max_length=500, blank=True, null=True)
     brand = models.CharField(max_length=500, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
+    most_recent = models.BooleanField(default=True)
 
     # TODO: Accomodate the possibility for multiple breadcrumb trails, i.e. change to ArrayField(ArrayField)
     breadcrumbs_text = models.CharField(max_length=600, blank=True, null=True)
@@ -118,8 +120,51 @@ class Product(TimeStampedModel):
     unidentified_nft_format = models.BooleanField(default=False)  # Bool flag for whether the NFT is American or not
     nielsen_product = models.BooleanField(blank=True, null=True)
     url = models.URLField(max_length=1000, blank=True, null=True)
-
     history = HistoricalRecords(related_name='product_history')
+
+    @staticmethod
+    def generate_existing_product_codes_dict(store: str):
+        """
+        Method to generate id:product_code dict. Ideally use this method once to retrieve the dict and then refer to it
+        for detecting which products to update for the most_recent field.
+
+        :param store: filters product list based on store string e.g. 'LOBLAWS', 'WALMART'
+        :return: id:product_code dictionary
+        """
+        existing_codes = Product.objects.filter(store=store).values_list('id', 'product_code')
+        existing_codes_dict = dict(existing_codes)
+        return existing_codes_dict
+
+    @staticmethod
+    def test_if_most_recent(product_code: str, existing_codes_dict: dict) -> [int]:
+        """
+        Given a name and brand retrieved from a recent scrape, as well as the existing_product_codes_dict from
+        generate_existing_product_codes_dict(), will figure out which IDs (if any) need to have their most_recent
+        flag set to False
+
+        :param product_code: Product code from scrape
+        :param existing_codes_dict: Dictionary generated with generate_existing_product_codes_dict()
+        :return:
+        """
+        # List to store ids of products to change value of most_recent to False
+        ids_to_demote = []
+        for key, val in existing_codes_dict.items():
+            # Duplicate product detected
+            if val == product_code:
+                ids_to_demote.append(key)
+        return ids_to_demote
+
+    @staticmethod
+    def demote_most_recent_product_list(id_list: [int]):
+        """
+        Takes in a list of IDs, retrieves each object in DB, and sets their most_recent flag to False
+        :param id_list: list of integer IDs
+        """
+        if len(id_list) > 0:
+            for _id in id_list:
+                o = Product.objects.get(id=_id)
+                o.most_recent = False
+                o.save()
 
     def __str__(self):
         return f"{self.product_code}: {self.name}"
@@ -208,7 +253,6 @@ class NutritionFacts(TimeStampedModel):
     phosphorus = models.FloatField(blank=True, null=True)
     thiamine = models.FloatField(blank=True, null=True)
     zinc = models.FloatField(blank=True, null=True)
-
     history = HistoricalRecords()
 
     def load_ingredients(self, api_data: dict):

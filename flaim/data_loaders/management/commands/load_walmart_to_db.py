@@ -73,7 +73,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f'Created new scrape batch for {scrape.scrape_date}'))
 
         # Iterate over all products
-        existing_names_dict = Product.generate_existing_full_names_dict(store='WALMART')
+        existing_codes_dict = Product.generate_existing_product_codes_dict(store='WALMART')
         for p in j:
             # Make sure all of the expected keys are populated at least with None.
             # Also rename the carbohydrate and carbohydrate_dv columns to match the DB
@@ -124,10 +124,9 @@ class Command(BaseCommand):
             product.most_recent = True
 
             # Update most_recent flag of older duplicate products if necessary
-            full_name = f'{product.name}:{product.brand}'
-            if full_name in existing_names_dict.values():
-                ids_to_demote = Product.test_if_most_recent(name=product.name, brand=product.brand,
-                                                            existing_names_dict=existing_names_dict)
+            if product.product_code in existing_codes_dict.values():
+                ids_to_demote = Product.test_if_most_recent(product_code=product.product_code,
+                                                            existing_codes_dict=existing_codes_dict)
                 Product.demote_most_recent_product_list(ids_to_demote)
 
             # Change reason

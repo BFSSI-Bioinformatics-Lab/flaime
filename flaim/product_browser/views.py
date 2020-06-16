@@ -32,7 +32,7 @@ class ProductView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        images = ProductImage.objects.filter(product_id=context['product'].id)
+        images = ProductImage.objects.filter(product__product_code=context['product'].product_code)
         images_formatted = [i.image_path.url for i in images]
         context['product_images'] = images_formatted
 

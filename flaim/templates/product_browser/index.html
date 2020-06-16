@@ -19,8 +19,7 @@
             <th>Store</th>
             <th>Product Code</th>
             <th>External URL</th>
-            <th>Created</th>
-            <th>Modified</th>
+            <th>Scrape Date</th>
           </tr>
           </thead>
         </table>
@@ -79,8 +78,7 @@
                       {"data": "store"},
                       {"data": "product_code"},
                       {"data": "url", "render": $.fn.dataTable.render.hyperlink_url()},
-                      {"data": "created"},
-                      {"data": "modified"},
+                      {"data": "batch.scrape_date"},
                   ]
               });
           });

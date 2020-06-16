@@ -86,7 +86,7 @@ class Command(BaseCommand):
                 if k == 'carbohydrate_dv':
                     p['totalcarbohydrate_dv'] = p.pop('carbohydrate_dv')
 
-            product, created = Product.objects.get_or_create(product_code=p['product_code'])
+            product = Product.objects.create(product_code=p['product_code'])
 
             # Product fields
             product.name = p['product_name']
@@ -130,13 +130,12 @@ class Command(BaseCommand):
                 Product.demote_most_recent_product_list(ids_to_demote)
 
             # Change reason
-            if not created:
-                product.changeReason = CHANGE_REASON
+            product.changeReason = CHANGE_REASON
 
             product.save()
 
             # Walmart fields
-            walmart, created_ = WalmartProduct.objects.get_or_create(product=product)
+            walmart = WalmartProduct.objects.create(product=product)
             walmart.nutrition_facts_json = p['nutrition']
             if len(p['images']['image_paths']) > 0:
                 walmart.image_directory = str(Path(p['images']['image_paths'][0]).parent)
@@ -145,8 +144,7 @@ class Command(BaseCommand):
             walmart.dietary_info = p['Lifestyle & Dietary Need']
             walmart.bullets = p['bullets']
             walmart.sku = p['SKU']
-            if not created_:
-                walmart.changeReason = CHANGE_REASON
+            walmart.changeReason = CHANGE_REASON
             walmart.save()
 
             # Nutrition fields

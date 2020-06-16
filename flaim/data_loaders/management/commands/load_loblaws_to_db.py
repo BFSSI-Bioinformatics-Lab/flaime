@@ -273,16 +273,13 @@ class Command(BaseCommand):
                 continue
 
             # Get or create generic Product
-            obj, created = Product.objects.get_or_create(product_code=product_code)
-            if created:
-                obj.save()
-            else:
-                obj.changeReason = CHANGE_REASON
+            obj = Product.objects.create(product_code=product_code)
+            obj.save()
+            obj.changeReason = CHANGE_REASON
 
             # Get or create Loblaws Product
-            product, created_ = LoblawsProduct.objects.get_or_create(product=obj)
-            if created_:
-                product.save()
+            product = LoblawsProduct.objects.create(product=obj)
+            product.save()
 
             # Generic fields for Product model
             obj.store = 'LOBLAWS'
@@ -316,9 +313,7 @@ class Command(BaseCommand):
             # Loblaws fields for LoblawsProduct model
             product.api_data = data
             nutrition_facts_json = get_nutrition_facts(data)
-
-            if not created_:
-                product.changeReason = CHANGE_REASON
+            product.changeReason = CHANGE_REASON
 
             # Populate NutritionFacts model
             nutrition_facts, c = NutritionFacts.objects.get_or_create(product=obj)

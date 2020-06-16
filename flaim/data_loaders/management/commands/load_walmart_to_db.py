@@ -122,7 +122,6 @@ class Command(BaseCommand):
             product.nielsen_product = p['nielsen_product']
             product.unidentified_nft_format = p['nft_american']
             product.batch = scrape
-            product.most_recent = True
 
             # Update most_recent flag of older duplicate products if necessary
             if product.product_code in existing_codes_dict.values():

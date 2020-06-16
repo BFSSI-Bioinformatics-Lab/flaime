@@ -8,6 +8,7 @@ from django.core.management.base import BaseCommand
 from flaim.database.models import Product, LoblawsProduct, NutritionFacts, ScrapeBatch, ProductImage
 from tqdm import tqdm
 
+
 # TODO: Implement automatic scanning/calling of this script upon finding new data
 
 def read_json(json_file):
@@ -305,11 +306,10 @@ class Command(BaseCommand):
             obj.breadcrumbs_text = ",".join(get_breadcrumbs(data))
             obj.description = get_description(data)
             obj.batch = scrape
-            obj.most_recent = True
 
             # Update most_recent flag of older duplicate products if necessary
-            if obj.product_code in existing_codes_dict.values():
-                ids_to_demote = Product.test_if_most_recent(product_code=obj.product_code,
+            if product_code in existing_codes_dict.values():
+                ids_to_demote = Product.test_if_most_recent(product_code=product_code,
                                                             existing_codes_dict=existing_codes_dict)
                 Product.demote_most_recent_product_list(ids_to_demote)
 

@@ -74,7 +74,7 @@ class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadi
             'walmart_product'
         ]
         fields = ['id', 'url', 'created', 'modified', 'product_code', 'description', 'breadcrumbs_array', 'name',
-                  'brand', 'store', 'price', 'upc_code', 'nutrition_available', 'scrape_date'] + reverse_relationships
+                  'brand', 'store', 'price', 'upc_code', 'nutrition_available', 'scrape_date', 'batch'] + reverse_relationships
 
 
 class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixin):

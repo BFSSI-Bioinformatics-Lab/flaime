@@ -21,7 +21,7 @@
             <th>Store</th>
             <th>Product Code</th>
             <th>External URL</th>
-            <th>Scrape Date</th>
+{#            <th>Scrape Date</th>#}
           </tr>
           </thead>
         </table>
@@ -80,7 +80,7 @@
                       {"data": "store"},
                       {"data": "product_code"},
                       {"data": "url", "render": $.fn.dataTable.render.hyperlink_url()},
-                      {"data": "scrape_date"},
+                      {#{"data": "scrape_date"},#}
                   ]
               });
           });

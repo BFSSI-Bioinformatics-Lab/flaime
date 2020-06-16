@@ -64,6 +64,7 @@ class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadi
     id = serializers.ReadOnlyField()
     loblaws_product = LoblawsProductSerializer()
     walmart_product = WalmartProductSerializer()
+    batch = ScrapeBatchSerializer()
     scrape_date = serializers.ReadOnlyField(source='batch.scrape_date')
 
     class Meta:

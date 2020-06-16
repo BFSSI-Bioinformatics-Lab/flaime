@@ -30,6 +30,7 @@ uritemplate==3.0.1
 urllib3==1.25.9
 whitenoise==5.1.0
 tqdm==4.46.1
+plotly==4.8.1
 
 # Django
 Django==3.0.7

@@ -123,7 +123,7 @@ class Product(TimeStampedModel):
     history = HistoricalRecords(related_name='product_history')
 
     @staticmethod
-    def generate_existing_product_codes_dict(store: str):
+    def generate_existing_product_codes_dict(store: str) -> dict:
         """
         Method to generate id:product_code dict. Ideally use this method once to retrieve the dict and then refer to it
         for detecting which products to update for the most_recent field.

@@ -129,12 +129,11 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     loblaws_product = LoblawsProductSerializer()
     walmart_product = WalmartProductSerializer()
     nutrition_facts = NutritionFactsSerializer()
-    url = serializers.HyperlinkedIdentityField(view_name='advanced_product-detail', lookup_field='pk')
+    url = serializers.HyperlinkedIdentityField(view_name='products-detail', lookup_field='pk')
 
     class Meta:
         model = models.Product
         lookup_field = 'pk'
-        view_name='advanced_product-detail'
         reverse_relationships = [
             'loblaws_product',
             'walmart_product',

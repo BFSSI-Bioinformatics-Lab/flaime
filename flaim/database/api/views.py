@@ -81,7 +81,11 @@ class ProductViewSet(viewsets.ModelViewSet):
 
 # Create your views here.
 class RecentProductViewSet(viewsets.ModelViewSet):
-    # pagination_class = StandardResultsSetPagination
+    """
+    Returns only the most recent products within the database. In the back-end, this works by filtering on rows that
+     have the `most_recent` parameter equal to `True`. This parameter is set automatically upon upload of new datasets,
+     where old versions of products have their flag set to False and are replaced by the new entry.
+    """
     queryset = models.Product.objects.filter(most_recent=True).order_by('-created')
     serializer_class = serializers.RecentProductSerializer
     filter_backends = [df_filters.DjangoFilterBackend,

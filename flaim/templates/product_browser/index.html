@@ -21,7 +21,7 @@
             <th>Store</th>
             <th>Product Code</th>
             <th>External URL</th>
-            <th class="nosort">Scrape Date</th>
+            <th>Scrape Date</th>
           </tr>
           </thead>
         </table>
@@ -73,6 +73,9 @@
                   "serverSide": true,
                   "processing": false,
                   "ajax": "/api/recent_products/?format=datatables",
+                  "aoColumnDefs": [
+                      {'bSortable': false, 'aTargets': [-1]}
+                  ],
                   "columns": [
                       {"data": "id", "render": $.fn.dataTable.render.link_to_id()},
                       {"data": "name"},

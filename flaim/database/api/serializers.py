@@ -81,11 +81,11 @@ class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadi
 class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixin):
     _SELECT_RELATED_FIELDS = ['loblaws_product', 'walmart_product']
 
-    url = serializers.HyperlinkedIdentityField(view_name='product-detail', lookup_field='id')
     id = serializers.ReadOnlyField()
     loblaws_product = LoblawsProductSerializer()
     walmart_product = WalmartProductSerializer()
     batch = ScrapeBatchSerializer()
+    url = serializers.HyperlinkedIdentityField(view_name='product-detail', lookup_field='pk')
 
     class Meta:
         model = models.Product

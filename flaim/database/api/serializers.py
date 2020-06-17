@@ -123,18 +123,19 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     """
     Serializer for the Advanced Search app. Provides detailed product info + nutrition facts.
     """
-    _SELECT_RELATED_FIELDS = ['loblaws_product', 'nutrition_facts']
+    _SELECT_RELATED_FIELDS = ['loblaws_product', 'walmart_product', 'nutrition_facts']
 
     id = serializers.ReadOnlyField()
     loblaws_product = LoblawsProductSerializer()
+    walmart_product = WalmartProductSerializer()
     nutrition_facts = NutritionFactsSerializer()
-    url = serializers.HyperlinkedIdentityField(view_name='advanced_product-detail')
+    url = serializers.HyperlinkedIdentityField(view_name='advanced_product-detail', lookup_field='id')
 
     class Meta:
         model = models.Product
         reverse_relationships = [
             'loblaws_product',
-            # 'walmart_product',
+            'walmart_product',
             'nutrition_facts'
         ]
         fields = ['id', 'url', 'product_code', 'name', 'brand', 'store', 'price',

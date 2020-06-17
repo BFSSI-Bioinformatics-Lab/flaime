@@ -280,7 +280,8 @@
           }
 
           function searchDatabase() {
-              const base_url = `/api/advanced_products/?format=datatables&recent=True`;
+              // TODO: Allow recent flag to be toggled as well as enable batch filtering on webpage
+              const base_url = `/api/advanced_products/?format=datatables&recent=True&`;
 
               let nutrientObject = {};
               $('#nutrientDVZone').children().toArray().forEach(x => {

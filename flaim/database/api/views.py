@@ -154,7 +154,7 @@ class ProductNameViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         search = self.request.query_params.get('search', None)
         if search is not None:
-            return models.Product.objects.filter(name__icontains=search)
+            return models.Product.objects.filter(name__icontains=search).order_by('name').distinct('name')
         else:
             return models.Product.objects.all()
 

@@ -115,6 +115,27 @@ class NutritionFactsViewSet(viewsets.ModelViewSet):
 
 
 class AdvancedProductViewSet(viewsets.ModelViewSet):
+    """
+    Very similar to the ProductViewSet, though returns additional nutrition data and allows for richer filtering.
+
+    ## Recent product filtering
+
+    - Products can be filtered to only `most_recent=True` by using the `recent` keyword, e.g. `?recent=True`
+
+    ## Ingredient filtering
+
+    - Filter based on ingredients using a list of keywords provided through the `ingredients_contains`
+    parameter. e.g. `ingredients_contains=sodium,sugar,flour`
+
+    ## Name filtering
+
+    - Filter on product names, e.g. `?name_contains=chocolate`
+
+    ## Brand filtering
+
+    - Filter on brand names, e'.g. `?brand_contains=smuckers`
+
+    """
     serializer_class = serializers.AdvancedProductSerializer
 
     def get_queryset(self):

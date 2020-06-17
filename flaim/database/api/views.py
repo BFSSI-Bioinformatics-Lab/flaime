@@ -123,7 +123,12 @@ class AdvancedProductViewSet(viewsets.ModelViewSet):
         ingredients_contains = query_params.get('ingredients_contains', None)
         name_contains = query_params.get('name_contains', None)
         brand_contains = query_params.get('brand_contains', None)
+        recent = query_params.get('recent', None)
+
         queryset = models.Product.objects.all()
+
+        if recent:
+            queryset = queryset.filter(most_recent=True)
 
         valid_dv_nutrients = [x for x in VALID_NUTRIENT_COLUMNS if '_dv' in x]
         for nutrient in valid_dv_nutrients:

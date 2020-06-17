@@ -287,7 +287,7 @@
                   let nutrient = $(x).find('.nutrientDVSelect option:selected').val();
                   let min = $(x).find('.nutrientDVMin').val();
                   let max = $(x).find('.nutrientDVMax').val();
-                  if (parseFloat(max) === 100){
+                  if (parseFloat(max) === 100) {
                       max = 10000;  // Allow much higher values than 100 for max DV even if it's set to 100
                   }
                   nutrientObject[nutrient] = [parseFloat(min) / 100, parseFloat(max) / 100]

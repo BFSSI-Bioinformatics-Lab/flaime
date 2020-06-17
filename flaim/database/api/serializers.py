@@ -61,7 +61,6 @@ class NutritionFactsSerializer(serializers.HyperlinkedModelSerializer):
 class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixin):
     _SELECT_RELATED_FIELDS = ['loblaws_product', 'walmart_product']
 
-    # url = serializers.HyperlinkedIdentityField(view_name="flaim.database.api:product-detail")
     id = serializers.ReadOnlyField()
     loblaws_product = LoblawsProductSerializer()
     walmart_product = WalmartProductSerializer()
@@ -82,6 +81,7 @@ class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadi
 class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixin):
     _SELECT_RELATED_FIELDS = ['loblaws_product', 'walmart_product']
 
+    url = serializers.HyperlinkedIdentityField(view_name='product-detail', lookup_field='id')
     id = serializers.ReadOnlyField()
     loblaws_product = LoblawsProductSerializer()
     walmart_product = WalmartProductSerializer()

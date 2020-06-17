@@ -38,6 +38,18 @@ class StandardResultsSetPagination(PageNumberPagination):
 
 # Create your views here.
 class ProductViewSet(viewsets.ModelViewSet):
+    """
+    Returns all products within the database, while offering various filtering options.
+
+    ## Batch filtering
+
+    - Scrape batches can be filtered by ID through the batch_id keyword, e.g. `?batch_id=1`
+
+    ## Date filtering
+
+    - Dates can be filtered by providing start_date and end_date params in YYYY-MM-DD format, e.g. `?start_date=1991-01-01&end_date=2000-01-01`
+
+    """
     # pagination_class = StandardResultsSetPagination
     serializer_class = serializers.ProductSerializer
     filter_backends = [df_filters.DjangoFilterBackend,
@@ -49,9 +61,6 @@ class ProductViewSet(viewsets.ModelViewSet):
     search_fields = ['name', 'store', 'brand']
 
     def get_queryset(self):
-        """
-        Supports URL parameter filtering e.g. ?batch_id=1&some_other_param=something
-        """
         queryset = models.Product.objects.all().order_by('-created')
         queryset = queryset.prefetch_related('nutrition_facts')
 

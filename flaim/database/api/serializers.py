@@ -39,7 +39,9 @@ class WalmartProductSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = models.WalmartProduct
-        fields = '__all__'
+        fields = (
+            'id', 'image_directory', 'sku', 'bullets', 'dietary_info', 'nutrition_facts_json'
+        )
 
 
 class AmazonProductSerializer(serializers.HyperlinkedModelSerializer):

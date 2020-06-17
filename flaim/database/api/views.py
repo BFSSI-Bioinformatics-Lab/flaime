@@ -39,14 +39,28 @@ class StandardResultsSetPagination(PageNumberPagination):
 # Create your views here.
 class ProductViewSet(viewsets.ModelViewSet):
     # pagination_class = StandardResultsSetPagination
-    queryset = models.Product.objects.all().order_by('-created')
     serializer_class = serializers.ProductSerializer
     filter_backends = [df_filters.DjangoFilterBackend,
                        rest_framework_datatables.filters.DatatablesFilterBackend,
                        filters.SearchFilter
                        ]
+
     filterset_fields = ('name', 'store', 'product_code', 'brand')
     search_fields = ['name', 'store', 'brand']
+
+    def get_queryset(self):
+        """
+        Supports URL parameter filtering e.g. ?batch_id=1&some_other_param=something
+        """
+        queryset = models.Product.objects.all().order_by('-created')
+        queryset = queryset.prefetch_related('nutrition_facts')
+
+        batch_id = self.request.query_params.get('batch_id', None)
+
+        if batch_id is not None:
+            queryset = queryset.filter(batch_id=batch_id)
+
+        return queryset
 
 
 # Create your views here.

@@ -39,7 +39,9 @@ class WalmartProductSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = models.WalmartProduct
-        fields = '__all__'
+        fields = (
+            'id', 'image_directory', 'sku', 'bullets', 'dietary_info',
+        )
 
 
 class AmazonProductSerializer(serializers.HyperlinkedModelSerializer):
@@ -59,7 +61,7 @@ class NutritionFactsSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixin):
-    _SELECT_RELATED_FIELDS = ['loblaws_product', ]
+    _SELECT_RELATED_FIELDS = ['loblaws_product', 'walmart_product']
 
     id = serializers.ReadOnlyField()
     loblaws_product = LoblawsProductSerializer()
@@ -74,17 +76,18 @@ class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadi
             'walmart_product'
         ]
         fields = ['id', 'url', 'created', 'modified', 'product_code', 'description', 'breadcrumbs_array', 'name',
-                  'brand', 'store', 'price', 'upc_code', 'nutrition_available', 'scrape_date', 'batch'] + reverse_relationships
+                  'brand', 'store', 'price', 'upc_code', 'nutrition_available', 'scrape_date',
+                  'batch'] + reverse_relationships
 
 
 class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixin):
-    _SELECT_RELATED_FIELDS = ['loblaws_product', ]
+    _SELECT_RELATED_FIELDS = ['loblaws_product', 'walmart_product']
 
     id = serializers.ReadOnlyField()
-
     loblaws_product = LoblawsProductSerializer()
     walmart_product = WalmartProductSerializer()
     batch = ScrapeBatchSerializer()
+    url = serializers.HyperlinkedIdentityField(view_name='products-detail', lookup_field='pk')
 
     class Meta:
         model = models.Product

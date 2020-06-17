@@ -61,6 +61,7 @@ class NutritionFactsSerializer(serializers.HyperlinkedModelSerializer):
 class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixin):
     _SELECT_RELATED_FIELDS = ['loblaws_product', ]
 
+    url = serializers.HyperlinkedIdentityField(view_name="product-detail")
     id = serializers.ReadOnlyField()
     loblaws_product = LoblawsProductSerializer()
     walmart_product = WalmartProductSerializer()
@@ -74,14 +75,15 @@ class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadi
             'walmart_product'
         ]
         fields = ['id', 'url', 'created', 'modified', 'product_code', 'description', 'breadcrumbs_array', 'name',
-                  'brand', 'store', 'price', 'upc_code', 'nutrition_available', 'scrape_date', 'batch'] + reverse_relationships
+                  'brand', 'store', 'price', 'upc_code', 'nutrition_available', 'scrape_date',
+                  'batch'] + reverse_relationships
 
 
 class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixin):
     _SELECT_RELATED_FIELDS = ['loblaws_product', ]
 
+    url = serializers.HyperlinkedIdentityField(view_name="product-detail")
     id = serializers.ReadOnlyField()
-
     loblaws_product = LoblawsProductSerializer()
     walmart_product = WalmartProductSerializer()
     batch = ScrapeBatchSerializer()

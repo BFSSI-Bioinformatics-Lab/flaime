@@ -40,7 +40,7 @@ class WalmartProductSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.WalmartProduct
         fields = (
-            'id', 'image_directory', 'sku', 'bullets', 'dietary_info',
+            'url', 'id', 'image_directory', 'sku', 'bullets', 'dietary_info',
         )
 
 
@@ -133,6 +133,8 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 
     class Meta:
         model = models.Product
+        lookup_field = 'pk'
+        view_name='advanced_product-detail'
         reverse_relationships = [
             'loblaws_product',
             'walmart_product',

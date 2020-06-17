@@ -114,7 +114,7 @@ class NutritionFactsViewSet(viewsets.ModelViewSet):
         return queryset
 
 
-class AdvancedProductViewSet(viewsets.ReadOnlyModelViewSet):
+class AdvancedProductViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.AdvancedProductSerializer
 
     def get_queryset(self):

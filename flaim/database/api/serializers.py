@@ -87,7 +87,7 @@ class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixi
     loblaws_product = LoblawsProductSerializer()
     walmart_product = WalmartProductSerializer()
     batch = ScrapeBatchSerializer()
-    url = serializers.HyperlinkedIdentityField(view_name='product-detail', lookup_field='id')
+    url = serializers.HyperlinkedIdentityField(view_name='products-detail', lookup_field='id')
 
     class Meta:
         model = models.Product

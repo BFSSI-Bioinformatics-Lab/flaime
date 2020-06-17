@@ -166,8 +166,7 @@ class BrandNameViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         search = self.request.query_params.get('search', None)
         if search is not None:
-            query = models.Product.objects.filter(brand__icontains=search)
-            query = query.values_list('brand', flat=True).distinct()
+            query = models.Product.objects.filter(brand__icontains=search).order_by('brand').distinct('brand')
             return query
         else:
             return models.Product.objects.all()

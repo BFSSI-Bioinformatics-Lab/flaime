@@ -5,7 +5,7 @@ from django.contrib.auth.models import Group
 
 from rest_framework import viewsets, filters
 from django_filters import rest_framework as df_filters
-from django.db.models import Q
+from django.utils.dateparse import parse_date
 from flaim.database import models
 from flaim.database.api import serializers
 from django.contrib.auth import get_user_model
@@ -55,10 +55,18 @@ class ProductViewSet(viewsets.ModelViewSet):
         queryset = models.Product.objects.all().order_by('-created')
         queryset = queryset.prefetch_related('nutrition_facts')
 
+        # Batch Filtering
         batch_id = self.request.query_params.get('batch_id', None)
-
-        if batch_id is not None:
+        if batch_id:
             queryset = queryset.filter(batch_id=batch_id)
+
+        # Date Filtering
+        start_date = self.request.query_params.get('start_date', None)
+        end_date = self.request.query_params.get('end_date', None)
+        if start_date and end_date:
+            start_date = parse_date(start_date)
+            end_date = parse_date(end_date)
+            queryset = queryset.filter(batch__scrape_date__gte=start_date, batch__scrape_date__lte=end_date)
 
         return queryset
 

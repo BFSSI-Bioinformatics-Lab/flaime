@@ -119,7 +119,7 @@ class Product(TimeStampedModel):
     nutrition_available = models.BooleanField(blank=True, null=True)
     unidentified_nft_format = models.BooleanField(default=False)  # Bool flag for whether the NFT is American or not
     nielsen_product = models.BooleanField(blank=True, null=True)
-    url = models.URLField(max_length=1000, blank=True, null=True)
+    url = models.URLField(max_length=1000, verify_exists=False, blank=True, null=True)
     history = HistoricalRecords(related_name='product_history')
 
     @staticmethod

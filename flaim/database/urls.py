@@ -11,7 +11,7 @@ router.register(r'amazon_products', views.AmazonProductViewSet)
 router.register(r'nutrition_facts', views.NutritionFactsViewSet)
 
 # Had to manually set the basename here because otherwise it tries to use the queryset as the basename
-router.register(r'advanced_product', views.AdvancedProductViewSet, basename='advancedproduct')
+router.register(r'advanced_product', views.AdvancedProductViewSet, basename='advanced_product')
 router.register(r'product_name', views.ProductNameViewSet, basename='product_name')
 router.register(r'brand_name', views.BrandNameViewSet, basename='brand_name')
 router.register(r'loblaws_breadcrumbs', views.LoblawsBreadcrumbViewSet, basename='loblaws_breadcrumbs')

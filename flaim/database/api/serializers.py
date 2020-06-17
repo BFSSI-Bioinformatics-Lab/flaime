@@ -126,7 +126,7 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     _SELECT_RELATED_FIELDS = ['loblaws_product', 'nutrition_facts']
 
     id = serializers.ReadOnlyField()
-
+    url = serializers.HyperlinkedIdentityField(view_name='advanced_product-detail', lookup_field='pk')
     loblaws_product = LoblawsProductSerializer()
     nutrition_facts = NutritionFactsSerializer()
 

@@ -52,7 +52,7 @@ class AmazonProductSerializer(serializers.HyperlinkedModelSerializer):
         fields = '__all__'
 
 
-class NutritionFactsSerializer(serializers.HyperlinkedModelSerializer):
+class NutritionFactsSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
 
     class Meta:

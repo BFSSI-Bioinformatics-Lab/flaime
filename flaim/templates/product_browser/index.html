@@ -73,6 +73,10 @@
                   "serverSide": true,
                   "processing": false,
                   "ajax": "/api/recent_products/?format=datatables",
+                  "columnDefs": {
+                      "orderable": false,
+                      "targets": -1  // TODO: Preventing scrape_date sorting because it's bugged out right now
+                  },
                   "columns": [
                       {"data": "id", "render": $.fn.dataTable.render.link_to_id()},
                       {"data": "name"},

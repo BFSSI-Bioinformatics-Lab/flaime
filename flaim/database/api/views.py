@@ -36,18 +36,17 @@ class StandardResultsSetPagination(PageNumberPagination):
     max_page_size = 20
 
 
-# Create your views here.
 class ProductViewSet(viewsets.ModelViewSet):
     """
     Returns all products within the database, while offering various filtering options.
 
     ## Batch filtering
 
-    - Scrape batches can be filtered by ID through the batch_id keyword, e.g. `?batch_id=1`
+    - Scrape batches can be filtered by ID through the `batch_id` keyword, e.g. `?batch_id=1`
 
     ## Date filtering
 
-    - Dates can be filtered by providing start_date and end_date params in YYYY-MM-DD format, e.g. `?start_date=1991-01-01&end_date=2000-01-01`
+    - Dates can be filtered by providing `start_date` and `end_date` params in YYYY-MM-DD format, e.g. `?start_date=1991-01-01&end_date=2000-01-01`
 
     """
     # pagination_class = StandardResultsSetPagination
@@ -116,15 +115,12 @@ class AdvancedProductViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         query_params = self.request.query_params
-        #
-        # # Check for ?ingredients_contains={ingredient} parameter, and filter results if necessary
+        # Check for ?ingredients_contains={ingredient} parameter, and filter results if necessary
         ingredients_contains = query_params.get('ingredients_contains', None)
         name_contains = query_params.get('name_contains', None)
         brand_contains = query_params.get('brand_contains', None)
-        # description_contains = query_params.get('description_contains', None)  # TODO: Currently stored in loblaws model, but should be moved to product
         queryset = models.Product.objects.all()
 
-        # print(query_params)
         valid_dv_nutrients = [x for x in VALID_NUTRIENT_COLUMNS if '_dv' in x]
         for nutrient in valid_dv_nutrients:
             if nutrient in dict(query_params):
@@ -132,9 +128,7 @@ class AdvancedProductViewSet(viewsets.ReadOnlyModelViewSet):
                 if min_ == 0 and max_ == 1:
                     break
                 filter_ = f'nutrition_facts__{nutrient}__range'
-                print(filter_)
                 queryset = queryset.filter(**{filter_: (min_, max_)})
-                # print(f'{n}: {min_} - {max_}')
 
         if ingredients_contains:
             ingredients = ingredients_contains.split(',')
@@ -144,8 +138,6 @@ class AdvancedProductViewSet(viewsets.ReadOnlyModelViewSet):
             queryset = queryset.filter(name__icontains=name_contains)
         if brand_contains:
             queryset = queryset.filter(brand__icontains=brand_contains)
-        # if description_contains:
-        #     queryset = queryset.filter(loblaws_product__description__icontains=description_contains)
 
         # # Return everything by default
         return queryset.order_by('-id')

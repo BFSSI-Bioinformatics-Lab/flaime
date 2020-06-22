@@ -2,6 +2,9 @@
 {% load static %}
 {% block section %}Data Visualization{% endblock %}
 {% block content %}
+  {% block product_javascript %}
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  {% endblock %}
 
   <div class="container-fluid">
     <div class="row">
@@ -13,51 +16,6 @@
   </div>
 
 
-  {% block product_javascript %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script>
 
-      {#axios.get("/api/scrape_batches")#}
-      {#        .then(function (response) {#}
-      {#          console.log(response);#}
-      {#          let results = response.data.results;#}
-      {##}
-      {#          let scrape_dates = results.map(a => a.scrape_date);#}
-      {#          let total_products = results.map(a => a.total_products);#}
-      {#          let stores = results.map(a => a.store);#}
-      {#          let colourList = [];#}
-      {#          stores.forEach(x => {#}
-      {#            if (x === 'LOBLAWS') {#}
-      {#              colourList.push('rgba(222,45,38,0.8)')#}
-      {#            } else if (x === 'WALMART') {#}
-      {#              colourList.push('rgba(0,90,100,1)')#}
-      {#            }#}
-      {#          });#}
-      {##}
-      {#          let data = [#}
-      {#            {#}
-      {#              x: scrape_dates,#}
-      {#              y: total_products,#}
-      {#              marker: {#}
-      {#                color: colourList#}
-      {#              },#}
-      {#              type: 'bar'#}
-      {#            }#}
-      {#          ];#}
-      {##}
-      {#          Plotly.newPlot('scrapeChart', data);#}
-      {##}
-      {##}
-      {#        })#}
-      {#        .catch(function (error) {#}
-      {#          console.log(error)#}
-      {#        })#}
-      {#        .finally(function () {#}
-      {#          console.log("finally")#}
-      {#        });#}
-
-    </script>
-  {% endblock %}
   <br>
 {% endblock %}

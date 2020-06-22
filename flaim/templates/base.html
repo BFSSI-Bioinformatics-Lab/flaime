@@ -48,7 +48,7 @@
 
   <a class="navbar-brand col-sm-2 col-md-2 mr-0" href="{% url 'home' %}">FLAIME</a>
   <div class="col-md-8 mr-0">
-    {% block section %}{% endblock %}
+    {% block section %}Home{% endblock %}
   </div>
     {% if request.user.is_authenticated %}
       <ul class="navbar-nav px-3">

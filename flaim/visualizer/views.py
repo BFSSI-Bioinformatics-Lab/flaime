@@ -1,26 +1,11 @@
 from django.views.generic import ListView, View
-from flaim.database import models, nutrient_coding
+from flaim.database import models
 
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.io import to_html
-import json
-
-from django.core import serializers
-from flaim.database.api.serializers import ProductSerializer
 
 
-# def index(request):
-#     x_data = [0, 1, 2, 3]
-#     y_data = [x ** 2 for x in x_data]
-#     plot_div = plot([Scatter(x=x_data, y=y_data,
-#                              mode='lines', name='test',
-#                              opacity=0.8, marker_color='green')],
-#                     output_type='div', include_plotlyjs=False)
-#     return render(request, template_name='index.html', context={'plot_div': plot_div})
-
-
-# Create your views here.
 class IndexView(ListView):
     model = models.Product
     nutrition_facts = models.NutritionFacts
@@ -37,20 +22,26 @@ class IndexView(ListView):
         # print(df.columns)
 
         fig = go.Figure()
-        fig.add_trace(go.Box(x=df['sodium_dv'].dropna(), name='Sodium'))
-        fig.add_trace(go.Box(x=df['totalfat_dv'].dropna(), name='Total Fat'))
-        fig.add_trace(go.Box(x=df['sugar'].dropna() / 100, name='Sugar'))
+        fig.add_trace(go.Box(x=df['sodium_dv'].dropna()*100, name='Sodium', boxmean=True))
+        fig.add_trace(go.Box(x=df['totalfat_dv'].dropna()*100, name='Total Fat', boxmean=True))
+        fig.add_trace(go.Box(x=df['sugar'].dropna(), name='Sugar', boxmean=True))
 
         fig.update_layout(barmode='stack')
         fig.update_traces(opacity=0.75)
 
-        fig['layout']['xaxis'].update(range=[0, 1])
+        fig['layout']['xaxis'].update(range=[0, 100])
+        fig.update_layout(
+            xaxis_title="Daily Value (%)",
+            title={
+                'text': 'Distribution of Daily Values for Select Nutrients',
+                'y': 0.9,
+                'x': 0.5,
+                'xanchor': 'center',
+                'yanchor': 'top'})
 
         plot_div = to_html(fig, include_plotlyjs=False, full_html=False)
         context['plot_div'] = plot_div
         return context
-
-
 
 
 class LoblawsBreadcrumbView(View):

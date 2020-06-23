@@ -1,16 +1,26 @@
 {% extends "base.html" %}
 {% load static %}
+{% block section %}Data Visualization{% endblock %}
 {% block content %}
+  {% block product_javascript %}
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  {% endblock %}
 
   <div class="container-fluid">
-    <h1>Data Visualizer</h1>
-
+    <div class="row">
+      {% autoescape off %}
+        {{ figure2 }}
+        {{ figure1 }}
+      {% endautoescape %}
+    </div>
+    <div class="row">
+      {% autoescape off %}
+        {{ figure3 }}
+      {% endautoescape %}
+    </div>
   </div>
 
-    {% block product_javascript %}
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
-      <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
-    {% endblock %}
+
   <br>
 {% endblock %}

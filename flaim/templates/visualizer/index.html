@@ -8,9 +8,14 @@
 
   <div class="container-fluid">
     <div class="row">
-{#      <div id="scrapeChart"></div>#}
       {% autoescape off %}
-        {{ plot_div }}
+        {{ figure2 }}
+        {{ figure1 }}
+      {% endautoescape %}
+    </div>
+    <div class="row">
+      {% autoescape off %}
+        {{ figure3 }}
       {% endautoescape %}
     </div>
   </div>

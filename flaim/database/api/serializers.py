@@ -40,7 +40,7 @@ class WalmartProductSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.WalmartProduct
         fields = (
-            'id', 'image_directory', 'sku', 'bullets', 'dietary_info',
+            'url', 'id', 'image_directory', 'sku', 'bullets', 'dietary_info',
         )
 
 
@@ -52,7 +52,7 @@ class AmazonProductSerializer(serializers.HyperlinkedModelSerializer):
         fields = '__all__'
 
 
-class NutritionFactsSerializer(serializers.HyperlinkedModelSerializer):
+class NutritionFactsSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
 
     class Meta:
@@ -87,6 +87,7 @@ class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixi
     loblaws_product = LoblawsProductSerializer()
     walmart_product = WalmartProductSerializer()
     batch = ScrapeBatchSerializer()
+    scrape_date = serializers.ReadOnlyField(source='batch.scrape_date')
     url = serializers.HyperlinkedIdentityField(view_name='products-detail', lookup_field='pk')
 
     class Meta:
@@ -98,7 +99,7 @@ class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixi
         ]
         fields = ['id', 'url', 'created', 'modified', 'product_code', 'description', 'breadcrumbs_array', 'name',
                   'brand', 'store', 'price', 'upc_code',
-                  'nutrition_available'] + reverse_relationships
+                  'nutrition_available', 'scrape_date'] + reverse_relationships
 
 
 class ProductImageSerializer(serializers.HyperlinkedModelSerializer):
@@ -122,19 +123,20 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     """
     Serializer for the Advanced Search app. Provides detailed product info + nutrition facts.
     """
-    _SELECT_RELATED_FIELDS = ['loblaws_product', 'nutrition_facts']
+    _SELECT_RELATED_FIELDS = ['loblaws_product', 'walmart_product', 'nutrition_facts']
 
     id = serializers.ReadOnlyField()
-
     loblaws_product = LoblawsProductSerializer()
+    walmart_product = WalmartProductSerializer()
     nutrition_facts = NutritionFactsSerializer()
+    url = serializers.HyperlinkedIdentityField(view_name='advanced_products-detail', lookup_field='pk')
 
     class Meta:
         model = models.Product
+        lookup_field = 'pk'
         reverse_relationships = [
             'loblaws_product',
-            # 'walmart_product',
-            # 'amazon_product',
+            'walmart_product',
             'nutrition_facts'
         ]
         fields = ['id', 'url', 'product_code', 'name', 'brand', 'store', 'price',

@@ -5,7 +5,7 @@ from django.contrib.auth.models import Group
 
 from rest_framework import viewsets, filters
 from django_filters import rest_framework as df_filters
-from django.db.models import Q
+from django.utils.dateparse import parse_date
 from flaim.database import models
 from flaim.database.api import serializers
 from django.contrib.auth import get_user_model
@@ -36,8 +36,19 @@ class StandardResultsSetPagination(PageNumberPagination):
     max_page_size = 20
 
 
-# Create your views here.
 class ProductViewSet(viewsets.ModelViewSet):
+    """
+    Returns all products within the database, while offering various filtering options.
+
+    ## Batch filtering
+
+    - Scrape batches can be filtered by ID through the `batch_id` keyword, e.g. `?batch_id=1`
+
+    ## Date filtering
+
+    - Dates can be filtered by providing `start_date` and `end_date` params in YYYY-MM-DD format, e.g. `?start_date=1991-01-01&end_date=2000-01-01`
+
+    """
     # pagination_class = StandardResultsSetPagination
     serializer_class = serializers.ProductSerializer
     filter_backends = [df_filters.DjangoFilterBackend,
@@ -49,23 +60,32 @@ class ProductViewSet(viewsets.ModelViewSet):
     search_fields = ['name', 'store', 'brand']
 
     def get_queryset(self):
-        """
-        Supports URL parameter filtering e.g. ?batch_id=1&some_other_param=something
-        """
         queryset = models.Product.objects.all().order_by('-created')
         queryset = queryset.prefetch_related('nutrition_facts')
 
+        # Batch Filtering
         batch_id = self.request.query_params.get('batch_id', None)
-
-        if batch_id is not None:
+        if batch_id:
             queryset = queryset.filter(batch_id=batch_id)
+
+        # Date Filtering
+        start_date = self.request.query_params.get('start_date', None)
+        end_date = self.request.query_params.get('end_date', None)
+        if start_date and end_date:
+            start_date = parse_date(start_date)
+            end_date = parse_date(end_date)
+            queryset = queryset.filter(batch__scrape_date__gte=start_date, batch__scrape_date__lte=end_date)
 
         return queryset
 
 
 # Create your views here.
 class RecentProductViewSet(viewsets.ModelViewSet):
-    # pagination_class = StandardResultsSetPagination
+    """
+    Returns only the most recent products within the database. In the back-end, this works by filtering on rows that
+     have the `most_recent` parameter equal to `True`. This parameter is set automatically upon upload of new datasets,
+     where old versions of products have their flag set to False and are replaced by the new entry.
+    """
     queryset = models.Product.objects.filter(most_recent=True).order_by('-created')
     serializer_class = serializers.RecentProductSerializer
     filter_backends = [df_filters.DjangoFilterBackend,
@@ -94,20 +114,43 @@ class NutritionFactsViewSet(viewsets.ModelViewSet):
         return queryset
 
 
-class AdvancedProductViewSet(viewsets.ReadOnlyModelViewSet):
+class AdvancedProductViewSet(viewsets.ModelViewSet):
+    """
+    Very similar to the ProductViewSet, though returns additional nutrition data and allows for richer filtering.
+
+    ## Recent product filtering
+
+    - Products can be filtered to only `most_recent=True` by using the `recent` keyword, e.g. `?recent=True`
+
+    ## Ingredient filtering
+
+    - Filter based on ingredients using a list of keywords provided through the `ingredients_contains`
+    parameter. e.g. `ingredients_contains=sodium,sugar,flour`
+
+    ## Name filtering
+
+    - Filter on product names, e.g. `?name_contains=chocolate`
+
+    ## Brand filtering
+
+    - Filter on brand names, e'.g. `?brand_contains=smuckers`
+
+    """
     serializer_class = serializers.AdvancedProductSerializer
 
     def get_queryset(self):
         query_params = self.request.query_params
-        #
-        # # Check for ?ingredients_contains={ingredient} parameter, and filter results if necessary
+        # Check for ?ingredients_contains={ingredient} parameter, and filter results if necessary
         ingredients_contains = query_params.get('ingredients_contains', None)
         name_contains = query_params.get('name_contains', None)
         brand_contains = query_params.get('brand_contains', None)
-        # description_contains = query_params.get('description_contains', None)  # TODO: Currently stored in loblaws model, but should be moved to product
+        recent = query_params.get('recent', None)
+
         queryset = models.Product.objects.all()
 
-        # print(query_params)
+        if recent:
+            queryset = queryset.filter(most_recent=True)
+
         valid_dv_nutrients = [x for x in VALID_NUTRIENT_COLUMNS if '_dv' in x]
         for nutrient in valid_dv_nutrients:
             if nutrient in dict(query_params):
@@ -115,9 +158,7 @@ class AdvancedProductViewSet(viewsets.ReadOnlyModelViewSet):
                 if min_ == 0 and max_ == 1:
                     break
                 filter_ = f'nutrition_facts__{nutrient}__range'
-                print(filter_)
                 queryset = queryset.filter(**{filter_: (min_, max_)})
-                # print(f'{n}: {min_} - {max_}')
 
         if ingredients_contains:
             ingredients = ingredients_contains.split(',')
@@ -127,8 +168,6 @@ class AdvancedProductViewSet(viewsets.ReadOnlyModelViewSet):
             queryset = queryset.filter(name__icontains=name_contains)
         if brand_contains:
             queryset = queryset.filter(brand__icontains=brand_contains)
-        # if description_contains:
-        #     queryset = queryset.filter(loblaws_product__description__icontains=description_contains)
 
         # # Return everything by default
         return queryset.order_by('-id')
@@ -141,7 +180,7 @@ class ProductNameViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         search = self.request.query_params.get('search', None)
         if search is not None:
-            return models.Product.objects.filter(name__icontains=search)
+            return models.Product.objects.filter(name__icontains=search).order_by('name').distinct('name')
         else:
             return models.Product.objects.all()
 
@@ -153,7 +192,8 @@ class BrandNameViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         search = self.request.query_params.get('search', None)
         if search is not None:
-            return models.Product.objects.filter(brand__icontains=search)
+            query = models.Product.objects.filter(brand__icontains=search).order_by('brand').distinct('brand')
+            return query
         else:
             return models.Product.objects.all()
 

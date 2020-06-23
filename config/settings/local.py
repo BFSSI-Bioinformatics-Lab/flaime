@@ -16,7 +16,7 @@ ALLOWED_HOSTS = ["*"]
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "",
+        "LOCATION": "unique-snowflake",  # https://docs.djangoproject.com/en/dev/topics/cache/
     }
 }
 

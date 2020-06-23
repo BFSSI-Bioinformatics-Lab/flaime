@@ -170,9 +170,11 @@ typings/
 .idea/
 .idea/**/workspace.xml
 .idea/**/tasks.xml
+.idea/misc.xml
 .idea/dictionaries
 
 # Sensitive or high-churn files:
+.idea/flaim.iml
 .idea/**/dataSources/
 .idea/**/dataSources.ids
 .idea/**/dataSources.xml

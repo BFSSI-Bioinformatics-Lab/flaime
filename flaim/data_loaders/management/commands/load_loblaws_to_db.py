@@ -220,9 +220,11 @@ class Command(BaseCommand):
             quit()
 
         # Product JSON
-        self.stdout.write(self.style.SUCCESS(f'\nStarted loading Loblaws product JSON to database'))
         product_json_dir = Path(options['input_dir']) / 'product_json'
         scrape_date = parse_date(options['date'])
+
+        self.stdout.write(self.style.SUCCESS(f'\nStarted loading Loblaws product JSON to database'))
+
         self.load_loblaws(product_json_dir=product_json_dir, scrape_date=scrape_date)
 
         # Images
@@ -237,6 +239,11 @@ class Command(BaseCommand):
 
         CHANGE_REASON = 'New Loblaws Scrape Batch'
         json_files = list(product_json_dir.glob("*.json"))
+
+        if len(json_files) < 1:
+            self.stdout.write(self.style.ERROR(f'Could not find any JSON files in {product_json_dir}, quitting!'))
+            quit()
+
         self.stdout.write(self.style.SUCCESS(f'Found {len(json_files)} JSON files in {product_json_dir}'))
 
         # Total valid products scraped

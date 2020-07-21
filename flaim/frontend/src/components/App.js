@@ -1,53 +1,48 @@
-import React, { Component } from "react";
-import { render } from "react-dom";
+import React from "react";
+import {BrowserRouter, Route} from "react-router-dom";
+import {Layout} from 'antd';
 
-class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      data: [],
-      loaded: false,
-      placeholder: "Loading"
-    };
-  }
+import 'antd/dist/antd.css'
+import './App.css'
 
-  componentDidMount() {
-    fetch("../api/products")
-      .then(response => {
-        if (response.status > 400) {
-          return this.setState(() => {
-            return { placeholder: "Something went wrong!" };
-          });
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log(data)
-        this.setState(() => {
-          return {
-            data: data.results,
-            loaded: true
-          };
-        });
-      });
-  }
+import Reports from "./Reports";
+import Tools from "./Tools";
+import Navbar from "./Navbar"
+import Home from "./Home";
+import Data from "./Data";
+import About from "./About";
 
-  render() {
+
+const {Header, Footer, Content} = Layout;
+
+const App = () => {
     return (
-      <ul>
-        {this.state.data.map(product => {
-          return (
-            <li key={product.id}>
-              {product.name} - {product.brand}
-            </li>
-          );
-        })}
-      </ul>
-    );
-  }
+        <BrowserRouter>
+            <Layout className="layout">
+
+                <Header>
+                    <Navbar/>
+                </Header>
+
+                <Content style={{padding: '0 50px'}}>
+                    <div className="site-layout-content">
+                        <Route path="/v2" exact component={Home}/>
+                        <Route path="/v2/reports" exact component={Reports}/>
+                        <Route path="/v2/tools" exact component={Tools}/>
+                        <Route path="/v2/data" exact component={Data}/>
+                        <Route path="/v2/about" exact component={About}/>
+                    </div>
+                </Content>
+
+                <Footer>
+                    Footer
+                </Footer>
+
+            </Layout>
+        </BrowserRouter>
+
+    )
 }
 
-export default App;
+export default App
 
-const container = document.getElementById("app");
-render(<App />, container);

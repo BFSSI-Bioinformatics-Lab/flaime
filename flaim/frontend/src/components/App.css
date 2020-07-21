@@ -1,5 +1,13 @@
+.site-layout-header {
+  height: 20vh;
+}
+
 .site-layout-content {
   background: #fff;
   padding: 24px;
-  height: 400px;
+  height: 85vh;
+}
+
+.site-layout-footer {
+  height: 5vh;
 }

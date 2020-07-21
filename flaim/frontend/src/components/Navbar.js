@@ -1,7 +1,13 @@
 import React from 'react';
 import {Link} from "react-router-dom";
 import {Menu} from 'antd';
-import {BarChartOutlined, ToolOutlined, DatabaseOutlined, QuestionCircleOutlined} from '@ant-design/icons';
+import {
+    BarChartOutlined,
+    ToolOutlined,
+    DatabaseOutlined,
+    QuestionCircleOutlined,
+    FileSearchOutlined
+} from '@ant-design/icons';
 
 import './Navbar.css'
 
@@ -28,6 +34,11 @@ const Navbar = () => {
                 <Menu.Item key="4" icon={<QuestionCircleOutlined/>}>
                     <Link to="/v2/about">
                         About
+                    </Link>
+                </Menu.Item>
+                <Menu.Item key="5" icon={<FileSearchOutlined/>}>
+                    <Link to="/v2/product_browser">
+                        Product Browser
                     </Link>
                 </Menu.Item>
             </Menu>

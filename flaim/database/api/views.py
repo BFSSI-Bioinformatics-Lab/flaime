@@ -12,6 +12,7 @@ from django.contrib.auth import get_user_model
 from flaim.database.nutrient_coding import VALID_NUTRIENT_COLUMNS
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from django.db.models import Q
 
 User = get_user_model()
 
@@ -85,8 +86,9 @@ class RecentProductViewSet(viewsets.ModelViewSet):
     Returns only the most recent products within the database. In the back-end, this works by filtering on rows that
      have the `most_recent` parameter equal to `True`. This parameter is set automatically upon upload of new datasets,
      where old versions of products have their flag set to False and are replaced by the new entry.
+
+     query term supported for searching across brand or product fields
     """
-    queryset = models.Product.objects.filter(most_recent=True).order_by('-created')
     serializer_class = serializers.RecentProductSerializer
     filter_backends = [df_filters.DjangoFilterBackend,
                        rest_framework_datatables.filters.DatatablesFilterBackend,
@@ -94,6 +96,18 @@ class RecentProductViewSet(viewsets.ModelViewSet):
                        ]
     filterset_fields = ('name', 'store', 'product_code', 'brand')
     search_fields = ['name', 'store', 'brand']
+
+    def get_queryset(self):
+        queryset = models.Product.objects.filter(most_recent=True).order_by('-created')
+        query_params = self.request.query_params
+        query = query_params.get('query', None)
+        if query:
+            queryset = queryset.filter(
+                Q(name__icontains=query) |
+                Q(brand__icontains=query) |
+                Q(store__icontains=query)
+            )
+        return queryset
 
 
 class NutritionFactsViewSet(viewsets.ModelViewSet):

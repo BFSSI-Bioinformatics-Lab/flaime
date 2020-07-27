@@ -246,6 +246,7 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS(f'Found {len(json_files)} JSON files in {product_json_dir}'))
 
+        # TODO: I think some of the following logic (before loading individual json files) is super slow
         # Total valid products scraped
         filtered_json_files = [f for f in json_files if f.stat().st_size > 1000]
         total_products = len(filtered_json_files)

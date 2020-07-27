@@ -92,6 +92,10 @@ class ScrapeBatch(models.Model):
         verbose_name_plural = 'Scrape Batches'
 
 
+# TODO: Add the following columns
+#   predicted_category
+#   predicted_category_confidence
+#   predicted_category_model_version
 class Product(TimeStampedModel):
     product_code = models.CharField(max_length=500)
     name = models.CharField(max_length=500, blank=True, null=True)

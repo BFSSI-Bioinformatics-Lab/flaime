@@ -1,25 +1,15 @@
-import React, {useState} from 'react';
-import api from "../apis/api";
+import React from 'react';
+import ProductTable from "./ProductTable";
+import SearchBar from "./SearchBar";
+import useProductSearch from "../hooks/useProductSearch";
 
 const ProductBrowser = () => {
-    const [products, setProducts] = useState([])
-
-    const search = async term => {
-        const response = await api.get('/recent_products', {
-                params: {
-                    query: term,
-                }
-            }
-        )
-
-        console.log(response)
-    }
-
-    search('beef')
+    const [products, search] = useProductSearch('')
 
     return (
         <div>
-            <h1>product browser</h1>
+            <SearchBar onSearch={search}/>
+            <ProductTable data={products.results}/>
         </div>
     )
 }

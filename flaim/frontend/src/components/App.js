@@ -30,9 +30,6 @@ const App = () => {
 
                 <Content style={{padding: '0 50px'}}>
                     <div className="site-layout-content">
-
-                        <SearchBar/>
-
                         <Route path="/v2" exact component={Home}/>
                         <Route path="/v2/reports" exact component={Reports}/>
                         <Route path="/v2/tools" exact component={Tools}/>

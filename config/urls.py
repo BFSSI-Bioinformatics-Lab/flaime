@@ -23,7 +23,7 @@ urlpatterns = [
                   path("visualizer/", include("flaim.visualizer.urls", namespace="visualizer")),
 
                   # React frontend
-                  path("frontend/", include("flaim.frontend.urls", namespace="frontend")),
+                  path("v2/", include("flaim.frontend.urls", namespace="v2")),
 
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

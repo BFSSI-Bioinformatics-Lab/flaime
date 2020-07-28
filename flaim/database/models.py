@@ -8,6 +8,11 @@ from flaim.database.nutrient_coding import VALID_NUTRIENT_COLUMNS
 from simple_history.models import HistoricalRecords
 from django.db.models import Value
 
+# Sensible field sizes for CharField columns
+LG_CHAR = 1500
+MD_CHAR = 500
+SM_CHAR = 50
+
 
 def upload_product_image(obj):
     """ Sets the directory for an input ProductImage """
@@ -70,10 +75,10 @@ class ScrapeBatch(models.Model):
         ('WALMART', 'Walmart'),
         ('AMAZON', 'Amazon')
     )
-    store = models.CharField(max_length=7, choices=VALID_STORES)
+    store = models.CharField(max_length=SM_CHAR, choices=VALID_STORES)
 
     # Version of web scraper
-    scraper_version = models.CharField(max_length=15, blank=True, null=True)
+    scraper_version = models.CharField(max_length=SM_CHAR, blank=True, null=True)
 
     # Total number of products retrieved from the scrape
     total_products = models.IntegerField(blank=True, null=True)
@@ -92,20 +97,22 @@ class ScrapeBatch(models.Model):
         verbose_name_plural = 'Scrape Batches'
 
 
-# TODO: Add the following columns
-#   predicted_category
-#   predicted_category_confidence
-#   predicted_category_model_version
+class PredictedCategory(TimeStampedModel):
+    predicted_category = models.CharField(max_length=MD_CHAR, blank=True, null=True)
+    confidence = models.FloatField(blank=True, null=True)
+    model_verison = models.CharField(max_length=SM_CHAR, blank=True, null=True)
+
+
 class Product(TimeStampedModel):
-    product_code = models.CharField(max_length=500)
-    name = models.CharField(max_length=500, blank=True, null=True)
-    brand = models.CharField(max_length=500, blank=True, null=True)
+    product_code = models.CharField(max_length=MD_CHAR)
+    name = models.CharField(max_length=MD_CHAR, blank=True, null=True)
+    brand = models.CharField(max_length=MD_CHAR, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     most_recent = models.BooleanField(default=True)
 
     # TODO: Accomodate the possibility for multiple breadcrumb trails, i.e. change to ArrayField(ArrayField)
-    breadcrumbs_text = models.CharField(max_length=600, blank=True, null=True)
-    breadcrumbs_array = ArrayField(models.CharField(max_length=300), blank=True, null=True)
+    breadcrumbs_text = models.CharField(max_length=LG_CHAR, blank=True, null=True)
+    breadcrumbs_array = ArrayField(models.CharField(max_length=MD_CHAR), blank=True, null=True)
 
     # TODO: Make batch field required upon instantiation once we move towards a more production-ready version of FLAIME
     batch = models.ForeignKey(ScrapeBatch, on_delete=models.CASCADE, blank=True, null=True)
@@ -115,15 +122,18 @@ class Product(TimeStampedModel):
         ('WALMART', 'Walmart'),
         ('AMAZON', 'Amazon')
     )
-    store = models.CharField(max_length=20, choices=VALID_STORES)
-    price = models.CharField(max_length=200, blank=True, null=True)
+    store = models.CharField(max_length=SM_CHAR, choices=VALID_STORES)
+    price = models.CharField(max_length=MD_CHAR, blank=True, null=True)
     price_float = models.FloatField(blank=True, null=True)
-    price_units = models.CharField(max_length=20, blank=True, null=True)
-    upc_code = models.CharField(max_length=500, blank=True, null=True)
+    price_units = models.CharField(max_length=SM_CHAR, blank=True, null=True)
+    upc_code = models.CharField(max_length=MD_CHAR, blank=True, null=True)
     nutrition_available = models.BooleanField(blank=True, null=True)
     unidentified_nft_format = models.BooleanField(default=False)  # Bool flag for whether the NFT is American or not
     nielsen_product = models.BooleanField(blank=True, null=True)
-    url = models.CharField(max_length=1500, blank=True, null=True)
+    url = models.CharField(max_length=LG_CHAR, blank=True, null=True)
+
+    predicted_category = models.ForeignKey(PredictedCategory, on_delete=models.CASCADE, blank=True, null=True)
+
     history = HistoricalRecords(related_name='product_history')
 
     @staticmethod
@@ -188,16 +198,16 @@ class ProductLink(TimeStampedModel):
 
 class NutritionFacts(TimeStampedModel):
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name="nutrition_facts")
-    total_size = models.CharField(max_length=200, blank=True,
+    total_size = models.CharField(max_length=MD_CHAR, blank=True,
                                   null=True)  # Should be serving_size * # of servings in product
-    serving_size_raw = models.CharField(max_length=200, blank=True, null=True)  # Unparsed serving size text
+    serving_size_raw = models.CharField(max_length=MD_CHAR, blank=True, null=True)  # Unparsed serving size text
     serving_size = models.IntegerField(blank=True, null=True)  # Parsed numeric serving size value
 
     SERVING_SIZE_UNITS = (
         ('g', 'grams'),
         ('mL', 'millilitres')
     )
-    serving_size_units = models.CharField(max_length=11, choices=SERVING_SIZE_UNITS, blank=True, null=True)
+    serving_size_units = models.CharField(max_length=SM_CHAR, choices=SERVING_SIZE_UNITS, blank=True, null=True)
 
     ingredients = models.TextField(blank=True, null=True)
 
@@ -442,7 +452,7 @@ class LoblawsProduct(TimeStampedModel):
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name="loblaws_product")
     # TODO: Implement upload_to for image_directory because right now the paths are stored as straight up strings
     #  including the root. This is not portable at all and will cause issues whenever the server migration occurs.
-    upc_list = ArrayField(models.CharField(max_length=300), blank=True, null=True)
+    upc_list = ArrayField(models.CharField(max_length=MD_CHAR), blank=True, null=True)
 
     # This JSON data is retrieved from the Loblaws API
     api_data = JSONField(blank=True, null=True)
@@ -467,9 +477,9 @@ class WalmartProduct(TimeStampedModel):
     Extension of the generic Product model to store Walmart specific metadata
     """
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name="walmart_product")
-    image_directory = models.CharField(max_length=500, blank=True, null=True)
+    image_directory = models.CharField(max_length=MD_CHAR, blank=True, null=True)
 
-    sku = models.CharField(max_length=100, blank=True, null=True)
+    sku = models.CharField(max_length=SM_CHAR, blank=True, null=True)
     bullets = models.TextField(blank=True, null=True)
     dietary_info = models.TextField(blank=True, null=True)  # Corresponds to "Lifestyle and Dietary Need" in JSON
     nutrition_facts_json = JSONField(blank=True, null=True)
@@ -492,14 +502,14 @@ class AmazonProduct(TimeStampedModel):
     """
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name="amazon_product")
     bullet_points = models.TextField(null=True, blank=True)  # The Amazon description field
-    manufacturer_reference = models.CharField(max_length=100, blank=True,
+    manufacturer_reference = models.CharField(max_length=MD_CHAR, blank=True,
                                               null=True)  # e.g. from Amazon technical details
-    speciality = models.CharField(max_length=100, blank=True, null=True)  # e.g. Kosher
-    units = models.CharField(max_length=30, blank=True, null=True)  # e.g. 2.5 Kilograms
-    item_weight = models.CharField(max_length=30, blank=True, null=True)  # e.g. 1.58 kg
-    parcel_dimensions = models.CharField(max_length=30, blank=True, null=True)  # e.g. 30 x 30 x 30 cm
+    speciality = models.CharField(max_length=MD_CHAR, blank=True, null=True)  # e.g. Kosher
+    units = models.CharField(max_length=SM_CHAR, blank=True, null=True)  # e.g. 2.5 Kilograms
+    item_weight = models.CharField(max_length=SM_CHAR, blank=True, null=True)  # e.g. 1.58 kg
+    parcel_dimensions = models.CharField(max_length=SM_CHAR, blank=True, null=True)  # e.g. 30 x 30 x 30 cm
     date_first_available = models.DateField(null=True, blank=True)  # from the Additional Information table
-    image_directory = models.CharField(max_length=1000, blank=True, null=True)
+    image_directory = models.CharField(max_length=LG_CHAR, blank=True, null=True)
 
     history = HistoricalRecords()
 
@@ -516,7 +526,7 @@ class AmazonSearchResult(TimeStampedModel):
         Stores information on the search page that a particular product showed up on
     """
     product = models.ForeignKey(AmazonProduct, on_delete=models.CASCADE, related_name="amazon_search_result")
-    search_string = models.CharField(max_length=500)  # Search string used to generate results
+    search_string = models.CharField(max_length=MD_CHAR)  # Search string used to generate results
     page = models.IntegerField()  # Page that the product showed up on
     item_number = models.IntegerField()  # Of products shown on search page, tracks the index of the product (i.e. 2nd)
 
@@ -531,9 +541,9 @@ class AmazonProductReview(TimeStampedModel):
     """
     # One Amazon Product will have many reviews
     product = models.ForeignKey(AmazonProduct, on_delete=models.CASCADE, related_name="amazon_product_reviews")
-    review_title = models.CharField(max_length=300)
+    review_title = models.CharField(max_length=MD_CHAR)
     review_text = models.TextField(blank=True, null=True)
-    reviewer_username = models.CharField(max_length=100)
+    reviewer_username = models.CharField(max_length=SM_CHAR)
     rating = models.FloatField()  # e.g. 3 out of 5 stars -> convert to float
     helpful = models.BooleanField()  # Flag for if the review was marked as helpful or not by Amazon
 
@@ -548,9 +558,10 @@ class ProductImage(TimeStampedModel):
         Model to store relationship between a Product and a path to a product image
     """
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="product_image")
-    image_path = models.ImageField(upload_to=upload_product_image, unique=True, max_length=1200)
+    image_path = models.ImageField(upload_to=upload_product_image, unique=True, max_length=LG_CHAR)
     image_number = models.IntegerField(blank=True, null=True)  # Order of the image in a set for a product
-    image_label = models.CharField(max_length=50, null=True, blank=True)  # e.g. 'other', 'nutrition', 'ingredients'
+    image_label = models.CharField(max_length=SM_CHAR, null=True,
+                                   blank=True)  # e.g. 'other', 'nutrition', 'ingredients'
 
     def __str__(self):
         return f"{self.product}: {Path(self.image_path.url).name}"
@@ -573,7 +584,7 @@ class NutritionLabelClassification(TimeStampedModel):
         ('I', 'INGREDIENTS'),
         ('O', 'OTHER'),
     )
-    classification = models.CharField(choices=classification_choices, max_length=15, null=True, blank=True)
+    classification = models.CharField(choices=classification_choices, max_length=SM_CHAR, null=True, blank=True)
 
     class Meta:
         verbose_name = 'Image Classification'
@@ -596,8 +607,8 @@ class FrontOfPackLabel(TimeStampedModel):
     label_type_choices = (
         ('FC', 'FOOD_COLOURING'),
     )
-    label_type = models.CharField(max_length=30, choices=label_type_choices, null=True, blank=True)
-    classified_image_path = models.ImageField(upload_to=upload_fop_image, max_length=1000)
+    label_type = models.CharField(max_length=SM_CHAR, choices=label_type_choices, null=True, blank=True)
+    classified_image_path = models.ImageField(upload_to=upload_fop_image, max_length=LG_CHAR)
 
     def __str__(self):
         return f"{self.product_image.product.name} - FOP Present: {self.label_detected}"

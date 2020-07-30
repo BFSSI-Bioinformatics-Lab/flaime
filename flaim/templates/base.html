@@ -102,7 +102,7 @@
                   <h5 class="mb-0">
                     <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false"
                             aria-controls="collapseOne">
-                      Tools
+                      <h5><i class="fas fa-tools"></i> Tools</h5>
                     </button>
                   </h5>
                 </div>
@@ -133,7 +133,7 @@
                   <h5 class="mb-0">
                     <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo"
                             aria-expanded="false" aria-controls="collapseTwo">
-                      Reports (WIP)
+                      <h5><i class="fas fa-sticky-note"></i> Reports (WIP)</h5>
                     </button>
                   </h5>
                 </div>
@@ -142,31 +142,31 @@
                     <li class="nav-item">
                       <a class="nav-link"
                          href="{% url 'reports:product_report' %}"><i
-                              class="fas fa-sticky-note"></i>{% trans " Product" %}
+                              class="fas fa-cheese"></i>{% trans " Product" %}
                       </a>
                     </li>
                     <li class="nav-item">
                       <a class="nav-link"
                          href="{% url 'reports:nutrient_report' %}"><i
-                              class="fas fa-sticky-note"></i>{% trans " Nutrient" %}
+                              class="fas fa-utensils"></i>{% trans " Nutrient" %}
                       </a>
                     </li>
                     <li class="nav-item">
                       <a class="nav-link"
                          href="{% url 'reports:category_report' %}"><i
-                              class="fas fa-sticky-note"></i>{% trans " Category" %}
+                              class="fas fa-layer-group"></i>{% trans " Category" %}
                       </a>
                     </li>
                     <li class="nav-item">
                       <a class="nav-link"
                          href="{% url 'reports:brand_report' %}"><i
-                              class="fas fa-sticky-note"></i>{% trans " Brand" %}
+                              class="fas fa-copyright"></i>{% trans " Brand" %}
                       </a>
                     </li>
                     <li class="nav-item">
                       <a class="nav-link"
                          href="{% url 'reports:store_report' %}"><i
-                              class="fas fa-sticky-note"></i>{% trans " Store" %}
+                              class="fas fa-store-alt"></i>{% trans " Store" %}
                       </a>
                     </li>
                   </div>
@@ -177,7 +177,7 @@
                   <h5 class="mb-0">
                     <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree"
                             aria-expanded="false" aria-controls="collapseThree">
-                      Data (WIP)
+                      <h5><i class="fas fa-database"></i> Data (WIP)</h5>
                     </button>
                   </h5>
                 </div>
@@ -186,19 +186,19 @@
                     <li class="nav-item">
                       <a class="nav-link"
                          href="{% url 'visualizer:index' %}"><i
-                              class="fas fa-chart-bar"></i>{% trans " Example" %}
+                              class="fas fa-chart-bar"></i>{% trans " Example Viz" %}
                       </a>
                     </li>
                     <li class="nav-item">
                       <a class="nav-link"
-                         href="#"><i
-                              class="fas fa-chart-bar"></i>{% trans " Quality" %}
+                         href="{% url 'data:data_quality' %}"><i
+                              class="fas fa-balance-scale-right"></i>{% trans " Quality" %}
                       </a>
                     </li>
                     <li class="nav-item">
                       <a class="nav-link"
-                         href="#"><i
-                              class="fas fa-chart-bar"></i>{% trans " Download" %}
+                         href="{% url 'data:data_download' %}"><i
+                              class="fas fa-download"></i>{% trans " Download" %}
                       </a>
                     </li>
                   </div>
@@ -226,7 +226,7 @@
       <div class="container-fluid">
         <br>
         {% block content %}
-          <p>Use this document as a way to quick start any new project.</p>
+          <p>Content goes here</p>
         {% endblock content %}
       </div>
     </main>

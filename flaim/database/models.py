@@ -187,7 +187,10 @@ class Product(TimeStampedModel):
         verbose_name = 'Product'
         verbose_name_plural = 'Products'
         indexes = [
-            models.Index(fields=['product_code'])
+            models.Index(fields=[
+                'product_code',
+                'most_recent'
+            ])
         ]
 
 

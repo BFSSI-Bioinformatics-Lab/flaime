@@ -73,9 +73,10 @@
                   "serverSide": true,
                   "processing": false,
                   "ajax": "/api/recent_products/?format=datatables",
+                  "order": [[2, "asc"]],
                   "aoColumnDefs": [
-                      {"bSortable": false, "aTargets": [-1, -2]},
-                      {"searchable": false, "targets": [-1, -2]}
+                      {"bSortable": false, "aTargets": [0, -1, -2]},
+                      {"searchable": false, "targets": [0, -1, -2]}
                   ],
                   "columns": [
                       {"data": "id", "render": $.fn.dataTable.render.link_to_id()},

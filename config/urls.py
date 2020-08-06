@@ -19,6 +19,7 @@ urlpatterns = [
 
                   # API
                   path("api/", include("flaim.database.urls")),
+                  path("api/visualizers/", include("flaim.visualizer.urls", namespace="visualizers_api")),
 
                   # Reports
                   path("reports/", include("flaim.reports.urls")),

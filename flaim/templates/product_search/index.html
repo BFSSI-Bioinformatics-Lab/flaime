@@ -30,8 +30,6 @@
 
     <hr>
 
-    <!-- TODO: Nutrient dropdown with slider displaying min and max values for a) DV and b) raw nutrient amount  -->
-
     <div class="row">
       <div class="col">
         <h4>Nutrient Daily Value (DV) Filtering</h4>
@@ -297,7 +295,7 @@
                       }
                       if (type === 'display') {
                           let id = data.toString(); // cast numbers
-                          return '<a href="/product_browser/' + id + '"><i class="fas fa-link"></i></a>'
+                          return '<a href="/tools/product_browser/' + id + '"><i class="fas fa-link"></i></a>'
                       }
                       // Search, order and type can use the original data
                       return data;

@@ -1,0 +1,71 @@
+{% extends 'reports_base.html' %}
+{% block section %}Category Report{% endblock %}
+
+{% block header %}
+  <div style="flex: 10%">
+  {% load static %}
+    <img src="{% static "images/soup.png" %}" alt="Soup" height="160" width="160">
+  </div>
+  <div style="flex: 90%;padding-left: 20px">
+    <h1>Soup</h1>
+    <div style="display: flex">
+      <div style="flex: auto">
+        test1
+      </div>
+      <div style="flex: auto">
+        test2
+      </div>
+      <div style="flex: auto">
+        test3
+      </div>
+      <div style="flex: auto">
+        test4
+      </div>
+      <div style="flex: auto">
+        test5
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block body %}
+  <div style="flex: 33%">
+    Aenean blandit nulla a urna varius, eu condimentum tortor bibendum. Sed elementum lectus pharetra, pulvinar massa a,
+    dapibus quam. Nulla quis nulla porttitor, blandit tellus id, pretium ipsum. Etiam velit nunc, ultricies id quam a,
+    finibus maximus eros. Pellentesque tellus ipsum, consectetur nec lectus non, ornare molestie leo.
+  </div>
+  <div style="flex: 33%">
+    Sed euismod pharetra massa, et fringilla elit consequat et. Mauris tempus molestie hendrerit. Nunc id justo lorem.
+    Fusce vitae lorem porttitor, euismod metus condimentum, faucibus elit. Ut eu metus purus. Praesent condimentum nisl
+    et neque sollicitudin, eu lacinia sapien pulvinar.
+  </div>
+  <div style="flex: 33%">
+    Vivamus ornare ante turpis, vel pulvinar erat posuere laoreet. Nullam ac enim a elit aliquet bibendum nec sed ex.
+    Sed cursus metus vel ipsum dapibus egestas. Cras magna eros, pretium et scelerisque cursus, feugiat quis est.
+    Fusce facilisis, sem nec tempor ultricies, lacus ipsum imperdiet mi, sed scelerisque arcu nunc laoreet nisl.
+  </div>
+{% endblock %}
+
+{% block footer %}
+  {% block product_javascript %}
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  {% endblock %}
+      <div style="flex: 20%;padding-top: 20px">
+        <h3>
+          Nutrient Distribution
+        </h3>
+        <p>
+        In placerat vestibulum massa, ac blandit libero
+        iaculis vitae. Cras porttitor sapien ut arcu cursus condimentum. Nullam porta finibus laoreet. Sed lacus tellus,
+        vestibulum in cursus in, pulvinar sit amet tellus. Praesent dignissim, quam eu condimentum consectetur, tortor
+        lectus lacinia dui, ut malesuada lectus eros at nisl. Cras at est vitae augue pellentesque iaculis. In quis
+        finibus leo.
+        </p>
+      </div>
+    <div style="flex: 80%">
+      {% autoescape off %}
+        {{ figure1 }}
+      {% endautoescape %}
+    </div>
+{% endblock %}

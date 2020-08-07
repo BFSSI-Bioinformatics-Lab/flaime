@@ -33,6 +33,7 @@ tqdm==4.46.1
 plotly==4.8.1
 Markdown==3.2.2
 pandas==1.0.5
+scipy==1.5.2
 
 # Django
 Django==3.0.7

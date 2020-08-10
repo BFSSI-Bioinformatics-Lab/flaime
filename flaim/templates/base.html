@@ -74,12 +74,12 @@
     {#           href="{% url 'account_signup' %}">{% trans "Sign Up" %}</a>#}
     {#      </li>#}
     {#    </ul>#}
-    {#    <ul class="navbar-nav px-3">#}
-    {#      <li class="nav-item text-nowrap">#}
-    {#        <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}"><i#}
-    {#                class="fas fa-sign-in-alt"></i>{% trans " Sign In" %}</a>#}
-    {#      </li>#}
-    {#    </ul>#}
+        <ul class="navbar-nav px-3">
+          <li class="nav-item text-nowrap">
+            <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}"><i
+                    class="fas fa-sign-in-alt"></i>{% trans " Sign In" %}</a>
+          </li>
+        </ul>
   {% endif %}
 </nav>
 
@@ -214,6 +214,7 @@
 
     <main class="col-md-9 ml-sm-auto col-lg-10 px-4">
       {% if messages %}
+        <br>
         {% for message in messages %}
           <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}
             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
@@ -225,25 +226,11 @@
 
       <div class="container-fluid">
         <br>
-        {% if request.user.is_authenticated %}
 
-          {% block content %}
-            <p>Content goes here</p>
-          {% endblock content %}
+        {% block content %}
+          <p>Content goes here</p>
+        {% endblock content %}
 
-        {% else %}
-          <div class="row justify-content-center">
-            <div class="jumbotron">
-              <h5>You must be logged in to view FLAIME. </h5>
-              <h6>To register a new account, please contact <kbd>forest.dussault@canada.ca</kbd></h6>
-              <div class="text-center">
-                <a id="log-in-link" class="btn btn-lg btn-success" href="{% url 'account_login' %}"><i
-                        class="fas fa-sign-in-alt"></i>{% trans " Sign In" %}</a>
-              </div>
-            </div>
-          </div>
-
-        {% endif %}
       </div>
     </main>
   </div>

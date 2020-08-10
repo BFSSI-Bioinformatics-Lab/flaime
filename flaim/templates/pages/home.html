@@ -4,13 +4,20 @@
   <div class="row justify-content-center">
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title">Welcome to FLAIME</h5>
+        <h4 class="card-title">Welcome to FLAIME</h4>
+
+                  {% if request.user.is_authenticated %}
         <p class="card-text">Use the panel on the left side of the page to navigate the system.
           Note that this application is still underdoing development.</p>
+                    {% else %}
+                    <h5>Please sign in to access the application.</h5>
+        {% endif %}
       </div>
     </div>
   </div>
 
-  {% include 'visualizer/webscrape_history.html' %}
+  {% if request.user.is_authenticated %}
+    {% include 'visualizer/webscrape_history.html' %}
+  {% endif %}
 
 {% endblock %}

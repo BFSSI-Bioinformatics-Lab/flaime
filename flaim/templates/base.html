@@ -67,19 +67,19 @@
       </li>
     </ul>
   {% else %}
-    <ul class="navbar-nav px-3">
-
-      <li class="nav-item text-nowrap">
-        <a id="sign-up-link" class="nav-link"
-           href="{% url 'account_signup' %}">{% trans "Sign Up" %}</a>
-      </li>
-    </ul>
-    <ul class="navbar-nav px-3">
-      <li class="nav-item text-nowrap">
-        <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}"><i
-                class="fas fa-sign-in-alt"></i>{% trans " Sign In" %}</a>
-      </li>
-    </ul>
+    {#    <ul class="navbar-nav px-3">#}
+    {##}
+    {#      <li class="nav-item text-nowrap">#}
+    {#        <a id="sign-up-link" class="nav-link"#}
+    {#           href="{% url 'account_signup' %}">{% trans "Sign Up" %}</a>#}
+    {#      </li>#}
+    {#    </ul>#}
+    {#    <ul class="navbar-nav px-3">#}
+    {#      <li class="nav-item text-nowrap">#}
+    {#        <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}"><i#}
+    {#                class="fas fa-sign-in-alt"></i>{% trans " Sign In" %}</a>#}
+    {#      </li>#}
+    {#    </ul>#}
   {% endif %}
 </nav>
 
@@ -189,18 +189,18 @@
                               class="fas fa-chart-bar"></i>{% trans " Example Viz" %}
                       </a>
                     </li>
-{#                    <li class="nav-item">#}
-{#                      <a class="nav-link"#}
-{#                         href="{% url 'data:data_quality' %}"><i#}
-{#                              class="fas fa-balance-scale-right"></i>{% trans " Quality" %}#}
-{#                      </a>#}
-{#                    </li>#}
-{#                    <li class="nav-item">#}
-{#                      <a class="nav-link"#}
-{#                         href="{% url 'data:data_download' %}"><i#}
-{#                              class="fas fa-download"></i>{% trans " Download" %}#}
-{#                      </a>#}
-{#                    </li>#}
+                    {#                    <li class="nav-item">#}
+                    {#                      <a class="nav-link"#}
+                    {#                         href="{% url 'data:data_quality' %}"><i#}
+                    {#                              class="fas fa-balance-scale-right"></i>{% trans " Quality" %}#}
+                    {#                      </a>#}
+                    {#                    </li>#}
+                    {#                    <li class="nav-item">#}
+                    {#                      <a class="nav-link"#}
+                    {#                         href="{% url 'data:data_download' %}"><i#}
+                    {#                              class="fas fa-download"></i>{% trans " Download" %}#}
+                    {#                      </a>#}
+                    {#                    </li>#}
                   </div>
                 </div>
               </div>
@@ -225,9 +225,25 @@
 
       <div class="container-fluid">
         <br>
-        {% block content %}
-          <p>Content goes here</p>
-        {% endblock content %}
+        {% if request.user.is_authenticated %}
+
+          {% block content %}
+            <p>Content goes here</p>
+          {% endblock content %}
+
+        {% else %}
+          <div class="row justify-content-center">
+            <div class="jumbotron">
+              <h5>You must be logged in to view FLAIME. </h5>
+              <h6>To register a new account, please contact <kbd>forest.dussault@canada.ca</kbd></h6>
+              <div class="text-center">
+                <a id="log-in-link" class="btn btn-lg btn-success" href="{% url 'account_login' %}"><i
+                        class="fas fa-sign-in-alt"></i>{% trans " Sign In" %}</a>
+              </div>
+            </div>
+          </div>
+
+        {% endif %}
       </div>
     </main>
   </div>

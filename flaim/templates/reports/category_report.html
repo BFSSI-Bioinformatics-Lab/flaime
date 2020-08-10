@@ -6,23 +6,30 @@
   {% load static %}
     <img src="{% static "images/soup.png" %}" alt="Soup" height="160" width="160">
   </div>
-  <div style="flex: 90%;padding-left: 20px">
-    <h1>Soup</h1>
-    <div style="display: flex">
+  <div style="flex: 90%;padding-left: 10px">
+    <div style="padding-left: 60px">
+      <h1>Soup</h1>
+    </div>
+    <div style="display: flex;text-align:center">
       <div style="flex: auto">
-        test1
+        Product Count</br>
+        <h1>{{ product_count }}</h1>
       </div>
       <div style="flex: auto">
-        test2
+        Median Calories
+        <h1>{{ calorie_median }}</h1>
       </div>
       <div style="flex: auto">
-        test3
+        Median Sodium
+        <h1 style="color: darkred">{{ sodium_median }}</h1>
       </div>
       <div style="flex: auto">
-        test4
+        Median Sat. Fat
+        <h1 style="color: darkgreen;">{{ fat_median }}</h1>
       </div>
       <div style="flex: auto">
-        test5
+        Median Sugar
+        <h1 style="color: darkgreen;">{{ sugar_median }}</h1>
       </div>
     </div>
   </div>
@@ -31,17 +38,17 @@
 
 {% block body %}
   <div style="flex: 33%">
-    Aenean blandit nulla a urna varius, eu condimentum tortor bibendum. Sed elementum lectus pharetra, pulvinar massa a,
+    <b>Overview:</b> top 3 brands, avg cost? eu condimentum tortor bibendum. Sed elementum lectus pharetra, pulvinar massa a,
     dapibus quam. Nulla quis nulla porttitor, blandit tellus id, pretium ipsum. Etiam velit nunc, ultricies id quam a,
     finibus maximus eros. Pellentesque tellus ipsum, consectetur nec lectus non, ornare molestie leo.
   </div>
   <div style="flex: 33%">
-    Sed euismod pharetra massa, et fringilla elit consequat et. Mauris tempus molestie hendrerit. Nunc id justo lorem.
+    <b>Nutrients:</b> Sed euismod pharetra massa, et fringilla elit consequat et. Mauris tempus molestie hendrerit. Nunc id justo lorem.
     Fusce vitae lorem porttitor, euismod metus condimentum, faucibus elit. Ut eu metus purus. Praesent condimentum nisl
     et neque sollicitudin, eu lacinia sapien pulvinar.
   </div>
   <div style="flex: 33%">
-    Vivamus ornare ante turpis, vel pulvinar erat posuere laoreet. Nullam ac enim a elit aliquet bibendum nec sed ex.
+    <b>Ingredients:</b> Vivamus ornare ante turpis, vel pulvinar erat posuere laoreet. Nullam ac enim a elit aliquet bibendum nec sed ex.
     Sed cursus metus vel ipsum dapibus egestas. Cras magna eros, pretium et scelerisque cursus, feugiat quis est.
     Fusce facilisis, sem nec tempor ultricies, lacus ipsum imperdiet mi, sed scelerisque arcu nunc laoreet nisl.
   </div>

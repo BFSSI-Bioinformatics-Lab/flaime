@@ -25,10 +25,7 @@ class CategoryView(TemplateView):
     @staticmethod
     def get_figure1(df):
         nutrients = ['sodium_dv', 'totalfat_dv', 'sugar']
-        plot_df = df.loc[df['breadcrumbs_last'].str.contains('soup', flags=re.IGNORECASE) == True].copy()
-        plot_df['sugar'] /= 100
-
-        fig = ff.create_distplot(plot_df[nutrients].dropna().T.values,
+        fig = ff.create_distplot(df[nutrients].dropna().T.values,
                                  nutrients, bin_size=.01)
 
         fig.update_layout(
@@ -57,18 +54,23 @@ class CategoryView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         df1 = pd.DataFrame(list(self.model.objects.filter(most_recent=True).values()))
 
         def last_crumb(breadcrumbs):
             return breadcrumbs[-1] if breadcrumbs and len(breadcrumbs) > 0 else np.nan
         df1['breadcrumbs_last'] = df1['breadcrumbs_array'].apply(lambda row: last_crumb(row))
-
         df2 = pd.DataFrame(list(self.nutrition_facts.objects.filter(product__most_recent=True).values()))
-
         df = df1.merge(df2, left_on='id', right_on='product_id')
+        plot_df = df.loc[df['breadcrumbs_last'].str.contains('soup', flags=re.IGNORECASE) == True].copy()
+        plot_df['sugar'] /= 100
+        plot_df['brand'] = plot_df['brand'].str.replace('’', "'")
 
-        context['figure1'] = CategoryView.get_figure1(df)
+        context['figure1'] = CategoryView.get_figure1(plot_df)
+        context['product_count'] = plot_df.shape[0]
+        context['calorie_median'] = f'{plot_df.calories.median():.0f}'
+        context['sodium_median'] = f'{plot_df.sodium_dv.median()*100:.0f}%'
+        context['fat_median'] = f'{plot_df.totalfat_dv.median()*100:.0f}%'
+        context['sugar_median'] = f'{plot_df.sugar.median()*100:.0f}%'
         return context
 
 

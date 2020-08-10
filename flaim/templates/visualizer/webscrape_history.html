@@ -1,0 +1,78 @@
+<div class="row justify-content-center">
+  <div id="scrapeChart"></div>
+</div>
+
+{% block extra_js %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script>
+
+    axios.get("/api/scrape_batches")
+            .then(function (response) {
+              console.log(response);
+              let results = response.data.results;
+
+              // Filter the data into two separate sets
+              let walmart_results = results.filter(x => x.store === "WALMART")
+              let loblaws_results = results.filter(x => x.store === "LOBLAWS")
+
+              // Trace setup
+              let walmart_trace = {
+                x: walmart_results.map(x => x.scrape_date),
+                y: walmart_results.map(x => x.total_products),
+                type: 'bar',
+                name: 'Walmart'
+              }
+
+              let loblaws_trace = {
+                x: loblaws_results.map(x => x.scrape_date),
+                y: loblaws_results.map(x => x.total_products),
+                type: 'bar',
+                name: 'Loblaws'
+              }
+
+              let data = [walmart_trace, loblaws_trace]
+
+              let layout = {
+                autosize: true,
+                title: {
+                  text: 'Web Scraping History',
+                  font: {
+                    size: 24
+                  },
+                  xref: 'paper',
+                },
+                xaxis: {
+                  title: {
+                    text: 'Date',
+                    font: {
+                      size: 18,
+                    }
+                  },
+                },
+                yaxis: {
+                  title: {
+                    text: 'Number of Products',
+                    font: {
+                      size: 18,
+                    }
+                  }
+                },
+                showlegend: true,
+              };
+
+              Plotly.newPlot('scrapeChart', data, layout);
+
+            })
+            .catch(function (error) {
+              console.log(error)
+            })
+            .finally(function () {
+              console.log("finally")
+            });
+
+
+  </script>
+
+
+{% endblock %}

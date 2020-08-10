@@ -1,15 +1,14 @@
 import logging
-from pathlib import Path
-from django.conf import settings
 from django.views.generic import TemplateView, DetailView
 from django.core.exceptions import ObjectDoesNotExist
 from flaim.database.models import Product, ProductImage, LoblawsProduct, WalmartProduct, NutritionFacts
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 logger = logging.getLogger(__name__)
 
 
 # Create your views here.
-class IndexView(TemplateView):
+class IndexView(LoginRequiredMixin, TemplateView):
     template_name = 'product_browser/index.html'
 
 
@@ -24,7 +23,7 @@ def get_product_history_diff(obj):
     return None
 
 
-class ProductView(DetailView):
+class ProductView(LoginRequiredMixin, DetailView):
     model = Product
     template_name = 'product_browser/detail.html'
     context_object_name = 'product'

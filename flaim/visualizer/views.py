@@ -1,15 +1,15 @@
-import ast
 
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 from django.views.generic import ListView, View
 from plotly.io import to_html
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from flaim.database import models
 
 
-class IndexView(ListView):
+class IndexView(LoginRequiredMixin, ListView):
     model = models.Product
     nutrition_facts = models.NutritionFacts
     template_name = 'visualizer/index.html'

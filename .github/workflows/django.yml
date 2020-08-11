@@ -43,6 +43,7 @@ jobs:
           FLAIM_DB_PASSWORD: ${{ secrets.FLAIM_DB_PASSWORD }}
           REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
           POSTGRESQL_URL: ${{ secrets.POSTGRESQL_URL }}
+          DJANGO_DEBUG: True
         run: |
           python manage.py makemigrations
           python manage.py migrate

@@ -11,6 +11,18 @@ from tqdm import tqdm
 
 # TODO: Implement automatic scanning/calling of this script upon finding new data
 
+def normalize_apostrophe(val: str):
+    """
+    Values like brand and name often have inconsistent apostrophes: this method should be applied to name and brand
+    before upload to the database. This is especially important for matching products by brand.
+    :param val: string to swap apostrophes on
+    :return: new string with proper apostrophe
+    """
+    old_apostrophe = "’"
+    new_postrophe = "'"
+    return val.replace(old_apostrophe, new_postrophe)
+
+
 def read_json(json_file):
     with open(json_file, 'r') as f:
         data = json.load(f)
@@ -291,12 +303,14 @@ class Command(BaseCommand):
 
             # Generic fields for Product model
             obj.store = 'LOBLAWS'
-            obj.name = get_name(data)
+
+            # Normalize the apostrophes for name and brand
+            obj.name = normalize_apostrophe(get_name(data))
+            obj.brand = normalize_apostrophe(get_brand(data))
 
             price_float, price_units = get_price(data)
             obj.price_float, obj.price_units = price_float, price_units
             obj.price = f'${price_float} {price_units}'
-            obj.brand = get_brand(data)
 
             upc_list = get_upc_list(data)
             if upc_list is not None:

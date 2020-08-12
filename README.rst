@@ -102,11 +102,15 @@ First, you must create an empty migration with the following command::
 Then you must navigate to the newly created empty migration and set it up so it looks like this::
 
 
-        from django.contrib.postgres.operations import TrigramExtension
+    from django.contrib.postgres.operations import TrigramExtension
 
-        ...
+    ...
 
-        operations = [TrigramExtension()]
+    operations = [TrigramExtension()]
+
+And confirm it with::
+
+    python manage.py migrate
 
 
 Misc. Dev Notes

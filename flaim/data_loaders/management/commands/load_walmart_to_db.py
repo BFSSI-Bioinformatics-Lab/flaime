@@ -28,6 +28,8 @@ def normalize_apostrophe(val: str):
     :param val: string to swap apostrophes on
     :return: new string with proper apostrophe
     """
+    if val is None:
+        return None
     old_apostrophe = "’"
     new_postrophe = "'"
     return val.replace(old_apostrophe, new_postrophe)

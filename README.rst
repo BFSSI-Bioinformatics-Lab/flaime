@@ -86,6 +86,29 @@ https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-redis
 https://github.com/rq/django-rq
 
 
+Installing Postgres Trigram Extension
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+We use this for more flexible searching. Installing this app on a new server will require this to be installed.
+
+Trigrams allows you to do something like this::
+
+    queryset = queryset.filter(name__trigram_similar=name_contains)
+
+
+First, you must create an empty migration with the following command::
+
+    python manage.py makemigrations database --empty
+
+Then you must navigate to the newly created empty migration and set it up so it looks like this::
+
+
+        from django.contrib.postgres.operations import TrigramExtension
+
+        ...
+
+        operations = [TrigramExtension()]
+
+
 Misc. Dev Notes
 ^^^^^^^^^^^^^^^
 If you're using fish, activate the venv with this command in the terminal::
@@ -96,5 +119,6 @@ If you're using fish, activate the venv with this command in the terminal::
 To activate the browser based RQ dashboard::
 
     $ rq-dashboard
+
 
 

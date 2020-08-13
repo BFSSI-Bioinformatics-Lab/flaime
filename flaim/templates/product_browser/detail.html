@@ -72,6 +72,12 @@
                 <td>{{ product.description|safe }}</td>
               </tr>
               <tr>
+                <td class="row-label">Predicted Category</td>
+                <td>{{ product.predicted_category.predicted_category }}
+                  ({{ product.predicted_category.confidence|floatformat:2 }})
+                </td>
+              </tr>
+              <tr>
                 <td class="row-label">Breadcrumbs</td>
                 <td>{{ product.breadcrumbs_array|render_breadcrumbs|safe }}</td>
               </tr>

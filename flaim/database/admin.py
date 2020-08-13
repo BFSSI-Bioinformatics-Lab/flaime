@@ -3,6 +3,7 @@ from flaim.database import models
 
 # Register your models here.
 admin.site.register(models.Product)
+admin.site.register(models.ScrapeBatch)
 admin.site.register(models.NutritionFacts)
 admin.site.register(models.ProductImage)
 

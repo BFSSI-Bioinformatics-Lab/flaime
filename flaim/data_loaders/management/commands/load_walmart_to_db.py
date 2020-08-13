@@ -21,6 +21,20 @@ def read_json(json_file):
     return data
 
 
+def normalize_apostrophe(val: str):
+    """
+    Values like brand and name often have inconsistent apostrophes: this method should be applied to name and brand
+    before upload to the database. This is especially important for matching products by brand.
+    :param val: string to swap apostrophes on
+    :return: new string with proper apostrophe
+    """
+    if val is None:
+        return None
+    old_apostrophe = "’"
+    new_postrophe = "'"
+    return val.replace(old_apostrophe, new_postrophe)
+
+
 class Command(BaseCommand):
     help = 'Given an input Walmart scrape directory (created by the Walmart scraper), ' \
            'will load entries (including images) into the database.'
@@ -89,18 +103,16 @@ class Command(BaseCommand):
             product = Product.objects.create(product_code=p['product_code'])
 
             # Product fields
-            product.name = p['product_name']
+            product.name = normalize_apostrophe(p['product_name'])
+            product.brand = normalize_apostrophe(p['Brand'])
             product.store = 'WALMART'
 
-            # self.stdout.write(self.style.SUCCESS(f'Processing {product.name}'))
-
             # TODO: Make sure the UPC code is just the first entry
-
             if p['UPC'] is not None:
                 first_upc_code = str(p['UPC']).split(',')[0]
                 product.upc_code = first_upc_code
             product.url = p['url']
-            product.brand = p['Brand']
+
             product.description = p['long_desc']
             if p['breadcrumbs'] is not None:
                 product.breadcrumbs_text = p['breadcrumbs'].strip()

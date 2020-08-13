@@ -1,12 +1,11 @@
-import json
-from django.shortcuts import render
 from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from flaim.database.nutrient_coding import VALID_NUTRIENT_DICT
 
 
 # Create your views here.
-class IndexView(TemplateView):
+class IndexView(LoginRequiredMixin, TemplateView):
     template_name = 'product_search/index.html'
 
     def get_context_data(self, **kwargs):

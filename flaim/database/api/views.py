@@ -165,9 +165,9 @@ class AdvancedProductViewSet(viewsets.ModelViewSet):
             for i in ingredients:
                 queryset = queryset.filter(nutrition_facts__ingredients__icontains=i)
         if name_contains:
-            queryset = queryset.filter(name__icontains=name_contains)
+            queryset = queryset.filter(name__trigram_similar=name_contains)
         if brand_contains:
-            queryset = queryset.filter(brand__icontains=brand_contains)
+            queryset = queryset.filter(brand__trigram_similar=brand_contains)
 
         # # Return everything by default
         return queryset.order_by('-id')

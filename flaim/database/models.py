@@ -92,6 +92,9 @@ class ScrapeBatch(models.Model):
     notes = models.TextField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"{self.id}: {self.scrape_date}"
+
     class Meta:
         verbose_name = 'Scrape Batch'
         verbose_name_plural = 'Scrape Batches'

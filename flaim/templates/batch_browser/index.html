@@ -15,8 +15,8 @@
             <th>Scrape Date</th>
             <th>Store</th>
             <th>Total Products</th>
-            <th>New Products</th>
-            <th>Missing Products</th>
+            {#            <th>New Products</th>#}
+            {#            <th>Missing Products</th>#}
           </tr>
           </thead>
         </table>
@@ -24,54 +24,61 @@
     </div>
   </div>
 
-    {% block extra_javascript %}
-      <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
-      <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
-      <script src="https://cdn.datatables.net/1.10.19/js/dataTables.jqueryui.min.js"></script>
-      <script src="https://cdn.datatables.net/scroller/1.5.1/js/dataTables.scroller.min.js"></script>
-      <script src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>
+  {% block extra_javascript %}
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.19/js/dataTables.jqueryui.min.js"></script>
+    <script src="https://cdn.datatables.net/scroller/1.5.1/js/dataTables.scroller.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>
 
-      <script>
+    <script>
 
-          $.fn.dataTable.render.link_to_id = function () {
-              // Custom render method to hyperlink a row value
-              return function (data, type, row) {
-                  if (data === null) {
-                      return null
-                  }
-                  if (type === 'display') {
-                      let id = data.toString(); // cast numbers
-                      return '<a href="/tools/batch_browser/' + id + '"><i class="fas fa-link"></i></a>'
-                  }
-                  // Search, order and type can use the original data
-                  return data;
-              }
-          };
+      $.fn.dataTable.render.link_to_id = function () {
+        // Custom render method to hyperlink a row value
+        return function (data, type, row) {
+          if (data === null) {
+            return null
+          }
+          if (type === 'display') {
+            let id = data.toString(); // cast numbers
+            return '<a href="/tools/batch_browser/' + id + '"><i class="fas fa-link"></i></a>'
+          }
+          // Search, order and type can use the original data
+          return data;
+        }
+      };
 
-          $(document).ready(function () {
+      $(document).ready(function () {
 
-              if ($.fn.dataTable.isDataTable('#scrape_batches')) {
-                  let table = $('#scrape_batches').DataTable();
-              } else {
-                  let table = $('#scrape_batches').DataTable({
-                      "serverSide": true,
-                      "processing": false,
-                      "ajax": "/api/scrape_batches/?format=datatables",
-                      "columns": [
-                          {"data": "id", "render": $.fn.dataTable.render.link_to_id()},
-                          {"data": "scrape_date"},
-                          {"data": "store"},
-                          {"data": "total_products"},
-                          {"data": "new_products"},
-                          {"data": "missing_products"}
-                      ]
-                  });
-              }
-
-
+        // Set date format
+        if ($.fn.dataTable.isDataTable('#scrape_batches')) {
+          let table = $('#scrape_batches').DataTable();
+        } else {
+          let table = $('#scrape_batches').DataTable({
+            "serverSide": true,
+            "processing": false,
+            "ajax": "/api/scrape_batches/?format=datatables",
+            "order": [[1, "desc"]],
+            "aoColumnDefs": [
+              {"bSortable": false, "aTargets": [0]},
+              {"searchable": false, "targets": [0]},
+              {"sType": "date", "targets": [1]},
+            ],
+            "columns": [
+              {"data": "id", "render": $.fn.dataTable.render.link_to_id()},
+              {"data": "scrape_date"},
+              {"data": "store"},
+              {"data": "total_products"},
+              {#{"data": "new_products"},#}
+              {#{"data": "missing_products"}#}
+            ]
           });
-      </script>
+        }
 
-    {% endblock %}
+
+      });
+    </script>
+
+  {% endblock %}
 
 {% endblock %}

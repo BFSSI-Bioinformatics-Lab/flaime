@@ -7,17 +7,18 @@ from django.views.generic import TemplateView
 from plotly.io import to_html
 
 from flaim.database import models
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
-class ProductView(TemplateView):
+class ProductView(LoginRequiredMixin, TemplateView):
     template_name = 'reports/product_report.html'
 
 
-class NutrientView(TemplateView):
+class NutrientView(LoginRequiredMixin, TemplateView):
     template_name = 'reports_base.html'
 
 
-class CategoryView(TemplateView):
+class CategoryView(LoginRequiredMixin, TemplateView):
     model = models.Product
     nutrition_facts = models.NutritionFacts
     template_name = 'reports/category_report.html'
@@ -74,9 +75,9 @@ class CategoryView(TemplateView):
         return context
 
 
-class BrandView(TemplateView):
+class BrandView(LoginRequiredMixin, TemplateView):
     template_name = 'reports_base.html'
 
 
-class StoreView(TemplateView):
+class StoreView(LoginRequiredMixin, TemplateView):
     template_name = 'reports_base.html'

@@ -9,7 +9,7 @@ from flaim.classifiers.preprocessing import DataStore
 
 
 class Predictor:
-    def __init__(self, path = None):
+    def __init__(self, path=None):
         if path is None:
             self.model = None
             self.vectorizers = {}
@@ -71,4 +71,3 @@ class Predictor:
 
     def dump_model(self, path):
         pickle.dump((self.model, self.vectorizers, self.target_encoder), open(path, 'wb'))
-

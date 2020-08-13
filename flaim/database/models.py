@@ -105,6 +105,9 @@ class PredictedCategory(TimeStampedModel):
     confidence = models.FloatField(blank=True, null=True)
     model_verison = models.CharField(max_length=SM_CHAR, blank=True, null=True)
 
+    def __str__(self):
+        return f'{self.predicted_category} ({self.confidence})'
+
 
 class Product(TimeStampedModel):
     product_code = models.CharField(max_length=MD_CHAR)

@@ -12,6 +12,7 @@ from flaim.classifiers.category_prediction import Predictor
 from flaim.classifiers.preprocessing import FLAIME
 from flaim.database import models
 
+# TODO: set this in .env and read it from settings
 CATEGORY_PREDICTOR_MODEL = Path("/home/forest/PycharmProjects/flaim/flaim/classifiers/data/model_int_test.pkl")
 
 

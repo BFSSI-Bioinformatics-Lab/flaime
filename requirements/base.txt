@@ -34,6 +34,8 @@ plotly==4.8.1
 Markdown==3.2.2
 pandas==1.0.5
 scipy==1.5.2
+scikit-learn==0.23.2
+lightgbm==2.3.1
 
 # Django
 Django==3.0.7

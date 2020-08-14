@@ -58,11 +58,15 @@ class FLIP(DataStore):
 
 
 class FLAIME(DataStore):
-    def __init__(self, products=None, nutrition_facts=None):
+    def __init__(self, products=None, nutrition_facts=None, most_recent_bool=True):
         super().__init__()
         if products is not None and nutrition_facts is not None:
-            product_df = pd.DataFrame(list(products.objects.filter(most_recent=True).values()))
-            nft_df = pd.DataFrame(list(nutrition_facts.objects.filter(product__most_recent=True).values()))
+            if most_recent_bool:
+                product_df = pd.DataFrame(list(products.objects.filter(most_recent=True).values()))
+                nft_df = pd.DataFrame(list(nutrition_facts.objects.filter(product__most_recent=True).values()))
+            else:
+                product_df = pd.DataFrame(list(products.objects.all().values()))
+                nft_df = pd.DataFrame(list(nutrition_facts.objects.all().values()))
             self.df = product_df.merge(nft_df, left_on='id', right_on='product_id')
             self.product_ids = product_df['id']
             self.preprocess()

@@ -72,9 +72,14 @@
                 <td>{{ product.description|safe }}</td>
               </tr>
               <tr>
-                <td class="row-label">Predicted Category</td>
+                <td class="row-label">
+                  <div data-toggle="tooltip" data-placement="top"
+                       title="This category has been predicted using an AI model.
+                          Confidence in the prediction is displayed in brackets.">Predicted Category
+                  </div>
+                </td>
                 <td>{{ product.predicted_category.predicted_category }}
-                  ({{ product.predicted_category.confidence|floatformat:2 }})
+                  <p class="{{ confidence_styling }}">({{ product.predicted_category.confidence|floatformat:2 }})</p>
                 </td>
               </tr>
               <tr>
@@ -122,6 +127,12 @@
 
   {% block product_javascript %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+
+    <script>
+      $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+      })
+    </script>
 
   {% endblock %}
 

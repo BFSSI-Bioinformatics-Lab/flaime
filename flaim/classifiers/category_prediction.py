@@ -5,17 +5,18 @@ import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.preprocessing import LabelEncoder
 
-from flaim.classifiers.preprocessing import DataStore
+from flaim.classifiers.category_preprocessing import DataStore
 
 
-class Predictor:
-    def __init__(self, path=None):
-        if path is None:
+class CategoryPredictor:
+    def __init__(self, model_path=None):
+        if model_path is None:
             self.model = None
             self.vectorizers = {}
             self.target_encoder = None
+            self.model_version = None
         else:
-            self.model, self.vectorizers, self.target_encoder = pickle.load(open(path, 'rb'))
+            self.model, self.vectorizers, self.target_encoder, self.model_version = pickle.load(open(model_path, 'rb'))
 
     def train(self, ds: DataStore, process_names=True, process_ingredients=False):
         if process_names:
@@ -69,5 +70,5 @@ class Predictor:
         return pd.concat([pred_name1, confidence1, pred_name2, confidence2, pred_name3, confidence3],
                          axis=1, sort=False)
 
-    def dump_model(self, path):
-        pickle.dump((self.model, self.vectorizers, self.target_encoder), open(path, 'wb'))
+    def dump_model(self, model_path, model_version):
+        pickle.dump((self.model, self.vectorizers, self.target_encoder, model_version), open(model_path, 'wb'))

@@ -74,12 +74,12 @@
     {#           href="{% url 'account_signup' %}">{% trans "Sign Up" %}</a>#}
     {#      </li>#}
     {#    </ul>#}
-        <ul class="navbar-nav px-3">
-          <li class="nav-item text-nowrap">
-            <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}"><i
-                    class="fas fa-sign-in-alt"></i>{% trans " Sign In" %}</a>
-          </li>
-        </ul>
+    <ul class="navbar-nav px-3">
+      <li class="nav-item text-nowrap">
+        <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}"><i
+                class="fas fa-sign-in-alt"></i>{% trans " Sign In" %}</a>
+      </li>
+    </ul>
   {% endif %}
 </nav>
 
@@ -112,6 +112,12 @@
                       <a class="nav-link"
                          href="{% url 'product_browser:index' %}"><i
                               class="fas fa-table"></i>{% trans " Product Browser" %}
+                      </a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link"
+                         href="{% url 'product_curator:index' %}"><i
+                              class="fas fa-eye"></i>{% trans " Product Curator" %}
                       </a>
                     </li>
                     <li class="nav-item">

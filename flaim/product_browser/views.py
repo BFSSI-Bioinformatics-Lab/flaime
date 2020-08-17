@@ -49,11 +49,11 @@ class ProductView(LoginRequiredMixin, DetailView):
         except ObjectDoesNotExist as e:
             context['nutrition_changes'] = None
 
-        if context['product'].predicted_category.confidence > 0.90:
+        if context['product'].predicted_category.confidence_1 > 0.90:
             context['confidence_styling'] = 'text-success'
-        elif context['product'].predicted_category.confidence > 0.50:
+        elif context['product'].predicted_category.confidence_1 > 0.50:
             context['confidence_styling'] = 'text-warning'
-        elif context['product'].predicted_category.confidence < 0.50:
+        elif context['product'].predicted_category.confidence_1 < 0.50:
             context['confidence_styling'] = 'text-danger'
 
         logger.debug(context)

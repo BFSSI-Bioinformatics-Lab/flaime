@@ -60,12 +60,21 @@ class NutritionFactsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class PredictedCategorySerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField()
+
+    class Meta:
+        model = models.PredictedCategory
+        fields = '__all__'
+
+
 class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixin):
     _SELECT_RELATED_FIELDS = ['loblaws_product', 'walmart_product']
 
     id = serializers.ReadOnlyField()
     loblaws_product = LoblawsProductSerializer()
     walmart_product = WalmartProductSerializer()
+    predicted_category = PredictedCategorySerializer()
     batch = ScrapeBatchSerializer()
     scrape_date = serializers.ReadOnlyField(source='batch.scrape_date')
 
@@ -77,11 +86,13 @@ class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadi
         ]
         fields = ['id', 'url', 'created', 'modified', 'product_code', 'description', 'breadcrumbs_array', 'name',
                   'brand', 'store', 'price', 'upc_code', 'nutrition_available', 'scrape_date',
-                  'batch'] + reverse_relationships
+                  'batch', 'predicted_category'] + reverse_relationships
 
 
 class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixin):
     _SELECT_RELATED_FIELDS = ['loblaws_product', 'walmart_product']
+
+    # Add predicted_category field
 
     id = serializers.ReadOnlyField()
     loblaws_product = LoblawsProductSerializer()

@@ -19,9 +19,9 @@
             <th>Name</th>
             <th>Brand</th>
             <th>Store</th>
+            <th>Predicted Category</th>
             <th>Product Code</th>
             <th>External URL</th>
-            <th>Scrape Date</th>
           </tr>
           </thead>
         </table>
@@ -29,70 +29,70 @@
     </div>
   </div>
 
-    {% block product_javascript %}
-      <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
-      <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
-      <script src="https://cdn.datatables.net/1.10.19/js/dataTables.jqueryui.min.js"></script>
-      <script src="https://cdn.datatables.net/scroller/1.5.1/js/dataTables.scroller.min.js"></script>
-      <script src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>
+  {% block product_javascript %}
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.19/js/dataTables.jqueryui.min.js"></script>
+    <script src="https://cdn.datatables.net/scroller/1.5.1/js/dataTables.scroller.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>
 
-      <script>
-          $.fn.dataTable.render.hyperlink_url = function () {
-              // Custom render method to hyperlink a row value
-              return function (data, type, row) {
-                  if (data === null) {
-                      return null
-                  }
-                  if (type === 'display') {
-                      let str = data.toString(); // cast numbers
-                      return '<a href="' + data + '"><i class="fas fa-external-link-alt"></i></a>'
-                  }
-                  // Search, order and type can use the original data
-                  return data;
-              };
-          };
+    <script>
+      $.fn.dataTable.render.hyperlink_url = function () {
+        // Custom render method to hyperlink a row value
+        return function (data, type, row) {
+          if (data === null) {
+            return null
+          }
+          if (type === 'display') {
+            let str = data.toString(); // cast numbers
+            return '<a href="' + data + '"><i class="fas fa-external-link-alt"></i></a>'
+          }
+          // Search, order and type can use the original data
+          return data;
+        };
+      };
 
-          $.fn.dataTable.render.link_to_id = function () {
-              // Custom render method to hyperlink a row value
-              return function (data, type, row) {
-                  if (data === null) {
-                      return null
-                  }
-                  if (type === 'display') {
-                      let id = data.toString(); // cast numbers
-                      return '<a href="/tools/product_browser/' + id + '"><i class="fas fa-link"></i></a>'
-                  }
-                  // Search, order and type can use the original data
-                  return data;
-              }
-          };
+      $.fn.dataTable.render.link_to_id = function () {
+        // Custom render method to hyperlink a row value
+        return function (data, type, row) {
+          if (data === null) {
+            return null
+          }
+          if (type === 'display') {
+            let id = data.toString(); // cast numbers
+            return '<a href="/tools/product_browser/' + id + '"><i class="fas fa-link"></i></a>'
+          }
+          // Search, order and type can use the original data
+          return data;
+        }
+      };
 
 
-          $(document).ready(function () {
-              let table = $('#products').DataTable({
-                  "serverSide": true,
-                  "processing": false,
-                  "ajax": "/api/recent_products/?format=datatables",
-                  "order": [[2, "asc"]],
-                  "aoColumnDefs": [
-                      {"bSortable": false, "aTargets": [0, -1, -2]},
-                      {"searchable": false, "targets": [0, -1, -2]}
-                  ],
-                  "columns": [
-                      {"data": "id", "render": $.fn.dataTable.render.link_to_id()},
-                      {"data": "name"},
-                      {"data": "brand"},
-                      {"data": "store"},
-                      {"data": "product_code"},
-                      {"data": "url", "render": $.fn.dataTable.render.hyperlink_url()},
-                      {"data": "scrape_date"}
-                  ]
-              });
-          });
-      </script>
+      $(document).ready(function () {
+        let table = $('#products').DataTable({
+          "serverSide": true,
+          "processing": false,
+          "ajax": "/api/recent_products/?format=datatables",
+          "order": [[2, "asc"]],
+          "aoColumnDefs": [
+            {"bSortable": false, "aTargets": [0, -1, -2]},
+            {"searchable": false, "targets": [0, -1, -2]}
+          ],
+          "columns": [
+            {"data": "id", "render": $.fn.dataTable.render.link_to_id()},
+            {"data": "name"},
+            {"data": "brand"},
+            {"data": "store"},
+            {"data": "predicted_category.predicted_category_1"},
+            {"data": "product_code"},
+            {"data": "url", "render": $.fn.dataTable.render.hyperlink_url()}
+          ]
+        });
+      });
+    </script>
 
-        {#        <script>{% include 'product_browser/product_browser.js' %}</script>#}
+    {#        <script>{% include 'product_browser/product_browser.js' %}</script>#}
 
-    {% endblock %}
+  {% endblock %}
   <br>
 {% endblock %}

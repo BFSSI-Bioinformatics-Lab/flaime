@@ -101,12 +101,23 @@ class ScrapeBatch(models.Model):
 
 
 class PredictedCategory(TimeStampedModel):
-    predicted_category = models.CharField(max_length=MD_CHAR, blank=True, null=True)
-    confidence = models.FloatField(blank=True, null=True)
+    """
+    predicted_category_1, 2 and 3 correspond to the top 3 predictions
+    """
+
+    predicted_category_1 = models.CharField(max_length=MD_CHAR, blank=True, null=True)
+    confidence_1 = models.FloatField(blank=True, null=True)
+
+    predicted_category_2 = models.CharField(max_length=MD_CHAR, blank=True, null=True)
+    confidence_2 = models.FloatField(blank=True, null=True)
+
+    predicted_category_3 = models.CharField(max_length=MD_CHAR, blank=True, null=True)
+    confidence_3 = models.FloatField(blank=True, null=True)
+
     model_verison = models.CharField(max_length=SM_CHAR, blank=True, null=True)
 
     def __str__(self):
-        return f'{self.predicted_category} ({self.confidence})'
+        return f'{self.predicted_category_1} ({self.confidence_1})'
 
 
 class Product(TimeStampedModel):

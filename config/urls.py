@@ -29,6 +29,7 @@ urlpatterns = [
                   # Tools
                   path("tools/product_browser/", include("flaim.product_browser.urls", namespace="product_browser")),
                   path("tools/product_search/", include("flaim.product_search.urls", namespace="product_search")),
+                  path("tools/product_curator/", include("flaim.product_curator.urls", namespace="product_curator")),
                   path("tools/batch_browser/", include("flaim.batch_browser.urls", namespace="batch_browser")),
 
                   # Data

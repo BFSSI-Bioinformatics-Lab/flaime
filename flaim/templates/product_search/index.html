@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% block section %}Advanced Product Search{% endblock %}
 {% block content %}
-    {% block extra_head %}
-      <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css">
-    {% endblock extra_head %}
+  {% block extra_head %}
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css">
+  {% endblock extra_head %}
 
   <div class="container-fluid">
     <h4>Metadata</h4>
@@ -18,6 +18,12 @@
         <div>Brand</div>
         <select id="brandSearch" style="width: 80%"></select>
       </div>
+
+      <div class="col-lg-3">
+        <div>Predicted Category</div>
+        <select id="categorySearch" style="width: 80%"></select>
+      </div>
+
 
     </div>
     <br>
@@ -58,11 +64,13 @@
           <th>Code</th>
           <th>Name</th>
           <th>Brand</th>
+          <th>Predicted Category</th>
           <th>Ingredients</th>
         </tr>
         </thead>
         <tbody class="results-body">
         <tr class="result-row">
+          <td></td>
           <td></td>
           <td></td>
           <td></td>
@@ -74,102 +82,138 @@
     </div>
 
   </div>
-    {% block product_javascript %}
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
-      <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
-      <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
-      <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"></script>
-      <script src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js"></script>
-      <script src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.bootstrap4.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-      <script src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>
-      <script src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.print.min.js"></script>
-      <script src="https://d3js.org/d3.v5.js"></script>
-      <script src="https://unpkg.com/d3-simple-slider"></script>
+  {% block product_javascript %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.bootstrap4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.print.min.js"></script>
+    <script src="https://d3js.org/d3.v5.js"></script>
+    <script src="https://unpkg.com/d3-simple-slider"></script>
 
-      <script>
-          $(document).ready(function () {
-              // Prevent enter key from submitting the form
-              $('form input').keydown(function (e) {
-                  if (e.keyCode == 13) {
-                      e.preventDefault();
-                      $('.search-button').click();
-                      return false;
-                  }
-              });
+    <script>
+      $(document).ready(function () {
+        // Prevent enter key from submitting the form
+        $('form input').keydown(function (e) {
+          if (e.keyCode == 13) {
+            e.preventDefault();
+            $('.search-button').click();
+            return false;
+          }
+        });
 
 
-              $('#ingredientSearch').select2({
-                  tags: true,
-                  tokenSeparators: [','],
+        $('#ingredientSearch').select2({
+          tags: true,
+          tokenSeparators: [','],
+          allowClear: true,
+        });
+
+        // Configure select2 for nameSearch
+        $('#nameSearch').select2(
+                {
+                  placeholder: '',
                   allowClear: true,
-              });
-
-              // Configure select2 for nameSearch
-              $('#nameSearch').select2(
-                  {
-                      placeholder: '',
-                      allowClear: true,
-                      cache: true,
-                      tags: true,
-                      {#minimumInputLength: 3,#}
-                      ajax: {
-                          url: '/api/product_name/',
-                          data: function (params) {
-                              // Query parameters will be ?search=[term]
-                              return {
-                                  page: params.page || 1,
-                                  search: params.term || ""
-                              };
-                          },
-                          processResults: function (data, params) {
-                              let page = params.page || 1;
-                              // Transforms the top-level key of the response object from 'items' to 'results'
-                              return {
-                                  results: data.results,
-                                  pagination: {
-                                      more: (page * 10) <= data.count
-                                  }
-                              };
-                          }
-                      }
+                  cache: true,
+                  tags: true,
+                  {#minimumInputLength: 3,#}
+                  ajax: {
+                    url: '/api/product_name/',
+                    data: function (params) {
+                      // Query parameters will be ?search=[term]
+                      return {
+                        page: params.page || 1,
+                        search: params.term || ""
+                      };
+                    },
+                    processResults: function (data, params) {
+                      let page = params.page || 1;
+                      // Transforms the top-level key of the response object from 'items' to 'results'
+                      console.log(data.results)
+                      return {
+                        results: data.results,
+                        pagination: {
+                          more: (page * 15) <= data.count
+                        }
+                      };
+                    }
                   }
-              );
+                }
+        );
 
-
-              $('#brandSearch').select2(
-                  {
-                      placeholder: '',
-                      allowClear: true,
-                      cache: true,
-                      tags: true,
-                      ajax: {
-                          url: '/api/brand_name/',
-                          data: function (params) {
-                              // Query parameters will be ?search=[term]
-                              return {
-                                  page: params.page || 1,
-                                  search: params.term || ""
-                              };
-                          },
-                          processResults: function (data, params) {
-                              let page = params.page || 1;
-                              // Transforms the top-level key of the response object from 'items' to 'results'
-                              return {
-                                  results: data.results,
-                                  pagination: {
-                                      more: (page * 10) <= data.count
-                                  }
-                              };
-                          }
-                      }
+        // Configure select2 for categorySearch
+        $('#categorySearch').select2(
+                {
+                  placeholder: '',
+                  allowClear: true,
+                  cache: true,
+                  tags: true,
+                  {#minimumInputLength: 3,#}
+                  ajax: {
+                    url: '/api/predicted_category_name/',
+                    data: function (params) {
+                      // Query parameters will be ?search=[term]
+                      return {
+                        page: params.page || 1,
+                        search: params.term || ""
+                      };
+                    },
+                    processResults: function (data, params) {
+                      let page = params.page || 1;
+                      // Transforms the top-level key of the response object from 'items' to 'results'
+                      {#console.log(data)#}
+                      {#console.log(page)#}
+                      {#console.log((page * 15) <= data.count)#}
+                      return {
+                        results: data.results,
+                        pagination: {
+                          more: (page * 15) <= data.count
+                        }
+                      };
+                    }
                   }
-              )
-          });
+                }
+        );
 
-          const nutrientMarkup = (nutrientID) =>
+
+        $('#brandSearch').select2(
+                {
+                  placeholder: '',
+                  allowClear: true,
+                  cache: true,
+                  tags: true,
+                  ajax: {
+                    url: '/api/brand_name/',
+                    data: function (params) {
+                      // Query parameters will be ?search=[term]
+                      return {
+                        page: params.page || 1,
+                        search: params.term || ""
+                      };
+                    },
+                    processResults: function (data, params) {
+                      let page = params.page || 1;
+                      // Transforms the top-level key of the response object from 'items' to 'results'
+                      return {
+                        results: data.results,
+                        pagination: {
+                          more: (page * 15) <= data.count
+                        }
+                      };
+                    }
+                  }
+                }
+        )
+      });
+
+
+      const nutrientMarkup = (nutrientID) =>
               `
               <div class="row" id="nutrientRow-${nutrientID}">
 
@@ -209,124 +253,126 @@
             </div>
            `;
 
-          let nutrientID = 0;
+      let nutrientID = 0;
 
-          function addNutrientDV() {
-              let nutrientRow = $(nutrientMarkup(nutrientID)).appendTo('#nutrientDVZone');
-              let minDV = nutrientRow.find(`#minDV-${nutrientID}`);
-              let maxDV = nutrientRow.find(`#maxDV-${nutrientID}`);
+      function addNutrientDV() {
+        let nutrientRow = $(nutrientMarkup(nutrientID)).appendTo('#nutrientDVZone');
+        let minDV = nutrientRow.find(`#minDV-${nutrientID}`);
+        let maxDV = nutrientRow.find(`#maxDV-${nutrientID}`);
 
-              // Upgrade the select
-              $('.nutrientDVSelect').select2();
+        // Upgrade the select
+        $('.nutrientDVSelect').select2();
 
-              // Default values for text boxes
-              minDV.attr('value', 0);
-              maxDV.attr('value', 100);
+        // Default values for text boxes
+        minDV.attr('value', 0);
+        maxDV.attr('value', 100);
 
-              // Simple slider
-              let sliderDV = d3
-                  .sliderBottom()
-                  .min(0)
-                  .max(1)
-                  .width(250)
-                  .tickFormat(d3.format('.2%'))
-                  .ticks(5)
-                  .step(0.01)
-                  .default([0, 1])
-                  .fill('#2196f3')
-                  .on('onchange', val => {
-                      minDV.attr('value', (val[0] * 100).toFixed(2));
-                      maxDV.attr('value', (val[1] * 100).toFixed(2));
-                  });
+        // Simple slider
+        let sliderDV = d3
+                .sliderBottom()
+                .min(0)
+                .max(1)
+                .width(250)
+                .tickFormat(d3.format('.2%'))
+                .ticks(5)
+                .step(0.01)
+                .default([0, 1])
+                .fill('#2196f3')
+                .on('onchange', val => {
+                  minDV.attr('value', (val[0] * 100).toFixed(2));
+                  maxDV.attr('value', (val[1] * 100).toFixed(2));
+                });
 
-              d3.select(`#nutrientDVslider-${nutrientID}`)
-                  .append('svg')
-                  .attr('width', 500)
-                  .attr('height', 75)
-                  .append('g')
-                  .attr('transform', 'translate(35,35)')
-                  .call(sliderDV);
+        d3.select(`#nutrientDVslider-${nutrientID}`)
+                .append('svg')
+                .attr('width', 500)
+                .attr('height', 75)
+                .append('g')
+                .attr('transform', 'translate(35,35)')
+                .call(sliderDV);
 
-              nutrientID += 1;
+        nutrientID += 1;
+      }
+
+      function deleteNutrient(element) {
+        let btnID = $(element).attr('value');
+        $(`#nutrientRow-${btnID}`).remove();
+      }
+
+      function searchDatabase() {
+        // TODO: Allow recent flag to be toggled as well as enable batch filtering on webpage
+        let recent_bool = 'True';
+        const base_url = `/api/advanced_products/?format=datatables&recent=${recent_bool}&`;
+
+        let nutrientObject = {};
+        $('#nutrientDVZone').children().toArray().forEach(x => {
+          let nutrient = $(x).find('.nutrientDVSelect option:selected').val();
+          let min = $(x).find('.nutrientDVMin').val();
+          let max = $(x).find('.nutrientDVMax').val();
+          if (parseFloat(max) === 100) {
+            max = 10000;  // Allow much higher values than 100 for max DV even if it's set to 100
           }
+          nutrientObject[nutrient] = [parseFloat(min) / 100, parseFloat(max) / 100]
+        });
 
-          function deleteNutrient(element) {
-              let btnID = $(element).attr('value');
-              $(`#nutrientRow-${btnID}`).remove();
+        let searchData = {
+          ingredients_contains: $("#ingredientSearch").val(),  // Array of ingredients
+          name_contains: $('#nameSearch :selected').text(),
+          brand_contains: $('#brandSearch :selected').text(),
+          predicted_category: $('#categorySearch :selected').text(),
+        };
+
+        // Filter out empty keys to simplify the query we pass to the API
+        Object.keys(searchData).forEach((key) => (searchData[key] === '') && delete searchData[key]);
+
+        // Append the nutrients and their DV ranges to the searchParams object
+        let searchParams = new URLSearchParams(searchData);
+        Object.keys(nutrientObject).forEach(nutrient => {
+          searchParams.append(nutrient, nutrientObject[nutrient].join(','))
+        });
+
+
+        // Custom render method to hyperlink a row value
+        $.fn.dataTable.render.link_to_id = function () {
+          return function (data, type, row) {
+            if (data === null) {
+              return null
+            }
+            if (type === 'display') {
+              let id = data.toString(); // cast numbers
+              return '<a href="/tools/product_browser/' + id + '"><i class="fas fa-link"></i></a>'
+            }
+            // Search, order and type can use the original data
+            return data;
           }
+        };
 
-          function searchDatabase() {
-              // TODO: Allow recent flag to be toggled as well as enable batch filtering on webpage
-              let recent_bool = 'True';
-              const base_url = `/api/advanced_products/?format=datatables&recent=${recent_bool}&`;
+        // Draw the table
+        let table = $('#resultsTable').DataTable({
+          "serverSide": true,
+          "processing": true,
+          "buttons": [
+            'copy',
+            'excel',
+            'pdf'
+          ],
+          "destroy": true,
+          "paging": true,
+          "lengthMenu": [10, 100, 1000],
+          "dom": 'Bfrltip',
+          "ajax": base_url + searchParams.toString(),
+          "columns": [
+            {"data": "id", "render": $.fn.dataTable.render.link_to_id()},
+            {"data": "product_code"},
+            {"data": "name"},
+            {"data": "brand"},
+            {"data": "predicted_category.predicted_category_1", "defaultContent": ""},
+            {"data": "nutrition_facts.ingredients", "defaultContent": ""},
+          ]
+        });
+      }
 
-              let nutrientObject = {};
-              $('#nutrientDVZone').children().toArray().forEach(x => {
-                  let nutrient = $(x).find('.nutrientDVSelect option:selected').val();
-                  let min = $(x).find('.nutrientDVMin').val();
-                  let max = $(x).find('.nutrientDVMax').val();
-                  if (parseFloat(max) === 100) {
-                      max = 10000;  // Allow much higher values than 100 for max DV even if it's set to 100
-                  }
-                  nutrientObject[nutrient] = [parseFloat(min) / 100, parseFloat(max) / 100]
-              });
-
-              let searchData = {
-                  ingredients_contains: $("#ingredientSearch").val(),  // Array of ingredients
-                  name_contains: $('#nameSearch :selected').text(),
-                  brand_contains: $('#brandSearch :selected').text(),
-              };
-
-              // Filter out empty keys to simplify the query we pass to the API
-              Object.keys(searchData).forEach((key) => (searchData[key] === '') && delete searchData[key]);
-
-              // Append the nutrients and their DV ranges to the searchParams object
-              let searchParams = new URLSearchParams(searchData);
-              Object.keys(nutrientObject).forEach(nutrient => {
-                  searchParams.append(nutrient, nutrientObject[nutrient].join(','))
-              });
-
-
-              // Custom render method to hyperlink a row value
-              $.fn.dataTable.render.link_to_id = function () {
-                  return function (data, type, row) {
-                      if (data === null) {
-                          return null
-                      }
-                      if (type === 'display') {
-                          let id = data.toString(); // cast numbers
-                          return '<a href="/tools/product_browser/' + id + '"><i class="fas fa-link"></i></a>'
-                      }
-                      // Search, order and type can use the original data
-                      return data;
-                  }
-              };
-
-              // Draw the table
-              let table = $('#resultsTable').DataTable({
-                  "serverSide": true,
-                  "processing": true,
-                  "buttons": [
-                      'copy',
-                      'excel',
-                      'pdf'
-                  ],
-                  "destroy": true,
-                  "paging": true,
-                  "lengthMenu": [10, 100, 1000],
-                  "dom": 'Bfrltip',
-                  "ajax": base_url + searchParams.toString(),
-                  "columns": [
-                      {"data": "id", "render": $.fn.dataTable.render.link_to_id()},
-                      {"data": "product_code"},
-                      {"data": "name"},
-                      {"data": "brand"},
-                      {"data": "nutrition_facts.ingredients", "defaultContent": ""},
-                  ]
-              });
-          }
-
-      </script>
-    {% endblock %}
+    </script>
+  {% endblock %}
   <br>
 {% endblock %}

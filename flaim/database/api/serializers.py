@@ -140,6 +140,7 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     loblaws_product = LoblawsProductSerializer()
     walmart_product = WalmartProductSerializer()
     nutrition_facts = NutritionFactsSerializer()
+    predicted_category = PredictedCategorySerializer()
     url = serializers.HyperlinkedIdentityField(view_name='advanced_products-detail', lookup_field='pk')
 
     class Meta:
@@ -148,7 +149,8 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         reverse_relationships = [
             'loblaws_product',
             'walmart_product',
-            'nutrition_facts'
+            'nutrition_facts',
+            'predicted_category',
         ]
         fields = ['id', 'url', 'product_code', 'name', 'brand', 'store', 'price',
                   'upc_code'] + reverse_relationships
@@ -165,12 +167,22 @@ class ProductNameSerializer(serializers.ModelSerializer):
 
 
 class BrandNameSerializer(serializers.ModelSerializer):
-    """ Simple serializer for storing only product names """
+    """ Simple serializer for storing only brand names """
     id = serializers.ReadOnlyField()
     text = serializers.CharField(source='brand')
 
     class Meta:
         model = models.Product
+        fields = ['id', 'text']
+
+
+class PredictedCategoryNameSerializer(serializers.ModelSerializer):
+    """ Simple serializer for storing only predicted category names """
+    id = serializers.ReadOnlyField()
+    text = serializers.CharField(source='predicted_category_1')
+
+    class Meta:
+        model = models.PredictedCategory
         fields = ['id', 'text']
 
 

@@ -135,6 +135,10 @@ class AdvancedProductViewSet(viewsets.ModelViewSet):
 
     - Filter on brand names, e'.g. `?brand_contains=smuckers`
 
+    ## Predicted category filtering
+
+    - Filter on predicted_category_1 entries, e'.g. `?predicted_category=Beverages`
+
     """
     serializer_class = serializers.AdvancedProductSerializer
 
@@ -145,6 +149,7 @@ class AdvancedProductViewSet(viewsets.ModelViewSet):
         name_contains = query_params.get('name_contains', None)
         brand_contains = query_params.get('brand_contains', None)
         recent = query_params.get('recent', None)
+        predicted_category = query_params.get('predicted_category', None)
 
         queryset = models.Product.objects.all()
 
@@ -169,11 +174,17 @@ class AdvancedProductViewSet(viewsets.ModelViewSet):
         if brand_contains:
             queryset = queryset.filter(brand__trigram_similar=brand_contains)
 
+        if predicted_category:
+            queryset = queryset.filter(predicted_category__predicted_category_1__iexact=predicted_category)
+
         # # Return everything by default
         return queryset.order_by('-id')
 
 
 class ProductNameViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for autocomplete name dropdown
+    """
     pagination_class = Select2PaginationClass
     serializer_class = serializers.ProductNameSerializer
 
@@ -185,7 +196,27 @@ class ProductNameViewSet(viewsets.ModelViewSet):
             return models.Product.objects.all()
 
 
+class PredictedCategoryViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for autocomplete brand dropdown
+    """
+    pagination_class = Select2PaginationClass
+    serializer_class = serializers.PredictedCategoryNameSerializer
+
+    def get_queryset(self):
+        search = self.request.query_params.get('search', None)
+        if search is not None:
+            query = models.PredictedCategory.objects.filter(predicted_category_1__icontains=search).order_by(
+                'predicted_category_1').distinct('predicted_category_1')
+            return query
+        else:
+            return models.PredictedCategory.objects.all()
+
+
 class BrandNameViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for autocomplete brand dropdown
+    """
     pagination_class = Select2PaginationClass
     serializer_class = serializers.BrandNameSerializer
 

@@ -1,4 +1,4 @@
-from django.urls import path, re_path
+from django.urls import path
 
 from flaim.product_search.views import IndexView
 

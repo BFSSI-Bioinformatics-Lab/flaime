@@ -37,7 +37,7 @@ class Command(BaseCommand):
 
         df = pd.concat([data.product_ids, data.names, predictions], axis=1)
         self.stdout.write(self.style.SUCCESS(f"Found {len(df)} products to update"))
-        for i, row in tqdm(df.iterrows(), desc="Predicting categories"):
+        for i, row in tqdm(df.iterrows(), desc="Predicting categories", total=len(df)):
             predicted_category = PredictedCategory.objects.create(predicted_category_1=row['Pred 1'],
                                                                   confidence_1=row['Conf 1'],
                                                                   predicted_category_2=row['Pred 2'],

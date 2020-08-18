@@ -97,6 +97,7 @@ class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixi
     id = serializers.ReadOnlyField()
     loblaws_product = LoblawsProductSerializer()
     walmart_product = WalmartProductSerializer()
+    predicted_category = PredictedCategorySerializer()
     batch = ScrapeBatchSerializer()
     scrape_date = serializers.ReadOnlyField(source='batch.scrape_date')
     url = serializers.HyperlinkedIdentityField(view_name='products-detail', lookup_field='pk')
@@ -106,7 +107,8 @@ class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixi
         reverse_relationships = [
             'loblaws_product',
             'walmart_product',
-            'batch'
+            'batch',
+            'predicted_category'
         ]
         fields = ['id', 'url', 'created', 'modified', 'product_code', 'description', 'breadcrumbs_array', 'name',
                   'brand', 'store', 'price', 'upc_code',

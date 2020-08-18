@@ -98,6 +98,7 @@ LOCAL_APPS = [
     'flaim.reports',
     'flaim.data',
     'flaim.classifiers',
+    'flaim.product_curator',
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

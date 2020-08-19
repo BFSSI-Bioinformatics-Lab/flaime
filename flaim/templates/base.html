@@ -16,9 +16,10 @@
   <![endif]-->
 
   {# Moved jQuery to the top of the base template to avoid any loading conflicts. Always have it ready to go. #}
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-          integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-          crossorigin="anonymous"></script>
+  {#  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"#}
+  {#          integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"#}
+  {#          crossorigin="anonymous"></script>#}
+  <script src="{% static 'jquery/dist/jquery.slim.js' %}"></script>
 
   <link rel="icon" href="{% static 'images/favicons/favicon.ico' %}">
 
@@ -32,7 +33,7 @@
 
     <!-- Your stuff: Third-party CSS libraries go here -->
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet"/>
+    <link href="{% static 'select2/dist/css/select2.css' %}" rel="stylesheet"/>
 
     <!-- This file stores project-specific CSS -->
     <link href="{% static 'css/project.css' %}" rel="stylesheet">
@@ -250,22 +251,14 @@
 {% block javascript %}
 
   <!-- Bootstrap JS and its dependencies-->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
-          integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
-          crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-          integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-          crossorigin="anonymous"></script>
+  <script src="{% static '@popperjs/core/dist/umd/popper.js' %}"></script>
+  <script src="{% static 'bootstrap/dist/js/bootstrap.min.js' %}"></script>
 
-  <script src="https://kit.fontawesome.com/74ba7275a8.js" crossorigin="anonymous"></script>
+  <!-- Fontawesome -->
+  <script src="{% static '@fortawesome/fontawesome-free/js/all.min.js' %}"></script>
 
   <!-- Your stuff: Third-party javascript libraries go here -->
-  {#    <script src="{% static 'js/axios.min.js' %}"></script>#}
-  <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
-
-  <!-- place project specific Javascript in this file -->
-  <script src="{% static 'js/project.js' %}"></script>
-
+  <script src="{% static 'select2/dist/js/select2.min.js' %}"></script>
 
 {% endblock javascript %}
 </body>

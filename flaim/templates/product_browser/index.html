@@ -1,6 +1,7 @@
 {% extends "base.html" %}
+{% load static %}
 {% block extra_head %}
-  <link rel="stylesheet" href="//cdn.datatables.net/1.10.16/css/dataTables.bootstrap4.min.css">
+  <link rel="stylesheet" href="{% static 'datatables/datatables.min.css' %}">
 {% endblock %}
 {% block section %}Product Browser{% endblock %}
 {% block content %}
@@ -30,11 +31,8 @@
   </div>
 
   {% block product_javascript %}
-    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
-    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.10.19/js/dataTables.jqueryui.min.js"></script>
-    <script src="https://cdn.datatables.net/scroller/1.5.1/js/dataTables.scroller.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>
+    <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+    <script src="{% static 'datatables/datatables.min.js' %}"></script>
 
     <script>
       $.fn.dataTable.render.hyperlink_url = function () {
@@ -90,8 +88,6 @@
         });
       });
     </script>
-
-    {#        <script>{% include 'product_browser/product_browser.js' %}</script>#}
 
   {% endblock %}
   <br>

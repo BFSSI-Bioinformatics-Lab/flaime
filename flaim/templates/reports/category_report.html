@@ -3,7 +3,7 @@
 
 {% block header %}
   <div style="flex: 10%">
-  {% load static %}
+    {% load static %}
     <img src="{% static "images/soup.png" %}" alt="Soup" height="160" width="160">
   </div>
   <div style="flex: 90%;padding-left: 10px">
@@ -38,7 +38,7 @@
 
 {% block body %}
   <div style="flex: 33%">
-{#  top 3 brands, avg cost? #}
+    {#  top 3 brands, avg cost? #}
     <b>Overview:</b> Eu condimentum tortor bibendum. Sed elemum lectus pharetra, pulvinar massa a,
     dapibus quam. Nulla quis nulla porttitor, blandit tellus id, pretium ipsum. Etiam velit nunc, ultricies id quam a,
     finibus maximus eros. Pellentesque tellus ipsum, consectetur nec lectus non, ornare molestie leo.
@@ -57,23 +57,23 @@
 
 {% block footer %}
   {% block product_javascript %}
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="{% static 'plotly.js-dist/plotly.js' %}"></script>
   {% endblock %}
-      <div style="flex: 20%;padding-top: 20px">
-        <h3>
-          Nutrient Distribution
-        </h3>
-        <p>
-        In placerat vestibulum massa, ac blandit libero
-        iaculis vitae. Cras porttitor sapien ut arcu cursus condimentum. Nullam porta finibus laoreet. Sed lacus tellus,
-        vestibulum in cursus in, pulvinar sit amet tellus. Praesent dignissim, quam eu condimentum consectetur, tortor
-        lectus lacinia dui, ut malesuada lectus eros at nisl. Cras at est vitae augue pellentesque iaculis. In quis
-        finibus leo.
-        </p>
-      </div>
-    <div style="flex: 80%">
-      {% autoescape off %}
-        {{ figure1 }}
-      {% endautoescape %}
-    </div>
+  <div style="flex: 20%;padding-top: 20px">
+    <h3>
+      Nutrient Distribution
+    </h3>
+    <p>
+      In placerat vestibulum massa, ac blandit libero
+      iaculis vitae. Cras porttitor sapien ut arcu cursus condimentum. Nullam porta finibus laoreet. Sed lacus tellus,
+      vestibulum in cursus in, pulvinar sit amet tellus. Praesent dignissim, quam eu condimentum consectetur, tortor
+      lectus lacinia dui, ut malesuada lectus eros at nisl. Cras at est vitae augue pellentesque iaculis. In quis
+      finibus leo.
+    </p>
+  </div>
+  <div style="flex: 80%">
+    {% autoescape off %}
+      {{ figure1 }}
+    {% endautoescape %}
+  </div>
 {% endblock %}

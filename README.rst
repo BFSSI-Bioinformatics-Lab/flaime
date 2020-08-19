@@ -70,7 +70,9 @@ Deployment
 
 The following details how to deploy this application.
 
-TODO
+Run npm i to install necessary node packages.
+Use python manage.py collectstatic to put them into the expected directory.
+
 
 Redis Guide
 ^^^^^^^^^^^

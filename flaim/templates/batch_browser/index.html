@@ -1,6 +1,7 @@
 {% extends "base.html" %}
+{% load static %}
 {% block extra_head %}
-  <link rel="stylesheet" href="//cdn.datatables.net/1.10.16/css/dataTables.bootstrap4.min.css">
+  <link rel="stylesheet" href="{% static 'datatables/datatables.min.css' %}">
 {% endblock %}
 {% block section %}Batch Browser{% endblock %}
 {% block content %}
@@ -15,8 +16,6 @@
             <th>Scrape Date</th>
             <th>Store</th>
             <th>Total Products</th>
-            {#            <th>New Products</th>#}
-            {#            <th>Missing Products</th>#}
           </tr>
           </thead>
         </table>
@@ -25,11 +24,9 @@
   </div>
 
   {% block extra_javascript %}
-    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
-    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.10.19/js/dataTables.jqueryui.min.js"></script>
-    <script src="https://cdn.datatables.net/scroller/1.5.1/js/dataTables.scroller.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>
+    <script src="{% static 'axios/dist/axios.min.js' %}"></script>
+    <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+    <script src="{% static 'datatables/datatables.min.js' %}"></script>
 
     <script>
 
@@ -69,8 +66,6 @@
               {"data": "scrape_date"},
               {"data": "store"},
               {"data": "total_products"},
-              {#{"data": "new_products"},#}
-              {#{"data": "missing_products"}#}
             ]
           });
         }

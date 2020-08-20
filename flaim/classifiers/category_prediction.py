@@ -3,6 +3,7 @@ import pickle
 import lightgbm as lgb
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 
 from flaim.classifiers.category_preprocessing import DataStore
@@ -20,32 +21,41 @@ class CategoryPredictor:
 
     def train(self, ds: DataStore, process_names=True, process_ingredients=False):
         if process_names:
-            self.vectorizers['name'] = CountVectorizer(max_features=1000, stop_words='english', analyzer='word',
+            self.vectorizers['name'] = CountVectorizer(max_features=10000, stop_words='english', analyzer='word',
                                                        strip_accents='ascii', dtype=int)
             name_matrix = self.vectorizers['name'].fit_transform(ds.names)
             column_names = self.vectorizers['name'].get_feature_names()
             names = pd.DataFrame.sparse.from_spmatrix(name_matrix, columns=column_names, index=ds.names.index)
 
             self.target_encoder = LabelEncoder()
-            train = lgb.Dataset(pd.concat([ds.df, names], axis=1), self.target_encoder.fit_transform(ds.target))
+            x_train, x_test, y_train, y_test = train_test_split(names, self.target_encoder.fit_transform(ds.target),
+                                                                test_size=0.2, shuffle=True, random_state=3)
+
+            lgb_train = lgb.Dataset(x_train, y_train)
+            lgb_eval = lgb.Dataset(x_test, y_test, reference=lgb_train)
 
             params = {
                 'seed': 1,
                 'objective': 'multiclass',
                 'num_class': ds.target.nunique(),
                 'metric': 'multi_error',
-                'num_leaves': 7
+                'max_depth': 31,
+                'num_leaves': 200,
+                'min_data_in_leaf': 5,
+                'bagging_fraction': 0.8,
+                'bagging_freq': 1,
+                'feature_fraction': 0.6
             }
 
-            self.model = lgb.train(params, train, num_boost_round=500, verbose_eval=50)
+            self.model = lgb.train(params, lgb_train, num_boost_round=5000, valid_sets=[lgb_train, lgb_eval],
+                                   early_stopping_rounds=50, verbose_eval=False)
         # note: alternate models not yet added to module
 
     def predict(self, ds: DataStore, process=True):
         if 'name' in self.vectorizers:
             name_matrix = self.vectorizers['name'].transform(ds.names)
             column_names = self.vectorizers['name'].get_feature_names()
-            names = pd.DataFrame.sparse.from_spmatrix(name_matrix, columns=column_names, index=ds.names.index)
-            test = pd.concat([ds.df, names], axis=1)
+            test = pd.DataFrame.sparse.from_spmatrix(name_matrix, columns=column_names, index=ds.names.index)
         else:
             test = ds.df
         pred = self.model.predict(test)

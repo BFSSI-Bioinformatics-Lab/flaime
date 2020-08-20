@@ -317,6 +317,7 @@ class Command(BaseCommand):
             upc_list = get_upc_list(data)
             if upc_list is not None:
                 obj.upc_code = upc_list[0]  # Set the representative UPC code to the first entry in the list
+                obj.upc_array = upc_list
 
             obj.manufacturer = None  # Not sure if we have this
             obj.nielsen_product = None  # TODO: Probably populate this post-hoc. Ask Adrian about this.

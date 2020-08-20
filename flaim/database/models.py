@@ -144,6 +144,7 @@ class Product(TimeStampedModel):
     price_float = models.FloatField(blank=True, null=True)
     price_units = models.CharField(max_length=SM_CHAR, blank=True, null=True)
     upc_code = models.CharField(max_length=MD_CHAR, blank=True, null=True)
+    upc_array = ArrayField(models.CharField(max_length=MD_CHAR), blank=True, null=True)
     nutrition_available = models.BooleanField(blank=True, null=True)
     unidentified_nft_format = models.BooleanField(default=False)  # Bool flag for whether the NFT is American or not
     nielsen_product = models.BooleanField(blank=True, null=True)

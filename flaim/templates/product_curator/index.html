@@ -1,7 +1,133 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content %}
 
-  <p>Eventually, you will be able to manually curate products (e.g. predicted category) on this page</p>
+  <div class="alert alert-warning">
+    <p><i class="fas fa-3x fa-tools"></i>
+      You will eventually be able to manually curate products (e.g. predicted category) on this page. For now, it's a
+      work in progress and doesn't work.</p>
+  </div>
 
+  <table id="products" class="table table-striped table-bordered" style="width:100%">
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Brand</th>
+      <th>Store</th>
+      <th>Predicted Category</th>
+      <th>Product Code</th>
+    </tr>
+    </thead>
+  </table>
+
+{% endblock %}
+{% block javascript %}
+  <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+  <script src="{% static 'datatables/datatables.min.js' %}"></script>
+  <script src="{% static 'axios/dist/axios.min.js' %}"></script>
+
+  <script>
+
+    // This displays options for the user dropdown. Extend as necessary.
+    const AVAILABLE_CATEGORIES = {{ product_categories|safe }}
+    const base_url = "/api/advanced_products/?format=datatables&recent=True"
+
+    const editIcon = function (data, type, row) {
+      if (type === 'display') {
+        return data + ' <i class="fas fa-edit"/>';
+      }
+      return data;
+    };
+
+    let editor
+
+    $(document).ready(function () {
+
+      editor = new $.fn.dataTable.Editor(
+              {
+                "table": "#products",
+                "ajax": base_url,
+                "idSrc": "id",
+                "fields": [
+                  {
+                    label: "ID",
+                    name: "id"
+                  },
+                  {
+                    label: "Name",
+                    name: "name"
+                  },
+                  {
+                    label: "Brand",
+                    name: "brand"
+                  },
+                  {
+                    label: "Store",
+                    name: "store"
+                  },
+                  {
+                    label: "Predicted Category",
+                    name: "predicted_category.predicted_category_1",
+                    type: "select",
+                    options: AVAILABLE_CATEGORIES
+                  },
+                  {
+                    label: "Product Code",
+                    name: "product_code"
+                  }]
+              }
+      );
+
+
+      // Activate an inline edit on click of a table cell
+      $('#products').on('click', 'tbody td.editable', function (e) {
+        editor.inline(this,
+                {
+                  buttons: {
+                    label: '<btn class="btn btn-sm btn-outline-primary">Save</btn>', fn: function () {
+                      this.submit();
+                    }
+                  }
+                });
+      });
+
+      $("#products").DataTable(
+              {
+                dom: "Bfrtip",
+                serverSide: true,
+                processing: false,
+                ajax: base_url,
+                columns: [
+                  {data: "id"},
+                  {data: "name"},
+                  {data: "brand"},
+                  {data: "store"},
+                  {
+                    data: "predicted_category.predicted_category_1",
+                    defaultContent: "",
+                    className: "editable",
+                    render: editIcon
+                  },
+                  {data: "product_code"},
+                ],
+                select: {
+                  style: 'os',
+                  selector: 'td:first-child'
+                },
+                keys: {
+                  columns: ':not(:first-child)',
+                  editor: editor
+                },
+                {#buttons: [#}
+                {#  {extend: "create", editor: editor},#}
+                {#  {extend: "edit", editor: editor},#}
+                {#  {extend: "remove", editor: editor}#}
+                {#]#}
+              }
+      )
+
+
+    });
+  </script>
 {% endblock %}

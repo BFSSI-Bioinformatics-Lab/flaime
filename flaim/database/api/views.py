@@ -9,7 +9,7 @@ from django.utils.dateparse import parse_date
 from flaim.database import models
 from flaim.database.api import serializers
 from django.contrib.auth import get_user_model
-from flaim.database.nutrient_coding import VALID_NUTRIENT_COLUMNS
+from flaim.database.product_mappings import VALID_NUTRIENT_COLUMNS
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
@@ -196,7 +196,7 @@ class ProductNameViewSet(viewsets.ModelViewSet):
             return models.Product.objects.all()
 
 
-class PredictedCategoryViewSet(viewsets.ModelViewSet):
+class PredictedCategoryNameViewSet(viewsets.ModelViewSet):
     """
     ViewSet for autocomplete brand dropdown
     """
@@ -204,13 +204,13 @@ class PredictedCategoryViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.PredictedCategoryNameSerializer
 
     def get_queryset(self):
-        search = self.request.query_params.get('search', None)
-        if search is not None:
-            query = models.PredictedCategory.objects.filter(predicted_category_1__icontains=search).order_by(
-                'predicted_category_1').distinct('predicted_category_1')
-            return query
-        else:
-            return models.PredictedCategory.objects.all()
+        search = self.request.query_params.get('search', '')
+        disable_pagination = self.request.query_params.get('disable_pagination', None)
+        if disable_pagination:
+            self.pagination_class = None
+        query = models.PredictedCategory.objects.filter(predicted_category_1__icontains=search).order_by(
+            'predicted_category_1').distinct('predicted_category_1')
+        return query
 
 
 class BrandNameViewSet(viewsets.ModelViewSet):

@@ -5,6 +5,7 @@ import pandas as pd
 import plotly.figure_factory as ff
 from django.views.generic import TemplateView
 from plotly.io import to_html
+from urllib.parse import unquote
 
 from flaim.database import models
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -31,7 +32,7 @@ class CategoryView(LoginRequiredMixin, TemplateView):
 
         fig.update_layout(
             width=1100,
-            xaxis_range=[0,0.6],
+            xaxis_range=[0, 0.6],
             margin=dict(
                 l=50,
                 r=20,
@@ -55,10 +56,22 @@ class CategoryView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        if 'category' not in self.kwargs:
+            context['category'] = 'Beverages'  # set default category TODO: set this to a random value instead
+        else:
+            context['category'] = unquote(
+                self.kwargs['category'])  # pulls category from URL e.g. /reports/category/Beverages
+        print(context['category'])
+
+        # TODO: Brian, use this queryset in the below calls since it is correctly filtered to the selected category
+        queryset = self.model.objects.filter(predicted_category__predicted_category_1__iexact=context['category'])
+
         df1 = pd.DataFrame(list(self.model.objects.filter(most_recent=True).values()))
 
         def last_crumb(breadcrumbs):
             return breadcrumbs[-1] if breadcrumbs and len(breadcrumbs) > 0 else np.nan
+
         df1['breadcrumbs_last'] = df1['breadcrumbs_array'].apply(lambda row: last_crumb(row))
         df2 = pd.DataFrame(list(self.nutrition_facts.objects.filter(product__most_recent=True).values()))
         df = df1.merge(df2, left_on='id', right_on='product_id')
@@ -69,9 +82,9 @@ class CategoryView(LoginRequiredMixin, TemplateView):
         context['figure1'] = CategoryView.get_figure1(plot_df)
         context['product_count'] = plot_df.shape[0]
         context['calorie_median'] = f'{plot_df.calories.median():.0f}'
-        context['sodium_median'] = f'{plot_df.sodium_dv.median()*100:.0f}%'
-        context['fat_median'] = f'{plot_df.totalfat_dv.median()*100:.0f}%'
-        context['sugar_median'] = f'{plot_df.sugar.median()*100:.0f}%'
+        context['sodium_median'] = f'{plot_df.sodium_dv.median() * 100:.0f}%'
+        context['fat_median'] = f'{plot_df.totalfat_dv.median() * 100:.0f}%'
+        context['sugar_median'] = f'{plot_df.sugar.median() * 100:.0f}%'
         return context
 
 

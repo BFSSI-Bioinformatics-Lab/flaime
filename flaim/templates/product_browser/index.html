@@ -42,8 +42,21 @@
             return null
           }
           if (type === 'display') {
-            let str = data.toString(); // cast numbers
             return '<a href="' + data + '"><i class="fas fa-external-link-alt"></i></a>'
+          }
+          return data;
+        };
+      };
+
+      $.fn.dataTable.render.hyperlink_category = function () {
+        // Custom render method to hyperlink a row value
+        return function (data, type, row) {
+          if (data === null) {
+            return null
+          }
+          if (type === 'display') {
+            let url = `/reports/category/${encodeURIComponent(data)}/`
+            return `<a href=${url}>${data}</a>`
           }
           // Search, order and type can use the original data
           return data;
@@ -81,7 +94,11 @@
             {"data": "name"},
             {"data": "brand"},
             {"data": "store"},
-            {"data": "predicted_category.predicted_category_1", "defaultContent": ""},
+            {
+              "data": "predicted_category.predicted_category_1",
+              "defaultContent": "",
+              "render": $.fn.dataTable.render.hyperlink_category()
+            },
             {"data": "product_code"},
             {"data": "url", "render": $.fn.dataTable.render.hyperlink_url()}
           ]

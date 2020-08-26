@@ -59,10 +59,9 @@ class StoreView(LoginRequiredMixin, TemplateView):
         # Top bar
         context['report_title'] = selection
         context['product_count'] = plot_df.shape[0]
-        context['calorie_median'] = f'{plot_df.calories.median():.0f}'
-        context['sodium_median'] = f'{plot_df.sodium_dv.median()*100:.0f}%'
-        context['fat_median'] = f'{plot_df.totalfat_dv.median()*100:.0f}%'
-        context['sugar_median'] = f'{plot_df.sugar.median()*100:.0f}%'
+        context['sodium_products_over_15'] = plot_df[plot_df.sodium_dv > 0.15].shape[0]
+        context['fat_products_over_15'] = plot_df[plot_df.totalfat_dv > 0.15].shape[0]
+        context['sugar_products_over_15'] = plot_df[plot_df.sugar > 0.15].shape[0]
 
         # Visualizations
         context['figure1'] = get_figure1(plot_df)

@@ -8,7 +8,7 @@
   </div>
   <div style="flex: 90%;padding-left: 10px">
     <div style="padding-left: 60px">
-      <h1>{{ report_title }}</h1>
+      <h1>{{ category }}</h1>
     </div>
     <div style="display: flex;text-align:center">
       <div style="flex: auto">
@@ -21,15 +21,15 @@
       </div>
       <div style="flex: auto">
         Median Sodium
-        <h1 style="color: darkred">{{ sodium_median }}</h1>
+        <h1 class={{ sodium_color }}>{{ sodium_median }}</h1>
       </div>
       <div style="flex: auto">
         Median Sat. Fat
-        <h1 style="color: darkgreen;">{{ fat_median }}</h1>
+        <h1 class={{ fat_color }}>{{ fat_median }}</h1>
       </div>
       <div style="flex: auto">
         Median Sugar
-        <h1 style="color: darkgreen;">{{ sugar_median }}</h1>
+        <h1 class={{ sugar_color }}>{{ sugar_median }}</h1>
       </div>
     </div>
   </div>

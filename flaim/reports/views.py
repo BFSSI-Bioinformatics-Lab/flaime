@@ -62,18 +62,17 @@ class StoreView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if 'store' not in self.kwargs:
-            context['store'] = 'Loblaws'  # set default category
+            context['store'] = 'WALMART'  # set default category
         else:
             context['store'] = unquote(
-                self.kwargs['store'])  # pulls category from URL e.g. /reports/store/Loblaws
-
-        selection = context['store']
+                self.kwargs['store'].upper())  # pulls category from URL e.g. /reports/store/Loblaws
 
         plot_df = get_plot_df()
-        plot_df = plot_df.loc[plot_df['store'] == selection]
+        print(plot_df['store'].unique())
+        plot_df = plot_df.loc[plot_df['store'] == context['store']]
 
         # Top bar
-        context['report_title'] = selection.capitalize()
+        context['store'] = context['store'].capitalize()
         context['product_count'] = plot_df.shape[0]
         context['sodium_products_over_15'] = plot_df[plot_df.sodium_dv > 0.15].shape[0]
         context['fat_products_over_15'] = plot_df[plot_df.totalfat_dv > 0.15].shape[0]

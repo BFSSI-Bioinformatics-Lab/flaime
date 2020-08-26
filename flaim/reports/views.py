@@ -61,7 +61,13 @@ class StoreView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        selection = 'WALMART'
+        if 'store' not in self.kwargs:
+            context['store'] = 'Loblaws'  # set default category
+        else:
+            context['store'] = unquote(
+                self.kwargs['store'])  # pulls category from URL e.g. /reports/store/Loblaws
+
+        selection = context['store']
 
         plot_df = get_plot_df()
         plot_df = plot_df.loc[plot_df['store'] == selection]

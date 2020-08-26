@@ -1,7 +1,7 @@
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from flaim.database.nutrient_coding import VALID_NUTRIENT_DICT
+from flaim.database.product_mappings import VALID_NUTRIENT_DICT
 
 
 # Create your views here.

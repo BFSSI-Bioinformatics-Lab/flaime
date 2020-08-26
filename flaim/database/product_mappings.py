@@ -1,3 +1,31 @@
+# All available categories that can be selected/predicted for any particular product
+PRODUCT_CATEGORIES = [
+    "Baby Food",
+    "Bakery Products",
+    "Beverages",
+    "Cereals and Other Grain Products",
+    "Combination Dishes",
+    "Dairy Products and Substitutes",
+    "Desserts",
+    "Dessert Toppings and Fillings",
+    "Eggs and Egg Substitutes",
+    "Fats and Oils",
+    "Fruit and Fruit Juices",
+    "Legumes",
+    "Marine and Fresh Water Animals",
+    "Meal Replacements and Supplements",
+    "Meat and Poultry, Products and Substitutes",
+    "Miscellaneous",
+    "Nuts and Seeds",
+    "Potatoes, Sweet Potatoes and Yams",
+    "Salads",
+    "Sauces, Dips, Gravies and Condiments",
+    "Snacks",
+    "Soups",
+    "Sugars and Sweets",
+    "Vegetables"
+]
+
 VALID_NUTRIENT_DICT = {
     'calories': 'Calories',
     'sodium': 'Sodium',

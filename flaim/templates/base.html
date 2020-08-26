@@ -38,6 +38,8 @@
     <!-- This file stores project-specific CSS -->
     <link href="{% static 'css/project.css' %}" rel="stylesheet">
 
+    <link rel="stylesheet" href="{% static 'datatables/datatables.min.css' %}">
+    <link rel="stylesheet" href="{% static '@fortawesome/fontawesome-free/css/fontawesome.min.css' %}">
 
   {% endblock %}
 
@@ -248,19 +250,19 @@
 <!-- Le javascript
 ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
-{% block javascript %}
 
-  <!-- Bootstrap JS and its dependencies-->
-  <script src="{% static '@popperjs/core/dist/umd/popper.js' %}"></script>
-  <script src="{% static 'bootstrap/dist/js/bootstrap.min.js' %}"></script>
+<!-- Bootstrap JS and its dependencies-->
+<script src="{% static '@popperjs/core/dist/umd/popper.js' %}"></script>
+<script src="{% static 'bootstrap/dist/js/bootstrap.min.js' %}"></script>
 
-  <!-- Fontawesome -->
-  <script src="{% static '@fortawesome/fontawesome-free/js/all.min.js' %}"></script>
+<!-- Fontawesome -->
+<script src="{% static '@fortawesome/fontawesome-free/js/all.min.js' %}"></script>
 
-  <!-- Your stuff: Third-party javascript libraries go here -->
-  <script src="{% static 'select2/dist/js/select2.min.js' %}"></script>
+<!-- Your stuff: Third-party javascript libraries go here -->
+<script src="{% static 'select2/dist/js/select2.min.js' %}"></script>
 
-{% endblock javascript %}
+{#Override this to include extra libs#}
+{% block javascript %}{% endblock javascript %}
 </body>
 </html>
 

@@ -6,6 +6,7 @@ import plotly.figure_factory as ff
 from django.db.models import F
 from django.views.generic import TemplateView
 from plotly.io import to_html
+from urllib.parse import unquote
 
 from flaim.database import models
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -24,7 +25,13 @@ class CategoryView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        selection = 'Soups'
+        if 'category' not in self.kwargs:
+            context['category'] = 'Beverages'  # set default category TODO: set this to a random value instead
+        else:
+            context['category'] = unquote(
+                self.kwargs['category'])  # pulls category from URL e.g. /reports/category/Beverages
+
+        selection = context['category']
 
         plot_df = get_plot_df()
         plot_df = plot_df.loc[plot_df['category_text'] == selection]

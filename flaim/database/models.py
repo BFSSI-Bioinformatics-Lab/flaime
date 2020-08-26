@@ -3,10 +3,9 @@ from pathlib import Path
 from django.db import models
 from typing import Optional, Union
 from django.contrib.postgres.fields import JSONField, ArrayField
-from django.db.models.functions import Concat
-from flaim.database.nutrient_coding import VALID_NUTRIENT_COLUMNS
+from flaim.database.product_mappings import VALID_NUTRIENT_COLUMNS
 from simple_history.models import HistoricalRecords
-from django.db.models import Value
+from flaim.users.models import User
 
 # Sensible field sizes for CharField columns
 LG_CHAR = 1500
@@ -103,6 +102,9 @@ class ScrapeBatch(models.Model):
 class PredictedCategory(TimeStampedModel):
     """
     predicted_category_1, 2 and 3 correspond to the top 3 predictions
+
+    "verified" represents whether or not the prediction has been manually verified/confirmed by a user
+    "verified_by" represents User who verified the category
     """
 
     predicted_category_1 = models.CharField(max_length=MD_CHAR, blank=True, null=True)
@@ -113,6 +115,9 @@ class PredictedCategory(TimeStampedModel):
 
     predicted_category_3 = models.CharField(max_length=MD_CHAR, blank=True, null=True)
     confidence_3 = models.FloatField(blank=True, null=True)
+
+    verified = models.BooleanField(default=False)
+    verified_by = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
 
     model_verison = models.CharField(max_length=SM_CHAR, blank=True, null=True)
 

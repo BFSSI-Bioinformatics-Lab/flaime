@@ -3,6 +3,7 @@ import re
 import numpy as np
 import pandas as pd
 import plotly.figure_factory as ff
+from django.db.models import F
 from django.views.generic import TemplateView
 from plotly.io import to_html
 
@@ -19,59 +20,25 @@ class NutrientView(LoginRequiredMixin, TemplateView):
 
 
 class CategoryView(LoginRequiredMixin, TemplateView):
-    model = models.Product
-    nutrition_facts = models.NutritionFacts
     template_name = 'reports/category_report.html'
-
-    @staticmethod
-    def get_figure1(df):
-        nutrients = ['sodium_dv', 'totalfat_dv', 'sugar']
-        fig = ff.create_distplot(df[nutrients].dropna().T.values,
-                                 nutrients, bin_size=.01)
-
-        fig.update_layout(
-            width=1100,
-            xaxis_range=[0,0.6],
-            margin=dict(
-                l=50,
-                r=20,
-                b=30,
-                t=30,
-            )
-        )
-
-        fig.add_shape(dict(
-            type="line",
-            yref='paper',
-            x0=0.15,
-            y0=0,
-            x1=0.15,
-            y1=1,
-            line=dict(
-                color="Red",
-                width=2
-            )))
-        return to_html(fig, include_plotlyjs=False, full_html=False)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        df1 = pd.DataFrame(list(self.model.objects.filter(most_recent=True).values()))
+        selection = 'Soups'
 
-        def last_crumb(breadcrumbs):
-            return breadcrumbs[-1] if breadcrumbs and len(breadcrumbs) > 0 else np.nan
-        df1['breadcrumbs_last'] = df1['breadcrumbs_array'].apply(lambda row: last_crumb(row))
-        df2 = pd.DataFrame(list(self.nutrition_facts.objects.filter(product__most_recent=True).values()))
-        df = df1.merge(df2, left_on='id', right_on='product_id')
-        plot_df = df.loc[df['breadcrumbs_last'].str.contains('soup', flags=re.IGNORECASE) == True].copy()
-        plot_df['sugar'] /= 100
-        plot_df['brand'] = plot_df['brand'].str.replace('’', "'")
+        plot_df = get_plot_df()
+        plot_df = plot_df.loc[plot_df['category_text'] == selection]
 
-        context['figure1'] = CategoryView.get_figure1(plot_df)
+        # Top bar
+        context['report_title'] = selection
         context['product_count'] = plot_df.shape[0]
         context['calorie_median'] = f'{plot_df.calories.median():.0f}'
         context['sodium_median'] = f'{plot_df.sodium_dv.median()*100:.0f}%'
         context['fat_median'] = f'{plot_df.totalfat_dv.median()*100:.0f}%'
         context['sugar_median'] = f'{plot_df.sugar.median()*100:.0f}%'
+
+        # Visualizations
+        context['figure1'] = get_figure1(plot_df)
         return context
 
 
@@ -80,4 +47,69 @@ class BrandView(LoginRequiredMixin, TemplateView):
 
 
 class StoreView(LoginRequiredMixin, TemplateView):
-    template_name = 'reports_base.html'
+    template_name = 'reports/store_report.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        selection = 'WALMART'
+
+        plot_df = get_plot_df()
+        plot_df = plot_df.loc[plot_df['store'] == selection]
+
+        # Top bar
+        context['report_title'] = selection
+        context['product_count'] = plot_df.shape[0]
+        context['calorie_median'] = f'{plot_df.calories.median():.0f}'
+        context['sodium_median'] = f'{plot_df.sodium_dv.median()*100:.0f}%'
+        context['fat_median'] = f'{plot_df.totalfat_dv.median()*100:.0f}%'
+        context['sugar_median'] = f'{plot_df.sugar.median()*100:.0f}%'
+
+        # Visualizations
+        context['figure1'] = get_figure1(plot_df)
+        return context
+
+
+# Fetch dataset
+def get_plot_df():
+    products = models.Product
+    nutrition_facts = models.NutritionFacts
+    df1 = pd.DataFrame(list(products.objects
+                            .annotate(category_text=F('predicted_category__predicted_category_1'))
+                            .filter(most_recent=True)
+                            .values()))
+    df2 = pd.DataFrame(list(nutrition_facts.objects.filter(product__most_recent=True).values()))
+    df = df1.merge(df2, left_on='id', right_on='product_id')
+    df['sugar'] /= 100
+    df['brand'] = df['brand'].str.replace('’', "'")
+    return df
+
+
+# Figure generation
+def get_figure1(df):
+    nutrients = ['sodium_dv', 'totalfat_dv', 'sugar']
+    fig = ff.create_distplot(df[nutrients].dropna().T.values,
+                             nutrients, bin_size=.01)
+
+    fig.update_layout(
+        width=1100,
+        xaxis_range=[0, 1],
+        margin=dict(
+            l=50,
+            r=20,
+            b=30,
+            t=30,
+        )
+    )
+
+    fig.add_shape(dict(
+        type="line",
+        yref='paper',
+        x0=0.15,
+        y0=0,
+        x1=0.15,
+        y1=1,
+        line=dict(
+            color="Red",
+            width=2
+        )))
+    return to_html(fig, include_plotlyjs=False, full_html=False)

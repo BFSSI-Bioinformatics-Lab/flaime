@@ -1,10 +1,10 @@
 {% extends 'reports_base.html' %}
-{% block section %}Category Report{% endblock %}
+{% block section %}Store Report{% endblock %}
 
 {% block header %}
   <div style="flex: 10%">
     {% load static %}
-    <img src="{% static "images/soup.png" %}" alt="Soup" height="160" width="160">
+    <img src="{% static "images/walmart.png" %}" alt="Walmart Logo" height="160" width="160">
   </div>
   <div style="flex: 90%;padding-left: 10px">
     <div style="padding-left: 60px">
@@ -21,7 +21,7 @@
       </div>
       <div style="flex: auto">
         Median Sodium
-        <h1 style="color: darkred">{{ sodium_median }}</h1>
+        <h1 style="color: darkgreen">{{ sodium_median }}</h1>
       </div>
       <div style="flex: auto">
         Median Sat. Fat
@@ -38,8 +38,7 @@
 
 {% block body %}
   <div style="flex: 33%">
-    {#  how the product counts compares to other categories #}
-    {#  how the products are spread across stores #}
+    {#  top 3 brands, avg cost? #}
     <b>Overview:</b> Eu condimentum tortor bibendum. Sed elemum lectus pharetra, pulvinar massa a,
     dapibus quam. Nulla quis nulla porttitor, blandit tellus id, pretium ipsum. Etiam velit nunc, ultricies id quam a,
     finibus maximus eros. Pellentesque tellus ipsum, consectetur nec lectus non, ornare molestie leo.

@@ -62,7 +62,6 @@ class CategoryView(LoginRequiredMixin, TemplateView):
         else:
             context['category'] = unquote(
                 self.kwargs['category'])  # pulls category from URL e.g. /reports/category/Beverages
-        print(context['category'])
 
         # TODO: Brian, use this queryset in the below calls since it is correctly filtered to the selected category
         queryset = self.model.objects.filter(predicted_category__predicted_category_1__iexact=context['category'])
@@ -94,3 +93,11 @@ class BrandView(LoginRequiredMixin, TemplateView):
 
 class StoreView(LoginRequiredMixin, TemplateView):
     template_name = 'reports_base.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if 'store' not in self.kwargs:
+            context['store'] = 'Loblaws'  # set default category
+        else:
+            context['store'] = unquote(
+                self.kwargs['store'])  # pulls category from URL e.g. /reports/store/Loblaws

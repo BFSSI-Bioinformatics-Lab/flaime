@@ -63,6 +63,23 @@
         };
       };
 
+      $.fn.dataTable.render.hyperlink_store = function () {
+        return function (data, type, row) {
+          if (data === null) {
+            return null
+          }
+          if (type === 'display') {
+            // Capitalize first letter of string (lol javascript is terrible)
+            data = data.toLowerCase().replace(/\w\S*/g, (w) => (w.replace(/^\w/, (c) => c.toUpperCase())));
+
+            let url = `/reports/store/${encodeURIComponent(data)}/`
+            return `<a href=${url}>${data}</a>`
+          }
+          // Search, order and type can use the original data
+          return data;
+        };
+      };
+
       $.fn.dataTable.render.link_to_id = function () {
         // Custom render method to hyperlink a row value
         return function (data, type, row) {
@@ -93,7 +110,7 @@
             {"data": "id", "render": $.fn.dataTable.render.link_to_id()},
             {"data": "name"},
             {"data": "brand"},
-            {"data": "store"},
+            {"data": "store", "render": $.fn.dataTable.render.hyperlink_store()},
             {
               "data": "predicted_category.predicted_category_1",
               "defaultContent": "",

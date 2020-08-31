@@ -112,7 +112,7 @@
 
       const renderImage = function (data, type, row) {
         if (type === 'display') {
-          let image = data[0]  // Just grab the first image from the array
+          let image = data.slice(-1)[0]  // Grab last image from array
           return `<img class="img-thumbnail" src=${image}>`
         }
         return data

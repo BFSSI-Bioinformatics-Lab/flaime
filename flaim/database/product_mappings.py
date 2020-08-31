@@ -1,4 +1,4 @@
-# All available categories that can be selected/predicted for any particular product
+# All available categories that can be selected/predicted for any particular product. This list should be maintained.
 PRODUCT_CATEGORIES = [
     "Baby Food",
     "Bakery Products",

@@ -103,6 +103,7 @@ class PredictedCategory(TimeStampedModel):
     """
     predicted_category_1, 2 and 3 correspond to the top 3 predictions
 
+    "manual category" is set when a user corrects a category via the ProductCurator app
     "verified" represents whether or not the prediction has been manually verified/confirmed by a user
     "verified_by" represents User who verified the category
     """
@@ -116,6 +117,8 @@ class PredictedCategory(TimeStampedModel):
     predicted_category_3 = models.CharField(max_length=MD_CHAR, blank=True, null=True)
     confidence_3 = models.FloatField(blank=True, null=True)
 
+    # This field allows for a user to manually select a category/confirm the predicted category
+    manual_category = models.CharField(max_length=MD_CHAR, blank=True, null=True)
     verified = models.BooleanField(default=False)
     verified_by = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
 
@@ -202,6 +205,11 @@ class Product(TimeStampedModel):
             for p in products:
                 p.most_recent = False
                 p.save()
+
+    @property
+    def images(self):
+        """ Returns all images associated with the product"""
+        return ProductImage.objects.filter(product=self)
 
     def __str__(self):
         return f"{self.product_code}: {self.name}"
@@ -549,7 +557,7 @@ class AmazonProduct(TimeStampedModel):
 
 class AmazonSearchResult(TimeStampedModel):
     """
-        Stores information on the search page that a particular product showed up on
+    Stores information on the search page that a particular product showed up on
     """
     product = models.ForeignKey(AmazonProduct, on_delete=models.CASCADE, related_name="amazon_search_result")
     search_string = models.CharField(max_length=MD_CHAR)  # Search string used to generate results
@@ -563,7 +571,7 @@ class AmazonSearchResult(TimeStampedModel):
 
 class AmazonProductReview(TimeStampedModel):
     """
-        Model to store information on a single Amazon product review
+    Model to store information on a single Amazon product review
     """
     # One Amazon Product will have many reviews
     product = models.ForeignKey(AmazonProduct, on_delete=models.CASCADE, related_name="amazon_product_reviews")
@@ -581,7 +589,7 @@ class AmazonProductReview(TimeStampedModel):
 # IMAGE CLASSIFICATION
 class ProductImage(TimeStampedModel):
     """
-        Model to store relationship between a Product and a path to a product image
+    Model to store relationship between a Product and a path to a product image
     """
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="product_image")
     image_path = models.ImageField(upload_to=upload_product_image, unique=True, max_length=LG_CHAR)
@@ -592,6 +600,10 @@ class ProductImage(TimeStampedModel):
     def __str__(self):
         return f"{self.product}: {Path(self.image_path.url).name}"
 
+    @property
+    def image_string(self):
+        return self.image_path.url
+
     class Meta:
         verbose_name = 'Product Image'
         verbose_name_plural = 'Product Images'
@@ -599,7 +611,7 @@ class ProductImage(TimeStampedModel):
 
 class NutritionLabelClassification(TimeStampedModel):
     """
-        Stores output from the nutrition label classifier for a ProductImage
+    Stores output from the nutrition label classifier for a ProductImage
     """
     # Required fields
     product_image = models.ForeignKey(ProductImage, on_delete=models.CASCADE, related_name="image_classification")

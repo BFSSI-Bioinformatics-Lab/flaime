@@ -125,6 +125,10 @@
                 serverSide: true,
                 processing: false,
                 ajax: base_url,
+                aoColumnDefs: [
+                  {bSortable: false, "aTargets": [1]},
+                  {searchable: false, "targets": [0, 1]}
+                ],
                 columns: [
                   {
                     data: "id",

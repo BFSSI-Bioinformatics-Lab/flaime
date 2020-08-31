@@ -74,11 +74,19 @@
               </tr>
               <tr>
                 <td class="row-label">
-                  Predicted Category
+                  Category
                 </td>
-                <td>{{ product.predicted_category.predicted_category_1 }}
-                  <p class="{{ confidence_styling }}">({{ product.predicted_category.confidence_1|floatformat:2 }})</p>
-                </td>
+                {% if product.predicted_category.manual_category %}
+                  <td>{{ product.predicted_category.manual_category }}
+                    <p class="text text-info">Category verified by: {{ product.predicted_category.verified_by }}</p>
+                  </td>
+
+                {% else %}
+                  <td>{{ product.predicted_category.predicted_category_1 }}
+                    <p class="{{ confidence_styling }}">
+                      Prediction confidence: {{ product.predicted_category.confidence_1|floatformat:2 }}</p>
+                  </td>
+                {% endif %}
               </tr>
               <tr>
                 <td class="row-label">Breadcrumbs</td>

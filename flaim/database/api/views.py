@@ -12,6 +12,7 @@ from django.contrib.auth import get_user_model
 from flaim.database.product_mappings import VALID_NUTRIENT_COLUMNS
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from rest_framework.mixins import UpdateModelMixin
 
 User = get_user_model()
 
@@ -114,7 +115,7 @@ class NutritionFactsViewSet(viewsets.ModelViewSet):
         return queryset
 
 
-class AdvancedProductViewSet(viewsets.ModelViewSet):
+class AdvancedProductViewSet(viewsets.ModelViewSet, UpdateModelMixin):
     """
     Very similar to the ProductViewSet, though returns additional nutrition data and allows for richer filtering.
 
@@ -194,6 +195,11 @@ class ProductNameViewSet(viewsets.ModelViewSet):
             return models.Product.objects.filter(name__icontains=search).order_by('name').distinct('name')
         else:
             return models.Product.objects.all()
+
+
+class PredictedCategoryViewSet(viewsets.ModelViewSet, UpdateModelMixin):
+    serializer_class = serializers.PredictedCategorySerializer
+    queryset = models.PredictedCategory.objects.all().order_by('id')
 
 
 class PredictedCategoryNameViewSet(viewsets.ModelViewSet):

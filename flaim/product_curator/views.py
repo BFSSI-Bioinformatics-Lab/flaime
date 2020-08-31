@@ -19,10 +19,10 @@ class IndexView(ListView):
         product_categories = []
         for i, category in enumerate(PRODUCT_CATEGORIES):
             product_categories.append({
-                'value': i,
+                'value': category,
                 'label': category
             })
         context['product_categories'] = json.dumps(product_categories)
-        print(context['product_categories'])
+        context['user'] = self.request.user
 
         return context

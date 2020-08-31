@@ -143,7 +143,35 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     walmart_product = WalmartProductSerializer()
     nutrition_facts = NutritionFactsSerializer()
     predicted_category = PredictedCategorySerializer()
+    images = serializers.SlugRelatedField(many=True, read_only=True, slug_field='image_string')
     url = serializers.HyperlinkedIdentityField(view_name='advanced_products-detail', lookup_field='pk')
+
+    def update(self, instance, validated_data):
+        """
+        This override method of update allows for the Product Curator page to update the 'manual_category' and
+        'verified' fields. For some reason, I can't get datatables to correctly PATCH data to DRF; the validated_data
+        dict comes in empty. This is not an issue when I execute a PATCH directly via Postman, so the datatables ajax
+        config on producted_curator/index.html is probably not done correctly.
+
+        The workaround is to pull the data from self.initial_data (this is where the datatables ajax patch data is
+        stored) and force it into validated_data.
+        """
+
+        # Check if the validated_data dict is empty/doesn't contain expected results
+        if 'predicted_category' not in validated_data:
+            validated_data = self.initial_data['data'][str(self.data['id'])]
+
+        predicted_category_data = validated_data.pop('predicted_category')
+        predicted_category = instance.predicted_category
+        user = User.objects.get(username=predicted_category_data.get('user', predicted_category.verified_by))
+
+        predicted_category.manual_category = predicted_category_data.get('manual_category',
+                                                                         predicted_category.manual_category)
+        predicted_category.verified = predicted_category_data.get('verified',
+                                                                  predicted_category.verified)
+        predicted_category.verified_by = user
+        predicted_category.save()
+        return instance
 
     class Meta:
         model = models.Product
@@ -155,7 +183,7 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
             'predicted_category',
         ]
         fields = ['id', 'url', 'product_code', 'name', 'brand', 'store', 'price',
-                  'upc_code'] + reverse_relationships
+                  'upc_code', 'images'] + reverse_relationships
 
 
 class ProductNameSerializer(serializers.ModelSerializer):
@@ -179,7 +207,10 @@ class BrandNameSerializer(serializers.ModelSerializer):
 
 
 class PredictedCategoryNameSerializer(serializers.ModelSerializer):
-    """ Simple serializer for storing only predicted category names """
+    """
+    Simple serializer for storing only predicted category names.
+    Fields are named for compatibiltiy with select2
+    """
     id = serializers.ReadOnlyField()
     text = serializers.CharField(source='predicted_category_1')
 

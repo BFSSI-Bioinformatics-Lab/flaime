@@ -16,12 +16,7 @@ class IndexView(ListView):
         context = super().get_context_data(**kwargs)
 
         # Grab available categories and dump them context for use as a dropdown menu within datatables
-        product_categories = []
-        for i, category in enumerate(PRODUCT_CATEGORIES):
-            product_categories.append({
-                'value': category,
-                'label': category
-            })
+        product_categories = [{'value': category, 'label': category} for i, category in enumerate(PRODUCT_CATEGORIES)]
         context['product_categories'] = json.dumps(product_categories)
         context['user'] = self.request.user
 

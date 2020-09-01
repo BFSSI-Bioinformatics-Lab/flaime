@@ -11,6 +11,7 @@ from django.views.generic import TemplateView
 from plotly.io import to_html
 
 from flaim.database import models
+from flaim.database.product_mappings import PRODUCT_CATEGORIES
 
 
 class ProductView(LoginRequiredMixin, TemplateView):
@@ -27,6 +28,8 @@ class CategoryView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         plot_df = get_plot_df()
+
+        context['product_categories'] = PRODUCT_CATEGORIES
 
         if 'category' not in self.kwargs:
             context['category'] = np.random.choice(plot_df['category_text'].unique())  # set default category

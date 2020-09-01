@@ -1,6 +1,7 @@
 from textwrap import wrap
 from urllib.parse import unquote
 
+import numpy as np
 import pandas as pd
 import plotly.figure_factory as ff
 import plotly.graph_objects as go
@@ -25,13 +26,14 @@ class CategoryView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        plot_df = get_plot_df()
+
         if 'category' not in self.kwargs:
-            context['category'] = 'Beverages'  # set default category TODO: set this to a random value instead
+            context['category'] = np.random.choice(plot_df['category_text'].unique())  # set default category
         else:
             # pulls category from URL e.g. /reports/category/Beverages
             context['category'] = unquote(self.kwargs['category'])
 
-        plot_df = get_plot_df()
         plot_df = plot_df.loc[plot_df['category_text'] == context['category']]
 
         # Top bar
@@ -62,13 +64,13 @@ class StoreView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        plot_df = get_plot_df()
+
         if 'store' not in self.kwargs:
-            context['store'] = 'WALMART'  # set default category
+            context['store'] = np.random.choice(plot_df['store'].unique())  # set default category
         else:
             context['store'] = unquote(
                 self.kwargs['store'].upper())  # pulls category from URL e.g. /reports/store/Loblaws
-
-        plot_df = get_plot_df()
 
         plot_df = plot_df.loc[plot_df['store'] == context['store']]
 

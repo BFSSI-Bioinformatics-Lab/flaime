@@ -35,6 +35,7 @@ class CategoryView(LoginRequiredMixin, TemplateView):
         plot_df = plot_df.loc[plot_df['category_text'] == context['category']]
 
         # Top bar
+        context['image'] = context['category'].lower()
         context['product_count'] = plot_df.shape[0]
         context['calorie_median'] = f'{plot_df.calories.median():.0f}'
 
@@ -68,10 +69,11 @@ class StoreView(LoginRequiredMixin, TemplateView):
                 self.kwargs['store'].upper())  # pulls category from URL e.g. /reports/store/Loblaws
 
         plot_df = get_plot_df()
-        print(plot_df['store'].unique())
+
         plot_df = plot_df.loc[plot_df['store'] == context['store']]
 
         # Top bar
+        context['image'] = context['store'].lower()
         context['store'] = context['store'].capitalize()
         context['product_count'] = plot_df.shape[0]
         context['sodium_products_over_15'] = plot_df[plot_df.sodium_dv > 0.15].shape[0]
@@ -99,6 +101,7 @@ def get_plot_df():
     df = df1.merge(df2, left_on='id', right_on='product_id')
     df['sugar'] /= 100
     df['brand'] = df['brand'].str.replace('’', "'")
+
     return df
 
 
@@ -109,7 +112,7 @@ def get_nutrient_distribution_plot(df):
 
     fig.update_layout(
         width=1100,
-        xaxis_range=[0, 1],
+        xaxis_range=[0, min([1, max(df[n].quantile(0.95) for n in nutrients)])],
         margin=dict(
             l=50,
             r=20,

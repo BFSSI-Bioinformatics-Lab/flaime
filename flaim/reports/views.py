@@ -11,7 +11,7 @@ from django.views.generic import TemplateView
 from plotly.io import to_html
 
 from flaim.database import models
-from flaim.database.product_mappings import PRODUCT_CATEGORIES
+from flaim.database.product_mappings import PRODUCT_CATEGORIES, PRODUCT_STORES
 
 
 class ProductView(LoginRequiredMixin, TemplateView):
@@ -67,6 +67,8 @@ class StoreView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['product_stores'] = PRODUCT_STORES
+
         plot_df = get_plot_df()
 
         if 'store' not in self.kwargs:

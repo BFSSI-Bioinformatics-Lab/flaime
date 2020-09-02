@@ -4,7 +4,21 @@
 {% block header %}
   <div style="flex: 10%">
     {% load static %}
-    <img src="{% static 'images/store_icons/' %}{{image}}.png" height="160" width="160">
+    <img src="{% static 'images/store_icons/' %}{{ image }}.png" height="160" width="160">
+    <div class="col" style="text-align: left">
+      <div class="dropdown show">
+        <a class="btn btn-primary btn-sm dropdown-toggle" href="#" role="button"
+           id="dropdownMenuLink"
+           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          More Stores
+        </a>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="overflow-y:auto; max-height: 300px">
+          {% for store in product_stores %}
+            <a class="dropdown-item" href="/reports/stores/{{ store }}/">{{ store }}</a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
   </div>
   <div style="flex: 90%;padding-left: 10px">
     <div style="padding-left: 60px">
@@ -53,6 +67,7 @@
 
 {% block footer %}
   {% block product_javascript %}
+    <script src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'plotly.js-dist/plotly.js' %}"></script>
   {% endblock %}
   <div style="flex: 20%;padding-top: 20px">

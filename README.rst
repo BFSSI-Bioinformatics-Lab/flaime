@@ -69,12 +69,12 @@ Deployment
 ----------
 
 **Dependencies:**
-- Ubuntu 20.04
-- PostgreSQL 12.2
-- Python 3.7.6
-- Node 14.8.0
-- npm 6.14.7
-- Redis
+    - Ubuntu 20.04
+    - PostgreSQL 12.2
+    - Python 3.7.6
+    - Node 14.8.0
+    - npm 6.14.7
+    - Redis
 
 Additional dependencies can be found in `flaim/utility/requirements-bionic.apt`
 

@@ -68,7 +68,17 @@ You must set the DSN url in production.
 Deployment
 ----------
 
-The following details how to deploy this application.
+**Dependencies:**
+- Ubuntu 20.04
+- PostgreSQL 12.2
+- Python 3.7.6
+- Node 14.8.0
+- npm 6.14.7
+- Redis
+
+Additional dependencies can be found in `flaim/utility/requirements-bionic.apt`
+
+Python dependencies can be found in `flaim/requirements/local.txt`
 
 Run `npm i` to install necessary node packages.
 Use `python manage.py collectstatic` to put them into the expected static directory.
@@ -120,6 +130,8 @@ To activate the browser based RQ dashboard::
 
 
 
+Using FLAIME
+------------
 
 Uploading new web scrapes
 ^^^^^^^^^^^^^^^^^^^^^^^^^

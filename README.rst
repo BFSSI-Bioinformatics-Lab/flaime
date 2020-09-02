@@ -70,8 +70,8 @@ Deployment
 
 The following details how to deploy this application.
 
-Run npm i to install necessary node packages.
-Use python manage.py collectstatic to put them into the expected directory.
+Run `npm i` to install necessary node packages.
+Use `python manage.py collectstatic` to put them into the expected static directory.
 
 
 Redis Guide
@@ -120,3 +120,17 @@ To activate the browser based RQ dashboard::
 
 
 
+
+Uploading new web scrapes
+^^^^^^^^^^^^^^^^^^^^^^^^^
+New data can be uploaded to the database via management commands available in `python manage.py`
+
+To upload Walmart data:
+`python manage.py load_walmart_to_db --input_dir /media/scraper_output/walmart/2020-08-19 --date 2020-08-19 `
+
+To upload Loblaws data:
+`python manage.py load_loblaws_to_db --input_dir /media/scraper_output/loblaws/2020-01-01 --date 2020-01-01 `
+
+Once the data has been uploaded, it's important to predict categories on each new product. Eventually this will be
+done automatically upon upload, though for now a single command must be called:
+`python manage.py predict_product_categories`

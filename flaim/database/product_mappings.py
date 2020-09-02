@@ -1,3 +1,10 @@
+PRODUCT_STORES = [
+    'Loblaws',
+    'Walmart',
+    # 'Voila',
+    # 'Grocery Gateway'
+]
+
 # All available categories that can be selected/predicted for any particular product. This list should be maintained.
 PRODUCT_CATEGORIES = [
     "Baby Food",
@@ -23,7 +30,8 @@ PRODUCT_CATEGORIES = [
     "Snacks",
     "Soups",
     "Sugars and Sweets",
-    "Vegetables"
+    "Vegetables",
+    "Not Food"
 ]
 
 VALID_NUTRIENT_DICT = {

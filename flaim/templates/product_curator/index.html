@@ -8,7 +8,7 @@
       Category" column.</p>
   </div>
 
-  <table id="products" class="table table-striped table-bordered" style="width:100%">
+  <table id="products" class="table table-condensed table-striped table-bordered" style="width:100%">
     <thead>
     <tr>
       <th>ID</th>
@@ -113,7 +113,7 @@
       const renderImage = function (data, type, row) {
         if (type === 'display') {
           let image = data.slice(-1)[0]  // Grab last image from array
-          return `<img class="img-thumbnail" src=${image}>`
+          return `<img class="img-thumbnail" src=${image} width=80 height=80>`
         }
         return data
       }
@@ -121,13 +121,22 @@
 
       let table = $("#products").DataTable(
               {
-                dom: "Bfrtip",
+                dom: "Bfrltip",
                 serverSide: true,
                 processing: false,
+                buttons: [
+                  'colvis'
+                ],
                 ajax: base_url,
                 aoColumnDefs: [
-                  {bSortable: false, "aTargets": [1]},
-                  {searchable: false, "targets": [0, 1]}
+                  {
+                    bSortable: false,
+                    targets: [1]
+                  },
+                  {
+                    searchable: false,
+                    targets: [0, 1]
+                  }
                 ],
                 columns: [
                   {

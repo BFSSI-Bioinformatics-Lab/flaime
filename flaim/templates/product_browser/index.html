@@ -98,26 +98,39 @@
 
       $(document).ready(function () {
         let table = $('#products').DataTable({
-          "serverSide": true,
-          "processing": false,
-          "ajax": "/api/recent_products/?format=datatables",
-          "order": [[2, "asc"]],
-          "aoColumnDefs": [
-            {"bSortable": false, "aTargets": [0, -1, -2]},
-            {"searchable": false, "targets": [0, -1, -2]}
+          dom: "Bfrltip",
+          serverSide: true,
+          processing: false,
+          buttons: [
+            'colvis', 'excel', 'csv', 'pdf'
           ],
-          "columns": [
-            {"data": "id", "render": $.fn.dataTable.render.link_to_id()},
-            {"data": "name"},
-            {"data": "brand"},
-            {"data": "store", "render": $.fn.dataTable.render.hyperlink_store()},
+          ajax: "/api/recent_products/?format=datatables",
+          order: [[2, "asc"]],
+          aoColumnDefs: [
+            {bSortable: false, "aTargets": [0, -1, -2]},
+            {searchable: false, "targets": [0, -1, -2]}
+          ],
+          columns: [
             {
-              "data": "predicted_category.predicted_category_1",
-              "defaultContent": "",
-              "render": $.fn.dataTable.render.hyperlink_category()
+              data: "id",
+              render: $.fn.dataTable.render.link_to_id()
             },
-            {"data": "product_code"},
-            {"data": "url", "render": $.fn.dataTable.render.hyperlink_url()}
+            {data: "name"},
+            {data: "brand"},
+            {
+              data: "store",
+              render: $.fn.dataTable.render.hyperlink_store()
+            },
+            {
+              data: "predicted_category.predicted_category_1",
+              defaultContent: "",
+              render: $.fn.dataTable.render.hyperlink_category()
+            },
+            {data: "product_code"},
+            {
+              data: "url",
+              render: $.fn.dataTable.render.hyperlink_url()
+            }
           ]
         });
       });

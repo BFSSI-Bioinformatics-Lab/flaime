@@ -5,12 +5,16 @@
   <div style="flex: 10%">
     {% load static %}
     <img src="{% static 'images/store_icons/' %}{{ image }}.png" height="160" width="160" style="padding-bottom: 5px">
-    <div class="col" style="text-align: left">
-      <div class="dropdown show">
+  </div>
+  <div style="flex: 90%;padding-left: 10px">
+    <div style="padding-left: 60px">
+      <div class="row" style="text-align: left">
+      <h1>{{ store }}</h1>
+        <div class="dropdown show" style="padding-top: 10px; padding-left: 10px">
         <a class="btn btn-primary btn-sm dropdown-toggle" href="#" role="button"
            id="dropdownMenuLink"
            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          More Stores
+          More
         </a>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="overflow-y:auto; max-height: 300px">
           {% for store in product_stores %}
@@ -19,10 +23,6 @@
         </div>
       </div>
     </div>
-  </div>
-  <div style="flex: 90%;padding-left: 10px">
-    <div style="padding-left: 60px">
-      <h1>{{ store }}</h1>
     </div>
     <div style="display: flex;text-align:center">
       <div style="flex: auto">

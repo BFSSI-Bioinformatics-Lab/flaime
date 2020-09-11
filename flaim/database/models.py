@@ -122,14 +122,20 @@ class Category(TimeStampedModel):
     verified = models.BooleanField(default=False)
     verified_by = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
 
-    model_verison = models.CharField(max_length=SM_CHAR, blank=True, null=True)
+    model_version = models.CharField(max_length=SM_CHAR, blank=True, null=True)
+
+    @property
+    def best_category(self):
+        if self.manual_category is None:
+            return f'{self.predicted_category_1} ({self.confidence_1:.2f})'
+        return self.manual_category
 
     def __str__(self):
         """
         Return manual category if available, otherwise return the best guess.
         """
         if self.manual_category is None:
-            return f'{self.predicted_category_1} ({self.confidence_1})'
+            return f'{self.predicted_category_1} ({self.confidence_1:.2f})'
         return self.manual_category
 
     class Meta:
@@ -166,6 +172,7 @@ class Product(TimeStampedModel):
     unidentified_nft_format = models.BooleanField(default=False)  # Bool flag for whether the NFT is American or not
     nielsen_product = models.BooleanField(blank=True, null=True)
     url = models.CharField(max_length=LG_CHAR, blank=True, null=True)
+    atwater_test_pass = models.BooleanField(blank=True, null=True)
 
     category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True, null=True)
 

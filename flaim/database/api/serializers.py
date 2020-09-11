@@ -16,6 +16,18 @@ class EagerLoadingMixin:
         return queryset
 
 
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = User
+        fields = ['url', 'username', 'email', 'groups']
+
+
+class GroupSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Group
+        fields = ['url', 'name']
+
+
 class ScrapeBatchSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
 
@@ -62,10 +74,16 @@ class NutritionFactsSerializer(serializers.ModelSerializer):
 
 class CategorySerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
+    best_category = serializers.ReadOnlyField()
+    verified_by = UserSerializer()
 
     class Meta:
         model = models.Category
-        fields = '__all__'
+        fields = (
+            'id', 'best_category',
+            'predicted_category_1', 'confidence_1', 'predicted_category_2', 'confidence_2', 'predicted_category_3',
+            'confidence_3', 'manual_category', 'verified', 'verified_by', 'model_version'
+        )
 
 
 class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixin):
@@ -231,15 +249,3 @@ class LoblawsBreadcrumbSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'product', 'breadcrumbs_array'
         )
-
-
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = User
-        fields = ['url', 'username', 'email', 'groups']
-
-
-class GroupSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Group
-        fields = ['url', 'name']

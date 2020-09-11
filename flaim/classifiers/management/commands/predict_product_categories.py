@@ -44,7 +44,7 @@ class Command(BaseCommand):
                                                          confidence_2=row['Conf 2'],
                                                          predicted_category_3=row['Pred 3'],
                                                          confidence_3=row['Conf 3'],
-                                                         model_verison=predictor.model_version)
+                                                         model_version=predictor.model_version)
             o = Product.objects.get(id=row['id'])
             o.category = predicted_category
             o.save()

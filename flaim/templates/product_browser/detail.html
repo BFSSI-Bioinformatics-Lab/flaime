@@ -77,12 +77,14 @@
                   Category
                 </td>
                 {% if product.predicted_category.manual_category %}
-                  <td>{{ product.predicted_category.manual_category }}
+                  <td>
+                    <a href="/reports/category/{{ product.predicted_category.manual_category }}/">{{ product.predicted_category.manual_category }}</a>
                     <p class="text text-info">Category verified by: {{ product.predicted_category.verified_by }}</p>
                   </td>
 
                 {% else %}
-                  <td>{{ product.predicted_category.predicted_category_1 }}
+                  <td>
+                    <a href="/reports/category/{{ product.predicted_category.predicted_category_1 }}/">{{ product.predicted_category.predicted_category_1 }}</a>
                     <p class="{{ confidence_styling }}">
                       Prediction confidence: {{ product.predicted_category.confidence_1|floatformat:2 }}</p>
                   </td>

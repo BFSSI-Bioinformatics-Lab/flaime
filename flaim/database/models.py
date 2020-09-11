@@ -127,6 +127,10 @@ class PredictedCategory(TimeStampedModel):
     def __str__(self):
         return f'{self.predicted_category_1} ({self.confidence_1})'
 
+    class Meta:
+        verbose_name = 'Predicted Category'
+        verbose_name_plural = 'Predicted Categories'
+
 
 class Product(TimeStampedModel):
     product_code = models.CharField(max_length=MD_CHAR)
@@ -239,6 +243,13 @@ class CategoryProductCodeMappingSupport(models.Model):
     product_code = models.CharField(max_length=MD_CHAR, unique=True)
     PRODUCT_CATEGORIES_TUPLES = [(x, x) for x in PRODUCT_CATEGORIES]
     category = models.CharField(max_length=MD_CHAR, choices=PRODUCT_CATEGORIES_TUPLES)
+
+    def __str__(self):
+        return f'{self.product_code}: {self.category}'
+
+    class Meta:
+        verbose_name = 'Category:Product Code Mapping'
+        verbose_name_plural = 'Category:Product Code Mappings'
 
 
 class ProductLink(TimeStampedModel):

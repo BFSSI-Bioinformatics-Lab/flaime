@@ -21,7 +21,7 @@
       </div>
 
       <div class="col-lg-3">
-        <div>Predicted Category</div>
+        <div>Category</div>
         <select id="categorySearch" style="width: 80%"></select>
       </div>
 
@@ -65,7 +65,7 @@
           <th>Code</th>
           <th>Name</th>
           <th>Brand</th>
-          <th>Predicted Category</th>
+          <th>Category</th>
           <th>Ingredients</th>
         </tr>
         </thead>
@@ -312,7 +312,7 @@
           ingredients_contains: $("#ingredientSearch").val(),  // Array of ingredients
           name_contains: $('#nameSearch :selected').text(),
           brand_contains: $('#brandSearch :selected').text(),
-          predicted_category: $('#categorySearch :selected').text(),
+          category: $('#categorySearch :selected').text(),
         };
 
         // Filter out empty keys to simplify the query we pass to the API
@@ -359,7 +359,7 @@
             {"data": "product_code"},
             {"data": "name"},
             {"data": "brand"},
-            {"data": "category.predicted_category_1", "defaultContent": ""},
+            {"data": "category.best_category", "defaultContent": ""},
             {"data": "nutrition_facts.ingredients", "defaultContent": ""},
           ]
         });

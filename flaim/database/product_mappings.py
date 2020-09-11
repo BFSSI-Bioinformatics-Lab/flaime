@@ -6,6 +6,7 @@ PRODUCT_STORES = [
 ]
 
 # All available categories that can be selected/predicted for any particular product. This list should be maintained.
+# https://www.canada.ca/en/health-canada/services/technical-documents-labelling-requirements/table-reference-amounts-food.html
 PRODUCT_CATEGORIES = [
     "Baby Food",
     "Bakery Products",

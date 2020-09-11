@@ -2,7 +2,7 @@ import logging
 import rest_framework_datatables
 
 from django.contrib.auth.models import Group
-
+from django.db.models import Q
 from rest_framework import viewsets, filters
 from django_filters import rest_framework as df_filters
 from django.utils.dateparse import parse_date
@@ -150,7 +150,7 @@ class AdvancedProductViewSet(viewsets.ModelViewSet, UpdateModelMixin):
         name_contains = query_params.get('name_contains', None)
         brand_contains = query_params.get('brand_contains', None)
         recent = query_params.get('recent', None)
-        predicted_category = query_params.get('category', None)
+        category = query_params.get('category', None)
 
         queryset = models.Product.objects.all()
 
@@ -175,8 +175,9 @@ class AdvancedProductViewSet(viewsets.ModelViewSet, UpdateModelMixin):
         if brand_contains:
             queryset = queryset.filter(brand__trigram_similar=brand_contains)
 
-        if predicted_category:
-            queryset = queryset.filter(predicted_category__predicted_category_1__iexact=predicted_category)
+        if category:
+            queryset = queryset.filter(
+                Q(category__manual_category__iexact=category) | Q(category__predicted_category_1__iexact=category))
 
         # # Return everything by default
         return queryset.order_by('-id')

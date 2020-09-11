@@ -3,7 +3,7 @@ from pathlib import Path
 from django.db import models
 from typing import Optional, Union
 from django.contrib.postgres.fields import JSONField, ArrayField
-from flaim.database.product_mappings import VALID_NUTRIENT_COLUMNS
+from flaim.database.product_mappings import VALID_NUTRIENT_COLUMNS, PRODUCT_CATEGORIES
 from simple_history.models import HistoricalRecords
 from flaim.users.models import User
 
@@ -225,6 +225,22 @@ class Product(TimeStampedModel):
         ]
 
 
+class CategoryProductCodeMappingSupport(models.Model):
+    """
+    Support table intended to permanently store a mapping between categories and store-specific product codes
+    Can be expanded to contain other arbitrary product_code:category mappings
+
+    When a user manually corrects a predicted category for a particular product, this table should be automatically
+    updated.
+
+    When a new scrape batch is uploaded, each product should be automatically assigned a category if a value has been
+    added to this table.
+    """
+    product_code = models.CharField(max_length=MD_CHAR, unique=True)
+    PRODUCT_CATEGORIES_TUPLES = [(x, x) for x in PRODUCT_CATEGORIES]
+    category = models.CharField(max_length=MD_CHAR, choices=PRODUCT_CATEGORIES_TUPLES)
+
+
 class ProductLink(TimeStampedModel):
     # TODO: Table to store relationships between linked products, e.g. 100g corn pops vs. 1kg corn pops
     pass
@@ -434,10 +450,8 @@ class NutritionFacts(TimeStampedModel):
         # Grab the numeric float value from the string
         try:
             nutrient_float = float(val.split(nutrient_type)[0].strip())
-        except ValueError as e:
-            print(val)
-            print(nutrient_type)
-            raise e
+        except ValueError as e:  # If this fails it means the nutrient string is junk
+            return None
 
         # Grams & Milligrams (normalizes everything into grams)
         if nutrient_type == 'g':
@@ -484,8 +498,6 @@ class LoblawsProduct(TimeStampedModel):
     """
 
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name="loblaws_product")
-    # TODO: Implement upload_to for image_directory because right now the paths are stored as straight up strings
-    #  including the root. This is not portable at all and will cause issues whenever the server migration occurs.
     upc_list = ArrayField(models.CharField(max_length=MD_CHAR), blank=True, null=True)
 
     # This JSON data is retrieved from the Loblaws API

@@ -171,6 +171,13 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
                                                                   predicted_category.verified)
         predicted_category.verified_by = user
         predicted_category.save()
+
+        # Store the generic relationship between product code and category
+        product_mapping, created = models.CategoryProductCodeMappingSupport.objects.get_or_create(
+            product_code=instance.product_code)
+        product_mapping.category = predicted_category.manual_category
+        product_mapping.save()
+
         return instance
 
     class Meta:

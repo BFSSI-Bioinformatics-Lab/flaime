@@ -138,7 +138,7 @@ class AdvancedProductViewSet(viewsets.ModelViewSet, UpdateModelMixin):
 
     ## Predicted category filtering
 
-    - Filter on predicted_category_1 entries, e'.g. `?predicted_category=Beverages`
+    - Filter on predicted_category_1 entries, e'.g. `?category=Beverages`
 
     """
     serializer_class = serializers.AdvancedProductSerializer
@@ -150,7 +150,7 @@ class AdvancedProductViewSet(viewsets.ModelViewSet, UpdateModelMixin):
         name_contains = query_params.get('name_contains', None)
         brand_contains = query_params.get('brand_contains', None)
         recent = query_params.get('recent', None)
-        predicted_category = query_params.get('predicted_category', None)
+        predicted_category = query_params.get('category', None)
 
         queryset = models.Product.objects.all()
 
@@ -198,8 +198,8 @@ class ProductNameViewSet(viewsets.ModelViewSet):
 
 
 class PredictedCategoryViewSet(viewsets.ModelViewSet, UpdateModelMixin):
-    serializer_class = serializers.PredictedCategorySerializer
-    queryset = models.PredictedCategory.objects.all().order_by('id')
+    serializer_class = serializers.CategorySerializer
+    queryset = models.Category.objects.all().order_by('id')
 
 
 class PredictedCategoryNameViewSet(viewsets.ModelViewSet):
@@ -214,7 +214,7 @@ class PredictedCategoryNameViewSet(viewsets.ModelViewSet):
         disable_pagination = self.request.query_params.get('disable_pagination', None)
         if disable_pagination:
             self.pagination_class = None
-        query = models.PredictedCategory.objects.filter(predicted_category_1__icontains=search).order_by(
+        query = models.Category.objects.filter(predicted_category_1__icontains=search).order_by(
             'predicted_category_1').distinct('predicted_category_1')
         return query
 

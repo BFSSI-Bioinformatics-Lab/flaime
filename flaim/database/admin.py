@@ -18,5 +18,5 @@ admin.site.register(models.AmazonSearchResult)
 admin.site.register(models.FrontOfPackLabel)
 admin.site.register(models.NutritionLabelClassification)
 
-admin.site.register(models.PredictedCategory)
+admin.site.register(models.Category)
 admin.site.register(models.CategoryProductCodeMappingSupport)

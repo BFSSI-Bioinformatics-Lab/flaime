@@ -101,7 +101,7 @@ def get_plot_df():
     products = models.Product
     nutrition_facts = models.NutritionFacts
     df1 = pd.DataFrame(list(products.objects
-                            .annotate(category_text=F('predicted_category__predicted_category_1'))
+                            .annotate(category_text=F('category__predicted_category_1'))
                             .filter(most_recent=True)
                             .values()))
     df2 = pd.DataFrame(list(nutrition_facts.objects.filter(product__most_recent=True).values()))

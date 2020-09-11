@@ -5,8 +5,10 @@ from django.utils import timezone
 from django.conf import settings
 from django.db import IntegrityError
 from django.core.management.base import BaseCommand
-from flaim.database.models import Product, LoblawsProduct, NutritionFacts, ScrapeBatch, ProductImage
 from tqdm import tqdm
+
+from flaim.database.models import Product, LoblawsProduct, NutritionFacts, ScrapeBatch, ProductImage, Category
+from flaim.data_loaders.management.accessories import find_curated_category
 
 
 # TODO: Implement automatic scanning/calling of this script upon finding new data
@@ -353,6 +355,13 @@ class Command(BaseCommand):
 
             if not c:
                 nutrition_facts.changeReason = CHANGE_REASON
+
+            # Create category object and store manual category if available
+            curated_category = find_curated_category(obj.product_code)
+            if curated_category is not None:
+                category = Category.objects.create(manual_category=curated_category)
+                category.verified = True
+                obj.category = category
 
             # Commit to DB
             obj.save()

@@ -76,17 +76,17 @@
                 <td class="row-label">
                   Category
                 </td>
-                {% if product.predicted_category.manual_category %}
+                {% if product.category.manual_category %}
                   <td>
-                    <a href="/reports/category/{{ product.predicted_category.manual_category }}/">{{ product.predicted_category.manual_category }}</a>
-                    <p class="text text-info">Category verified by: {{ product.predicted_category.verified_by }}</p>
+                    <a href="/reports/category/{{ product.category.manual_category }}/">{{ product.category.manual_category }}</a>
+                    <p class="text text-info">Category verified by: {{ product.category.verified_by }}</p>
                   </td>
 
                 {% else %}
                   <td>
-                    <a href="/reports/category/{{ product.predicted_category.predicted_category_1 }}/">{{ product.predicted_category.predicted_category_1 }}</a>
+                    <a href="/reports/category/{{ product.category.predicted_category_1 }}/">{{ product.category.predicted_category_1 }}</a>
                     <p class="{{ confidence_styling }}">
-                      Prediction confidence: {{ product.predicted_category.confidence_1|floatformat:2 }}</p>
+                      Prediction confidence: {{ product.category.confidence_1|floatformat:2 }}</p>
                   </td>
                 {% endif %}
               </tr>

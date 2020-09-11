@@ -60,11 +60,11 @@ class NutritionFactsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class PredictedCategorySerializer(serializers.ModelSerializer):
+class CategorySerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
 
     class Meta:
-        model = models.PredictedCategory
+        model = models.Category
         fields = '__all__'
 
 
@@ -74,7 +74,7 @@ class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadi
     id = serializers.ReadOnlyField()
     loblaws_product = LoblawsProductSerializer()
     walmart_product = WalmartProductSerializer()
-    predicted_category = PredictedCategorySerializer()
+    category = CategorySerializer()
     batch = ScrapeBatchSerializer()
     scrape_date = serializers.ReadOnlyField(source='batch.scrape_date')
 
@@ -86,18 +86,18 @@ class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadi
         ]
         fields = ['id', 'url', 'created', 'modified', 'product_code', 'description', 'breadcrumbs_array', 'name',
                   'brand', 'store', 'price', 'upc_code', 'nutrition_available', 'scrape_date',
-                  'batch', 'predicted_category'] + reverse_relationships
+                  'batch', 'category'] + reverse_relationships
 
 
 class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixin):
     _SELECT_RELATED_FIELDS = ['loblaws_product', 'walmart_product']
 
-    # Add predicted_category field
+    # Add category field
 
     id = serializers.ReadOnlyField()
     loblaws_product = LoblawsProductSerializer()
     walmart_product = WalmartProductSerializer()
-    predicted_category = PredictedCategorySerializer()
+    category = CategorySerializer()
     batch = ScrapeBatchSerializer()
     scrape_date = serializers.ReadOnlyField(source='batch.scrape_date')
     url = serializers.HyperlinkedIdentityField(view_name='products-detail', lookup_field='pk')
@@ -108,7 +108,7 @@ class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixi
             'loblaws_product',
             'walmart_product',
             'batch',
-            'predicted_category'
+            'category'
         ]
         fields = ['id', 'url', 'created', 'modified', 'product_code', 'description', 'breadcrumbs_array', 'name',
                   'brand', 'store', 'price', 'upc_code',
@@ -142,7 +142,7 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     loblaws_product = LoblawsProductSerializer()
     walmart_product = WalmartProductSerializer()
     nutrition_facts = NutritionFactsSerializer()
-    predicted_category = PredictedCategorySerializer()
+    category = CategorySerializer()
     images = serializers.SlugRelatedField(many=True, read_only=True, slug_field='image_string')
     url = serializers.HyperlinkedIdentityField(view_name='advanced_products-detail', lookup_field='pk')
 
@@ -158,24 +158,21 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         """
 
         # Check if the validated_data dict is empty/doesn't contain expected results
-        if 'predicted_category' not in validated_data:
+        if 'category' not in validated_data:
             validated_data = self.initial_data['data'][str(self.data['id'])]
 
-        predicted_category_data = validated_data.pop('predicted_category')
-        predicted_category = instance.predicted_category
-        user = User.objects.get(username=predicted_category_data.get('user', predicted_category.verified_by))
-
-        predicted_category.manual_category = predicted_category_data.get('manual_category',
-                                                                         predicted_category.manual_category)
-        predicted_category.verified = predicted_category_data.get('verified',
-                                                                  predicted_category.verified)
-        predicted_category.verified_by = user
-        predicted_category.save()
+        predicted_category_data = validated_data.pop('category')
+        category = instance.category
+        user = User.objects.get(username=predicted_category_data.get('user', category.verified_by))
+        category.manual_category = predicted_category_data.get('manual_category', category.manual_category)
+        category.verified = predicted_category_data.get('verified', category.verified)
+        category.verified_by = user
+        category.save()
 
         # Store the generic relationship between product code and category
         product_mapping, created = models.CategoryProductCodeMappingSupport.objects.get_or_create(
             product_code=instance.product_code)
-        product_mapping.category = predicted_category.manual_category
+        product_mapping.category = category.manual_category
         product_mapping.save()
 
         return instance
@@ -187,7 +184,7 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
             'loblaws_product',
             'walmart_product',
             'nutrition_facts',
-            'predicted_category',
+            'category',
         ]
         fields = ['id', 'url', 'product_code', 'name', 'brand', 'store', 'price',
                   'upc_code', 'images'] + reverse_relationships
@@ -222,7 +219,7 @@ class PredictedCategoryNameSerializer(serializers.ModelSerializer):
     text = serializers.CharField(source='predicted_category_1')
 
     class Meta:
-        model = models.PredictedCategory
+        model = models.Category
         fields = ['id', 'text']
 
 

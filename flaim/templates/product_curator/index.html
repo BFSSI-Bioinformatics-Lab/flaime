@@ -61,17 +61,17 @@
                   },
                   {
                     label: "Predicted Category",
-                    name: "predicted_category.predicted_category_1",
+                    name: "category.predicted_category_1",
                     type: "select",
                     options: AVAILABLE_CATEGORIES
                   },
                   {
                     label: "Verified?",
-                    name: "predicted_category.verified"
+                    name: "category.verified"
                   },
                   {
                     label: "Manual Category",
-                    name: "predicted_category.manual_category",
+                    name: "category.manual_category",
                     type: "select",
                     options: AVAILABLE_CATEGORIES
                   }]
@@ -84,10 +84,10 @@
           Sets the manual category field, sets verified=True, and makes sure the original predicted_category_1 field
           does not get overwritten.
            */
-          data.data[key]['predicted_category']['user'] = "{{ user }}"
-          data.data[key]['predicted_category']['verified'] = true
-          data.data[key]['predicted_category']['manual_category'] = data.data[key]['predicted_category']['manual_category']
-          delete data.data[key]['predicted_category']['predicted_category_1']
+          data.data[key]['category']['user'] = "{{ user }}"
+          data.data[key]['category']['verified'] = true
+          data.data[key]['category']['manual_category'] = data.data[key]['category']['manual_category']
+          delete data.data[key]['category']['predicted_category_1']
         })
       })
 
@@ -160,19 +160,19 @@
                   {data: "brand"},
                   {data: "store"},
                   {
-                    data: "predicted_category.manual_category",
+                    data: "category.manual_category",
                     defaultContent: "N/A",
                     className: "editable",
                     render: renderManualCategory
                   },
                   {
-                    data: "predicted_category.predicted_category_1",
+                    data: "category.predicted_category_1",
                     defaultContent: "",
                     {#className: "editable",#}
                     {#render: editIcon#}
                   },
                   {
-                    data: "predicted_category.confidence_1",
+                    data: "category.confidence_1",
                     defaultContent: "",
                     {#className: "editable",#}
                     render: renderConfidence

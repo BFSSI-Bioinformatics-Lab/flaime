@@ -99,7 +99,7 @@ class ScrapeBatch(models.Model):
         verbose_name_plural = 'Scrape Batches'
 
 
-class PredictedCategory(TimeStampedModel):
+class Category(TimeStampedModel):
     """
     predicted_category_1, 2 and 3 correspond to the top 3 predictions
 
@@ -125,7 +125,12 @@ class PredictedCategory(TimeStampedModel):
     model_verison = models.CharField(max_length=SM_CHAR, blank=True, null=True)
 
     def __str__(self):
-        return f'{self.predicted_category_1} ({self.confidence_1})'
+        """
+        Return manual category if available, otherwise return the best guess.
+        """
+        if self.manual_category is None:
+            return f'{self.predicted_category_1} ({self.confidence_1})'
+        return self.manual_category
 
     class Meta:
         verbose_name = 'Predicted Category'
@@ -162,7 +167,7 @@ class Product(TimeStampedModel):
     nielsen_product = models.BooleanField(blank=True, null=True)
     url = models.CharField(max_length=LG_CHAR, blank=True, null=True)
 
-    predicted_category = models.ForeignKey(PredictedCategory, on_delete=models.CASCADE, blank=True, null=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True, null=True)
 
     history = HistoricalRecords(related_name='product_history')
 

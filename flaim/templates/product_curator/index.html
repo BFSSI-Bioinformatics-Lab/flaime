@@ -18,6 +18,7 @@
       <th>Store</th>
       <th>Manual Category</th>
       <th>Top Predicted Category</th>
+      <th>Prediction Confidence</th>
     </tr>
     </thead>
   </table>
@@ -119,6 +120,14 @@
       }
 
 
+      const renderConfidence = function (data, type, row) {
+        if (type === 'display') {
+          return +data.toFixed(2)  // Round to two digits
+        }
+        return data
+      }
+
+
       let table = $("#products").DataTable(
               {
                 dom: "Bfrltip",
@@ -161,7 +170,13 @@
                     defaultContent: "",
                     {#className: "editable",#}
                     {#render: editIcon#}
-                  }
+                  },
+                  {
+                    data: "predicted_category.confidence_1",
+                    defaultContent: "",
+                    {#className: "editable",#}
+                    render: renderConfidence
+                  },
                 ],
                 keys: {
                   columns: ':not(:first-child)',

@@ -127,7 +127,7 @@ class Category(TimeStampedModel):
     @property
     def best_category(self):
         if self.manual_category is None:
-            return f'{self.predicted_category_1} ({self.confidence_1:.2f})'
+            return self.predicted_category_1
         return self.manual_category
 
     def __str__(self):

@@ -5,10 +5,14 @@ from django.utils import timezone
 from django.conf import settings
 from django.db import IntegrityError
 from django.core.management.base import BaseCommand
+from django.contrib.auth import get_user_model
+
 from tqdm import tqdm
 
 from flaim.database.models import Product, LoblawsProduct, NutritionFacts, ScrapeBatch, ProductImage, Category
 from flaim.data_loaders.management.accessories import find_curated_category
+
+User = get_user_model()
 
 
 # TODO: Implement automatic scanning/calling of this script upon finding new data
@@ -361,6 +365,7 @@ class Command(BaseCommand):
             if curated_category is not None:
                 category = Category.objects.create(manual_category=curated_category)
                 category.verified = True
+                category.verified_by = User.objects.get(username="admin")
                 obj.category = category
 
             # Commit to DB

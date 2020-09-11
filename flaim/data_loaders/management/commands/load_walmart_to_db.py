@@ -8,6 +8,9 @@ from tqdm import tqdm
 
 from flaim.database.models import Product, WalmartProduct, NutritionFacts, ProductImage, ScrapeBatch, Category
 from flaim.data_loaders.management.accessories import find_curated_category
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 # TODO: Implement automatic scanning/calling of this script upon finding new data
 
@@ -151,6 +154,7 @@ class Command(BaseCommand):
             if curated_category is not None:
                 category = Category.objects.create(manual_category=curated_category)
                 category.verified = True
+                category.verified_by = User.objects.get(username="admin")
                 product.category = category
 
             product.save()

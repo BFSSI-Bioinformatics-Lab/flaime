@@ -127,10 +127,27 @@
         return data
       }
 
+      // Per-column filtering
+      $('#products thead tr').clone(true).appendTo('#products thead');
+      $('#products thead tr:eq(1) th').each(function (i) {
+        let title = $(this).text();
+        $(this).html('<input type="text" placeholder="Filter" style="width: 100%" />');
+        $('input', this).on('keyup change', function () {
+          if (table.column(i).search() !== this.value) {
+            table
+                    .column(i)
+                    .search(this.value)
+                    .draw();
+          }
+        });
+      });
+
 
       let table = $("#products").DataTable(
               {
                 dom: "Bfrltip",
+                orderCellsTop: true,
+                fixedHeader: true,
                 serverSide: true,
                 processing: false,
                 buttons: [
@@ -144,7 +161,7 @@
                   },
                   {
                     searchable: false,
-                    targets: [0, 1]
+                    targets: [1]
                   }
                 ],
                 columns: [

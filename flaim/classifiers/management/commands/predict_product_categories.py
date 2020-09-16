@@ -1,6 +1,9 @@
 import pandas as pd
 from pathlib import Path
 from django.core.management.base import BaseCommand
+from django.contrib.auth import get_user_model
+
+from flaim.data_loaders.management.accessories import find_curated_category
 from flaim.database.models import Product, Category
 from flaim.classifiers.category_prediction import CategoryPredictor
 from flaim.classifiers.category_preprocessing import FLAIME
@@ -8,6 +11,7 @@ from flaim.database import models
 from tqdm import tqdm
 
 CATEGORY_PREDICTOR_MODEL = Path(__file__).parents[2] / 'data' / 'category_predictor.pkl'
+User = get_user_model()
 
 
 class Command(BaseCommand):
@@ -48,3 +52,16 @@ class Command(BaseCommand):
             o = Product.objects.get(id=row['id'])
             o.category = predicted_category
             o.save()
+
+        # Iterate through all most_recent=True products and set their manual category if it is already known
+        # in the database
+        for obj in tqdm(Product.objects.filter(most_recent=True), desc="Assigning known categories"):
+            curated_category = find_curated_category(obj.product_code)
+            if curated_category is not None:
+                category = obj.category
+                category.manual_category = curated_category
+                category.verified = True
+                category.verified_by = User.objects.get(username="admin")
+                category.save()
+                obj.category = category
+                obj.save()

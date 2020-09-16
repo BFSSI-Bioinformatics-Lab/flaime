@@ -1,8 +1,13 @@
 from django.contrib import admin
 from flaim.database import models
 
+
 # Register your models here.
-admin.site.register(models.Product)
+class ProductAdmin(admin.ModelAdmin):
+    raw_id_fields = ('batch', 'category')
+
+
+admin.site.register(models.Product, ProductAdmin)
 admin.site.register(models.ScrapeBatch)
 admin.site.register(models.NutritionFacts)
 admin.site.register(models.ProductImage)

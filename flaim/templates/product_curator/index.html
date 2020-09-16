@@ -114,6 +114,9 @@
       const renderImage = function (data, type, row) {
         if (type === 'display') {
           let image = data.slice(-1)[0]  // Grab last image from array
+          if (image === undefined) {
+            return `<i class="fas fa-exclamation-triangle"></i>`
+          }
           return `<img class="img-thumbnail" src=${image} width=80 height=80>`
         }
         return data

@@ -225,7 +225,7 @@ class Product(TimeStampedModel):
     @property
     def images(self):
         """ Returns all images associated with the product"""
-        return ProductImage.objects.filter(product=self)
+        return ProductImage.objects.filter(product__product_code=self.product_code)
 
     def __str__(self):
         return f"{self.product_code}: {self.name}"

@@ -93,6 +93,7 @@ class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadi
     loblaws_product = LoblawsProductSerializer()
     walmart_product = WalmartProductSerializer()
     category = CategorySerializer()
+    best_category = serializers.ReadOnlyField(source='category.best_category')
     batch = ScrapeBatchSerializer()
     scrape_date = serializers.ReadOnlyField(source='batch.scrape_date')
 
@@ -104,7 +105,7 @@ class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadi
         ]
         fields = ['id', 'url', 'created', 'modified', 'product_code', 'description', 'breadcrumbs_array', 'name',
                   'brand', 'store', 'price', 'upc_code', 'nutrition_available', 'scrape_date',
-                  'batch', 'category'] + reverse_relationships
+                  'batch', 'category', 'best_category'] + reverse_relationships
 
 
 class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixin):

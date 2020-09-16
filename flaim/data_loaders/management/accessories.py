@@ -36,7 +36,6 @@ def get_atwater_results(df: pd.DataFrame) -> pd.Series:
         return 'none'
 
     def final_pass(row):
-        pass_test = False
         if row['pass']:
             return test_results[0]
         elif row['pass-fiber']:

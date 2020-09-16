@@ -30,6 +30,8 @@
   <script src="{% static 'axios/dist/axios.min.js' %}"></script>
 
   <script>
+    // TODO: Add 'verify' button to allow user to quickly confirm a predicted category
+    // TODO: Add subcategory support
 
     // This displays options for the user dropdown. Extend as necessary.
     const AVAILABLE_CATEGORIES =
@@ -58,6 +60,10 @@
                   {
                     label: "ID",
                     name: "id"
+                  },
+                  {
+                    label: "Image",
+                    name: "images"
                   },
                   {
                     label: "Predicted Category",
@@ -116,8 +122,9 @@
           let image = data.slice(-1)[0]  // Grab last image from array
           if (image === undefined) {
             return `<i class="fas fa-exclamation-triangle"></i>`
+          } else {
+            return `<img class="img-thumbnail" src=${image} width=80 height=80>`
           }
-          return `<img class="img-thumbnail" src=${image} width=80 height=80>`
         }
         return data
       }
@@ -139,7 +146,7 @@
           if (table.column(i).search() !== this.value) {
             table
                     .column(i)
-                    .search(this.value)
+                    .search(`${this.value}`, true, true)
                     .draw();
           }
         });

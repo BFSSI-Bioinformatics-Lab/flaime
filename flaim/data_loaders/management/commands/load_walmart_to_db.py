@@ -149,14 +149,6 @@ class Command(BaseCommand):
             # Change reason
             product.changeReason = CHANGE_REASON
 
-            # Create category object and store manual category if available
-            curated_category = find_curated_category(product.product_code)
-            if curated_category is not None:
-                category = Category.objects.create(manual_category=curated_category)
-                category.verified = True
-                category.verified_by = User.objects.get(username="admin")
-                product.category = category
-
             product.save()
 
             # Walmart fields

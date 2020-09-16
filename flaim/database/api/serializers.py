@@ -74,16 +74,22 @@ class NutritionFactsSerializer(serializers.ModelSerializer):
 
 class CategorySerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
-    best_category = serializers.ReadOnlyField()
+    calculated_best_category = serializers.SerializerMethodField()
     verified_by = UserSerializer()
 
     class Meta:
         model = models.Category
         fields = (
-            'id', 'best_category',
+            'id',
             'predicted_category_1', 'confidence_1', 'predicted_category_2', 'confidence_2', 'predicted_category_3',
-            'confidence_3', 'manual_category', 'verified', 'verified_by', 'model_version'
+            'confidence_3', 'manual_category', 'verified', 'verified_by', 'model_version', 'calculated_best_category'
         )
+
+    @staticmethod
+    def get_calculated_best_category(obj):
+        if obj.manual_category is None:
+            return obj.predicted_category_1
+        return obj.manual_category
 
 
 class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixin):
@@ -93,7 +99,6 @@ class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadi
     loblaws_product = LoblawsProductSerializer()
     walmart_product = WalmartProductSerializer()
     category = CategorySerializer()
-    best_category = serializers.ReadOnlyField(source='category.best_category')
     batch = ScrapeBatchSerializer()
     scrape_date = serializers.ReadOnlyField(source='batch.scrape_date')
 
@@ -105,7 +110,7 @@ class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadi
         ]
         fields = ['id', 'url', 'created', 'modified', 'product_code', 'description', 'breadcrumbs_array', 'name',
                   'brand', 'store', 'price', 'upc_code', 'nutrition_available', 'scrape_date',
-                  'batch', 'category', 'best_category'] + reverse_relationships
+                  'batch', 'category'] + reverse_relationships
 
 
 class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixin):

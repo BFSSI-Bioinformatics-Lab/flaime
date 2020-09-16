@@ -122,7 +122,12 @@
               render: $.fn.dataTable.render.hyperlink_store()
             },
             {
-              data: "category.best_category",
+              // This is a special field that relies on the CategorySerializer.get_calculated_best_category()
+              // method to work. This is what you need to do if you want sortable/filterable columns for calculated
+              // fields.
+              data: "category.calculated_best_category",
+              // Fields to feed to method for calculating the best category
+              name: "category.predicted_category_1, category.manual_category",
               defaultContent: "",
               render: $.fn.dataTable.render.hyperlink_category()
             },

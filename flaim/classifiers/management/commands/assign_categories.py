@@ -38,8 +38,7 @@ class Command(BaseCommand):
 
         data = FLAIME(models.Product, models.NutritionFacts, most_recent_bool)
         predictions = predictor.predict(data)
-        blank_name = ''
-        blank_product = pd.DataFrame.sparse.from_spmatrix(predictor.vectorizers['name'].transform([blank_name]),
+        blank_product = pd.DataFrame.sparse.from_spmatrix(predictor.vectorizers['name'].transform(['']),
                                                           columns=predictor.vectorizers['name'].get_feature_names(),
                                                           index=[0])
         unknown_p = predictor.model.predict(blank_product).max(axis=1)[0]

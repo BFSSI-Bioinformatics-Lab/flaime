@@ -38,6 +38,13 @@ class Command(BaseCommand):
 
         data = FLAIME(models.Product, models.NutritionFacts, most_recent_bool)
         predictions = predictor.predict(data)
+        blank_name = ''
+        blank_product = pd.DataFrame.sparse.from_spmatrix(predictor.vectorizers['name'].transform([blank_name]),
+                                                          columns=predictor.vectorizers['name'].get_feature_names(),
+                                                          index=[0])
+        unknown_p = predictor.model.predict(blank_product).max(axis=1)[0]
+        unknowns = predictions.loc[predictions['Conf 1'] == unknown_p, 'Pred 1'].index
+        predictions.loc[unknowns, 'Pred 1'] = pd.Series('Unknown', index=unknowns)
 
         df = pd.concat([data.product_ids, data.names, predictions], axis=1)
         self.stdout.write(self.style.SUCCESS(f"Found {len(df)} products to update"))

@@ -174,7 +174,7 @@ class Product(TimeStampedModel):
     url = models.CharField(max_length=LG_CHAR, blank=True, null=True)
     atwater_test_pass = models.BooleanField(blank=True, null=True)
 
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True, null=True)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, blank=True, null=True)
 
     history = HistoricalRecords(related_name='product_history')
 
@@ -255,6 +255,7 @@ class CategoryProductCodeMappingSupport(models.Model):
     product_code = models.CharField(max_length=MD_CHAR, unique=True)
     PRODUCT_CATEGORIES_TUPLES = [(x, x) for x in PRODUCT_CATEGORIES]
     category = models.CharField(max_length=MD_CHAR, choices=PRODUCT_CATEGORIES_TUPLES)
+    verified_by = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return f'{self.product_code}: {self.category}'

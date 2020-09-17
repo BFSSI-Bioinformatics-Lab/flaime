@@ -197,6 +197,7 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         product_mapping, created = models.CategoryProductCodeMappingSupport.objects.get_or_create(
             product_code=instance.product_code)
         product_mapping.category = category.manual_category
+        product_mapping.verified_by = user
         product_mapping.save()
 
         return instance
@@ -234,7 +235,7 @@ class BrandNameSerializer(serializers.ModelSerializer):
         fields = ['id', 'text']
 
 
-class PredictedCategoryNameSerializer(serializers.ModelSerializer):
+class CategoryNameSerializer(serializers.ModelSerializer):
     """
     Simple serializer for storing only predicted category names.
     Fields are named for compatibiltiy with select2

@@ -56,12 +56,12 @@ class Command(BaseCommand):
         # Iterate through all most_recent=True products and set their manual category if it is already known
         # in the database
         for obj in tqdm(Product.objects.filter(most_recent=True), desc="Assigning known categories"):
-            curated_category = find_curated_category(obj.product_code)
+            curated_category, verified_by = find_curated_category(obj.product_code)
             if curated_category is not None:
                 category = obj.category
                 category.manual_category = curated_category
                 category.verified = True
-                category.verified_by = User.objects.get(username="admin")
+                category.verified_by = verified_by
                 category.save()
                 obj.category = category
                 obj.save()

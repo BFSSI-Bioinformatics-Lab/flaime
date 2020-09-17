@@ -198,17 +198,17 @@ class ProductNameViewSet(viewsets.ModelViewSet):
             return models.Product.objects.all()
 
 
-class PredictedCategoryViewSet(viewsets.ModelViewSet, UpdateModelMixin):
+class CategoryViewSet(viewsets.ModelViewSet, UpdateModelMixin):
     serializer_class = serializers.CategorySerializer
     queryset = models.Category.objects.all().order_by('id')
 
 
-class PredictedCategoryNameViewSet(viewsets.ModelViewSet):
+class CategoryNameViewSet(viewsets.ModelViewSet):
     """
     ViewSet for autocomplete brand dropdown
     """
     pagination_class = Select2PaginationClass
-    serializer_class = serializers.PredictedCategoryNameSerializer
+    serializer_class = serializers.CategoryNameSerializer
 
     def get_queryset(self):
         search = self.request.query_params.get('search', '')

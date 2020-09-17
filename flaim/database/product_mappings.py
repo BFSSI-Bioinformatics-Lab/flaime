@@ -32,7 +32,8 @@ PRODUCT_CATEGORIES = [
     "Soups",
     "Sugars and Sweets",
     "Vegetables",
-    "Not Food"
+    "Not Food",
+    "Unknown"
 ]
 
 VALID_NUTRIENT_DICT = {

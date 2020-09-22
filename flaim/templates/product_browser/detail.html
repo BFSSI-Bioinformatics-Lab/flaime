@@ -91,6 +91,10 @@
                 {% endif %}
               </tr>
               <tr>
+                <td class="row-label">Atwater Result</td>
+                <td>{{ product.atwater_result|render_atwater|safe }}</td>
+              </tr>
+              <tr>
                 <td class="row-label">Breadcrumbs</td>
                 <td>{{ product.breadcrumbs_array|render_breadcrumbs|safe }}</td>
               </tr>

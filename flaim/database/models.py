@@ -99,6 +99,49 @@ class ScrapeBatch(models.Model):
         verbose_name_plural = 'Scrape Batches'
 
 
+class ReferenceCategorySupport(models.Model):
+    """
+    Support table to store short and long forms of reference categories according to
+    https://www.canada.ca/en/health-canada/services/technical-documents-labelling-requirements/table-reference-amounts-food.html
+    """
+    category_id = models.CharField(max_length=SM_CHAR)
+    category = models.CharField(max_length=MD_CHAR)
+
+    subcategory_id = models.CharField(max_length=SM_CHAR)
+    subcategory = models.CharField(max_length=MD_CHAR)
+
+    reference_amount = models.FloatField(blank=True, null=True)  # numeric value
+    reference_amount_units = models.CharField(max_length=SM_CHAR, blank=True, null=True)  # e.g. g or mL
+    reference_amount_extra = models.CharField(max_length=SM_CHAR, blank=True, null=True)  # e.g. "fresh or frozen"
+    reference_amount_raw = models.CharField(max_length=SM_CHAR)  # Raw unparsed value, stored for reference
+
+    def parse_reference_amount(self) -> [float, str, str]:
+        """
+        parses reference_amount_raw into reference_amount, reference_amount_units and reference_amount_extra
+        The code here is stupid but the source data should not change so the brittle logic is good enough.
+        Original raw data: flaim/docs/reference_amounts_2016.csv
+        """
+        val = self.reference_amount_raw.strip()
+        values = val.split(" ", 2)
+        reference_amount = values[0].strip()
+        reference_amount_units = values[1].strip()  # g or mL
+
+        # Grab the extra value if available (e.g. "cooked", "raw")
+        if len(values) > 2:
+            reference_amount_extra = values[3]
+        else:
+            reference_amount_extra = None
+
+        # Abort if it's one of the weird values (e.g. "Amount to make 250 mL of drink")
+        if reference_amount_units not in ['g', 'mL']:
+            reference_amount, reference_amount_units, reference_amount_extra = None, None, None
+
+        return reference_amount, reference_amount_units, reference_amount_extra
+
+    def __str__(self):
+        return f'{self.category_id}: {self.category}'
+
+
 class Category(TimeStampedModel):
     """
     predicted_category_1, 2 and 3 correspond to the top 3 predictions
@@ -107,7 +150,6 @@ class Category(TimeStampedModel):
     "verified" represents whether or not the prediction has been manually verified/confirmed by a user
     "verified_by" represents User who verified the category
     """
-
     predicted_category_1 = models.CharField(max_length=MD_CHAR, blank=True, null=True)
     confidence_1 = models.FloatField(blank=True, null=True)
 
@@ -139,8 +181,49 @@ class Category(TimeStampedModel):
         return self.manual_category
 
     class Meta:
-        verbose_name = 'Predicted Category'
-        verbose_name_plural = 'Predicted Categories'
+        verbose_name = 'Category'
+        verbose_name_plural = 'Categories'
+
+
+class AssignedSubcategory(TimeStampedModel):
+    """
+    Mirror of the Category model intended to capture subcategory values for products.
+    """
+    parent_category = models.ForeignKey(ReferenceCategorySupport, on_delete=models.CASCADE)
+
+    predicted_subcategory_1 = models.CharField(max_length=MD_CHAR, blank=True, null=True)
+    confidence_1 = models.FloatField(blank=True, null=True)
+
+    predicted_subcategory_2 = models.CharField(max_length=MD_CHAR, blank=True, null=True)
+    confidence_2 = models.FloatField(blank=True, null=True)
+
+    predicted_subcategory_3 = models.CharField(max_length=MD_CHAR, blank=True, null=True)
+    confidence_3 = models.FloatField(blank=True, null=True)
+
+    # This field allows for a user to manually select a category/confirm the predicted category
+    manual_subcategory = models.CharField(max_length=MD_CHAR, blank=True, null=True)
+    verified = models.BooleanField(default=False)
+    verified_by = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+
+    model_version = models.CharField(max_length=SM_CHAR, blank=True, null=True)
+
+    @property
+    def best_subcategory(self):
+        if self.manual_subcategory is None:
+            return self.predicted_subcategory_1
+        return self.manual_subcategory
+
+    def __str__(self):
+        """
+        Return manual subcategory if available, otherwise return the best guess.
+        """
+        if self.manual_subcategory is None:
+            return f'{self.predicted_subcategory_1} ({self.confidence_1:.2f})'
+        return self.manual_subcategory
+
+    class Meta:
+        verbose_name = 'Subcategory'
+        verbose_name_plural = 'Subcategories'
 
 
 class Product(TimeStampedModel):
@@ -172,7 +255,7 @@ class Product(TimeStampedModel):
     unidentified_nft_format = models.BooleanField(default=False)  # Bool flag for whether the NFT is American or not
     nielsen_product = models.BooleanField(blank=True, null=True)
     url = models.CharField(max_length=LG_CHAR, blank=True, null=True)
-    atwater_test_pass = models.BooleanField(blank=True, null=True)
+    atwater_result = models.CharField(max_length=SM_CHAR, blank=True, null=True)
 
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, blank=True, null=True)
 

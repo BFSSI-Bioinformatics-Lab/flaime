@@ -1,0 +1,198 @@
+major_category_id,major_category,subcategory_id,subcategory,reference_amount
+A,Bakery Products,A.1,Bread,75 g
+A,Bakery Products,A.2,"Bun, tortilla, pita",55 g
+A,Bakery Products,A.3,"Bagel, naan, flatbread",85 g
+A,Bakery Products,A.4,"Brownie, dessert square",40 g
+A,Bakery Products,A.5,Heavy weight cake,125 g
+A,Bakery Products,A.6,Medium weight cake,80 g
+A,Bakery Products,A.7,Light weight cake,55 g
+A,Bakery Products,A.8,"Sweet roll, flaky pastry",55 g
+A,Bakery Products,A.9,Muffin,110 g
+A,Bakery Products,A.10,Cookie,30 g
+A,Bakery Products,A.11,Accompaniment cracker,20 g
+A,Bakery Products,A.12,Snack cracker,30 g
+A,Bakery Products,A.13,Dry bread,30 g
+A,Bakery Products,A.14,Toaster pastry,55 g
+A,Bakery Products,A.15,Ice cream cone,5 g
+A,Bakery Products,A.16,Crouton,7 g
+A,Bakery Products,A.17,"Pancake, waffle",75 g
+A,Bakery Products,A.18,Grain bar with filling or coating,40 g
+A,Bakery Products,A.19,Grain bar without filling or coating,30 g
+A,Bakery Products,A.20,Energy or protein bar,45 g
+A,Bakery Products,A.21,"Rice cake, corn cake",15 g
+A,Bakery Products,A.22,"Pie, tart",110 g
+A,Bakery Products,A.23,Pie crust,21 g
+A,Bakery Products,A.24,Pizza crust,55 g
+A,Bakery Products,A.25,Taco shell (hard),30 g
+B,Beverages,B.1,Carbonated or non-carbonated beverage ,375 mL
+B,Beverages,B.2,Alcoholic beverage,"188 mL wine, sangria, spritzer"
+B,Beverages,B.2,Alcoholic beverage,333 mL beer
+B,Beverages,B.2,Alcoholic beverage,333 mL other
+B,Beverages,B.3,Coffee,250 mL coffee
+B,Beverages,B.3,Coffee,30 mL espresso
+B,Beverages,B.4,Tea (hot),250 mL
+B,Beverages,B.5,Cocoa or chocolate beverage (hot),250 mL
+C,Cereals and Other Grain Products,C.1,Breakfast cereal (hot),40 g dry
+C,Cereals and Other Grain Products,C.1,Breakfast cereal (hot),250 mL prepared
+C,Cereals and Other Grain Products,C.2,Breakfast cereal (RTE) less than 20 g per 250 mL,15 g
+C,Cereals and Other Grain Products,C.3,Breakfast cereal (RTE) 20 to 42 g per 250 mL,30 g
+C,Cereals and Other Grain Products,C.4,Breakfast cereal (RTE) 43 g or more per 250 mL,55 g
+C,Cereals and Other Grain Products,C.5,"Bran, wheat germ, chia",15 g
+C,Cereals and Other Grain Products,C.6,"Flour, cornmeal",30 g
+C,Cereals and Other Grain Products,C.7,Rice or other grain,45 g dry
+C,Cereals and Other Grain Products,C.7,Rice or other grain,140 g cooked
+C,Cereals and Other Grain Products,C.8,Pasta without sauce,85 g dry
+C,Cereals and Other Grain Products,C.8,Pasta without sauce,215 g cooked
+C,Cereals and Other Grain Products,C.9,Pasta dry and RTE,25 g
+C,Cereals and Other Grain Products,C.10,Starch,10 g
+C,Cereals and Other Grain Products,C.11,Stuffing,100 g
+D,Dairy Products and Substitutes,D.1,"Cheese, cheese spread",30 g
+D,Dairy Products and Substitutes,D.2,Cottage cheese,125 g
+D,Dairy Products and Substitutes,D.3,Cheese as an ingredient,55 g
+D,Dairy Products and Substitutes,D.4,Hard cheese,15 g
+D,Dairy Products and Substitutes,D.5,"Quark, fresh cheese",100 g
+D,Dairy Products and Substitutes,D.6,Cream liquid,15 mL
+D,Dairy Products and Substitutes,D.7,Cream powder,2 g
+D,Dairy Products and Substitutes,D.8,Cream aerosol or whipped,15 g
+D,Dairy Products and Substitutes,D.9,Eggnog,125 mL
+D,Dairy Products and Substitutes,D.10,Milk evaporated or condensed,15 mL
+D,Dairy Products and Substitutes,D.11,"Milk, buttermilk",250 mL
+D,Dairy Products and Substitutes,D.12,Fermented dairy drinks,188 mL
+D,Dairy Products and Substitutes,D.13,Shakes,250 mL
+D,Dairy Products and Substitutes,D.14,Sour cream,30 mL
+D,Dairy Products and Substitutes,D.15,Yogurt,175 g
+E,Desserts,E.1,Ice cream in tub,188 mL
+E,Desserts,E.2,"Ice cream as cake, sandwich or cone",125 mL
+E,Desserts,E.3,"Ice cream as pop, bar or cup",75 mL
+E,Desserts,E.4,Sundae,250 mL
+E,Desserts,E.5,"Custard, gelatin, pudding",130 g
+F,Dessert Toppings and Fillings,F.1,Dessert topping,30 g
+F,Dessert Toppings and Fillings,F.2,"Frosting, icing",35 g
+F,Dessert Toppings and Fillings,F.3,Pie filling,83 mL
+G,Eggs and Egg Substitutes,G.1,Egg mixture,110 g
+G,Eggs and Egg Substitutes,G.2,"Egg in shell, liquid or dried",100 g
+G,Eggs and Egg Substitutes,G.3,Egg substitute,100 g
+H,Fats and Oils,H.1,"Butter, margarine",10 g
+H,Fats and Oils,H.2,Vegetable oil,10 mL
+H,Fats and Oils,H.3,Butter replacement (powder),2 g
+H,Fats and Oils,H.4,Salad dressing,30 mL
+H,Fats and Oils,H.5,Mayonnaise,15 mL
+H,Fats and Oils,H.6,Oil spray,0.5 g
+I,Marine and Fresh Water Animals,I.1,"Anchovy, caviar",15 g
+I,Marine and Fresh Water Animals,I.2,Marine or fresh water animal with sauce,140 g cooked
+I,Marine and Fresh Water Animals,I.3,Marine or fresh water animal without sauce,125 g raw
+I,Marine and Fresh Water Animals,I.3,Marine or fresh water animal without sauce,100 g cooked
+I,Marine and Fresh Water Animals,I.4,Marine or fresh water animal canned,55 g
+I,Marine and Fresh Water Animals,I.5,Marine or fresh water animal smoked or pickled,55 g
+J,Fruit and Fruit Juices,J.1,"Fruit fresh, frozen or canned",140 g
+J,Fruit and Fruit Juices,J.1,"Fruit fresh, frozen or canned",167 mL canned
+J,Fruit and Fruit Juices,J.2,"Blueberry, raspberry, blackberry",80 g
+J,Fruit and Fruit Juices,J.3,"Watermelon, cantaloupe, honeydew",150 g
+J,Fruit and Fruit Juices,J.4,Avocado,30 g
+J,Fruit and Fruit Juices,J.5,"Cranberry, lemon, lime",55 g
+J,Fruit and Fruit Juices,J.6,Apple sauce,110 g
+J,Fruit and Fruit Juices,J.6,Apple sauce,125 mL
+J,Fruit and Fruit Juices,J.7,Dried fruit,40 g
+J,Fruit and Fruit Juices,J.8,Candied or pickled fruit,30 g
+J,Fruit and Fruit Juices,J.9,Fruit for garnish,4 g
+J,Fruit and Fruit Juices,J.10,Fruit relish,60 mL
+J,Fruit and Fruit Juices,J.11,"Juice, juice substitute",250 mL
+J,Fruit and Fruit Juices,J.12,Juice as ingredient,5 mL
+K,Legumes,K.1,"Tofu, tempeh",85 g
+K,Legumes,K.2,"Bean, pea, lentil",35 g dry
+K,Legumes,K.2,"Bean, pea, lentil",125 mL cooked or canned
+L,"Meat, Poultry, Their Products and Substitutes",L.1,Pork rind or bacon,54 g uncooked
+L,"Meat, Poultry, Their Products and Substitutes",L.1,Pork rind or bacon,15 g cooked
+L,"Meat, Poultry, Their Products and Substitutes",L.2,"Beef, pork or poultry breakfast strip",30 g uncooked
+L,"Meat, Poultry, Their Products and Substitutes",L.2,"Beef, pork or poultry breakfast strip",15 g cooked
+L,"Meat, Poultry, Their Products and Substitutes",L.3,Dried meat or poultry,30 g
+L,"Meat, Poultry, Their Products and Substitutes",L.4,Luncheon meat,75 g uncooked
+L,"Meat, Poultry, Their Products and Substitutes",L.4,Luncheon meat,55 g cooked
+L,"Meat, Poultry, Their Products and Substitutes",L.5,Sausage,75 g uncooked
+L,"Meat, Poultry, Their Products and Substitutes",L.5,Sausage,55 g cooked
+L,"Meat, Poultry, Their Products and Substitutes",L.6,Meat or poultry without sauce,125 g raw
+L,"Meat, Poultry, Their Products and Substitutes",L.6,Meat or poultry without sauce,100 g cooked
+L,"Meat, Poultry, Their Products and Substitutes",L.7,"Patty, cutlet, ground meat",100 g raw
+L,"Meat, Poultry, Their Products and Substitutes",L.7,"Patty, cutlet, ground meat",60 g cooked
+L,"Meat, Poultry, Their Products and Substitutes",L.8,"Meat or poultry, cured, smoked or pickled",85 g raw
+L,"Meat, Poultry, Their Products and Substitutes",L.8,"Meat or poultry, cured, smoked or pickled",55 g cooked
+L,"Meat, Poultry, Their Products and Substitutes",L.9,Canned meat or poultry,55 g
+L,"Meat, Poultry, Their Products and Substitutes",L.10,Meat or poultry with sauce,140 g
+M,Miscellaneous Category,M.1,"Baking powder or soda, pectin, yeast",0.6 g
+M,Miscellaneous Category,M.2,Baking decoration,4 g
+M,Miscellaneous Category,M.3,"Breadcrumb, batter mix",30 g
+M,Miscellaneous Category,M.4,Cooking wine,30 mL
+M,Miscellaneous Category,M.5,Cocoa or carob powder,5 g
+M,Miscellaneous Category,M.6,Non-alcoholic drink mixer ,Amount to make 250 mL of drink
+M,Miscellaneous Category,M.7,Chewing gum,3 g
+M,Miscellaneous Category,M.8,Salad or potato topper,7 g
+M,Miscellaneous Category,M.9,"Salt, salt substitute, seasoning with salt",1 g
+M,Miscellaneous Category,M.10,Spice or herb without salt,0.5 g
+M,Miscellaneous Category,M.11,Coconut milk,83 mL
+M,Miscellaneous Category,M.12,Dried coconut flakes or shredded,15 g
+N,Combination Dishes,N.1,Combination dish measurable with a cup,300 g
+N,Combination Dishes,N.2,Combination dish not measurable with a cup,200 g
+N,Combination Dishes,N.3,Hors d'oeurve,85 g
+N,Combination Dishes,N.3,Hors d'oeurve,120 g with sauce
+O,Nuts and Seeds,O.1,Nut or seed not for snacking,30 g shelled
+O,Nuts and Seeds,O.2,Nut paste or cream,30 g
+O,Nuts and Seeds,O.3,Peanut or nut butter,15 g
+O,Nuts and Seeds,O.4,Nut flour,15 g
+P,"Potatoes, Sweet Potatoes and Yams",P.1,"French fries, fried potato",85 g frozen
+P,"Potatoes, Sweet Potatoes and Yams",P.1,"French fries, fried potato",70 g prepared
+P,"Potatoes, Sweet Potatoes and Yams",P.2,"Potato mashed, stuffed or with sauce",140 g
+P,"Potatoes, Sweet Potatoes and Yams",P.3,"Potato plain, fresh, canned or frozen",110 g fresh or frozen
+P,"Potatoes, Sweet Potatoes and Yams",P.3,"Potato plain, fresh, canned or frozen",125 g vacuum-packed
+P,"Potatoes, Sweet Potatoes and Yams",P.3,"Potato plain, fresh, canned or frozen",167 mL canned
+Q,Salads,Q.1,"Salad with egg, meat, fish, vegetable",100 g
+Q,Salads,Q.2,Gelatin salad,120 g
+Q,Salads,Q.3,Pasta or potato salad,140 g
+R,"Sauces, Dips, Gravies and Condiments",R.1,Sauce for dipping,30 mL
+R,"Sauces, Dips, Gravies and Condiments",R.2,"Dip or spread with vegetable, legume or dairy",30 g
+R,"Sauces, Dips, Gravies and Condiments",R.3,Major main entrée sauce,125 mL
+R,"Sauces, Dips, Gravies and Condiments",R.4,Minor main entrée sauce,60 mL
+R,"Sauces, Dips, Gravies and Condiments",R.5,Major condiment,15 mL
+R,"Sauces, Dips, Gravies and Condiments",R.6,Minor condiment,5 mL
+S,Snacks,S.1,"Chip, popcorn or snack with grain, pulse or fruit",50 g
+S,Snacks,S.2,Nut or seed for snacking,50 g shelled
+S,Snacks,S.3,Meat or poultry stick for snacking,20 g
+T,Soups,T.1,All varieties of soup,250 mL
+U,Sugars and Sweets,U.1,"Candy, chocolate",40 g
+U,Sugars and Sweets,U.2,After-dinner confection ,10 g
+U,Sugars and Sweets,U.3,"Hard, powder or liquid candy",15 g
+U,Sugars and Sweets,U.3,"Hard, powder or liquid candy",15 mL
+U,Sugars and Sweets,U.4,Baking candy,15 g
+U,Sugars and Sweets,U.5,Breath mint,2 g
+U,Sugars and Sweets,U.6,Roll-type or hard candy in dispenser package,5 g
+U,Sugars and Sweets,U.7,Confectioner's or icing sugar,30 g
+U,Sugars and Sweets,U.8,"Honey, molasses, bread spread",20 g
+U,Sugars and Sweets,U.9,"Jam, jelly, marmalade",15 mL
+U,Sugars and Sweets,U.10,Fruit leather,20 g
+U,Sugars and Sweets,U.11,Marshmallow,30 g
+U,Sugars and Sweets,U.12,Sugar,4 g
+U,Sugars and Sweets,U.13,Sugar substitute,Amount equivalent in sweetness to 4 g sugar
+U,Sugars and Sweets,U.14,Syrup as a topping,60 mL
+U,Sugars and Sweets,U.15,Syrup as an ingredient,30 mL
+V,Vegetables,V.1,Vegetable without sauce,85 g fresh or frozen
+V,Vegetables,V.1,Vegetable without sauce,125 mL canned
+V,Vegetables,V.2,Vegetable with sauce,110 g fresh or frozen
+V,Vegetables,V.2,Vegetable with sauce,125 mL canned
+V,Vegetables,V.3,Vegetable for garnish,4 g fresh or frozen
+V,Vegetables,V.3,Vegetable for garnish,5 mL canned
+V,Vegetables,V.4,"Chili pepper, green onion",30 g
+V,Vegetables,V.5,"Seaweed, dried mushroom",15 g
+V,Vegetables,V.6,Sprout,65 g
+V,Vegetables,V.7,Vegetable juice or drink,250 mL
+V,Vegetables,V.8,Olive,15 g
+V,Vegetables,V.9,"Vegetable in oil, pickle",30 g
+V,Vegetables,V.10,Relish,15 mL
+V,Vegetables,V.11,Vegetable paste,30 mL
+V,Vegetables,V.12,Vegetable sauce or purée,60 mL
+W,Baby Food,W.1,Cereal dry or instant,30 g
+W,Baby Food,W.2,"RTE cereal, cereal bar",20 g
+W,Baby Food,W.3,"Cookie, puff, yogurt melt",7 g
+W,Baby Food,W.4,"Strained or junior meat, fruit or vegetable",110 mL
+W,Baby Food,W.5,Combination dish (one to under four years of age),170 g
+W,Baby Food,W.6,All varieties of juice,125 mL
+W,Baby Food,W.7,Yogurt (one to under four years of age),100 g
+X,Meal Replacements and Nutritional Supplements,X.1,"Meal replacement, nutritional supplement",Amount required as per B.24.200 or B.24.201

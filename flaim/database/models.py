@@ -106,23 +106,21 @@ class ReferenceCategorySupport(models.Model):
     """
     category_id = models.CharField(max_length=SM_CHAR)
     category = models.CharField(max_length=MD_CHAR)
-
     subcategory_id = models.CharField(max_length=SM_CHAR)
     subcategory = models.CharField(max_length=MD_CHAR)
-
-    reference_amount = models.FloatField(blank=True, null=True)  # numeric value
-    reference_amount_units = models.CharField(max_length=SM_CHAR, blank=True, null=True)  # e.g. g or mL
-    reference_amount_extra = models.CharField(max_length=SM_CHAR, blank=True, null=True)  # e.g. "fresh or frozen"
     reference_amount_raw = models.CharField(max_length=SM_CHAR)  # Raw unparsed value, stored for reference
 
-    def parse_reference_amount(self) -> [float, str, str]:
+    def __str__(self):
+        return f'{self.category_id}: {self.category}'
+
+    @staticmethod
+    def parse_reference_amount(reference_amount_raw: str) -> [float, str, str]:
         """
         parses reference_amount_raw into reference_amount, reference_amount_units and reference_amount_extra
         The code here is stupid but the source data should not change so the brittle logic is good enough.
         Original raw data: flaim/docs/reference_amounts_2016.csv
         """
-        val = self.reference_amount_raw.strip()
-        values = val.split(" ", 2)
+        values = reference_amount_raw.split(" ", 2)
         reference_amount = values[0].strip()
         reference_amount_units = values[1].strip()  # g or mL
 
@@ -137,9 +135,6 @@ class ReferenceCategorySupport(models.Model):
             reference_amount, reference_amount_units, reference_amount_extra = None, None, None
 
         return reference_amount, reference_amount_units, reference_amount_extra
-
-    def __str__(self):
-        return f'{self.category_id}: {self.category}'
 
 
 class Category(TimeStampedModel):

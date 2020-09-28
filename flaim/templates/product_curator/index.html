@@ -17,7 +17,9 @@
       <th>Brand</th>
       <th>Store</th>
       <th>Manual Category</th>
-      <th>Top Predicted Category</th>
+      <th>Manual Subcategory</th>
+      <th>Predicted Category</th>
+      <th>Predicted Subcategory</th>
       <th>Prediction Confidence</th>
     </tr>
     </thead>
@@ -36,6 +38,8 @@
     // This displays options for the user dropdown. Extend as necessary.
     const AVAILABLE_CATEGORIES =
     {{ product_categories|safe }}
+    const AVAILABLE_SUBCATEGORIES =
+    {{ product_subcategories|safe }}
     const base_url = "/api/advanced_products/?format=datatables&recent=True"
 
     let editor
@@ -80,6 +84,12 @@
                     name: "category.manual_category",
                     type: "select",
                     options: AVAILABLE_CATEGORIES
+                  },
+                  {
+                    label: "Manual Subcategory",
+                    name: "subcategory.manual_subcategory",
+                    type: "select",
+                    options: AVAILABLE_SUBCATEGORIES
                   }]
               }
       );
@@ -100,14 +110,24 @@
 
       const renderManualCategory = function (data, type, row) {
         if (type === 'display') {
-          if (data === null) {
-            return 'N/A <i class="fas fa-edit"/>'
+          if (data === null || data === undefined) {
+            return 'n/a <i class="fas fa-edit"/>'
           }
           return data + ' <i class="fas fa-edit"/>';
         }
         return data;
       };
 
+
+      const confirmPrediction = function (data, type, row) {
+        if (type === 'display') {
+          if (data === null) {
+            return 'N/A'
+          }
+          return data + '<br><button class="btn btn-primary btn-sm">Verify</button>';
+        }
+        return data;
+      };
 
       const linkToId = function (data, type, row) {
         if (type === 'display') {
@@ -191,17 +211,25 @@
                     defaultContent: "N/A",
                     className: "editable",
                     render: renderManualCategory
+                  }, {
+                    data: "subcategory.manual_subcategory",
+                    defaultContent: "N/A",
+                    className: "editable",
+                    render: renderManualCategory
                   },
                   {
                     data: "category.predicted_category_1",
                     defaultContent: "",
-                    {#className: "editable",#}
-                    {#render: editIcon#}
+                    {#render: confirmPrediction#}
+                  },
+                  {
+                    data: "subcategory.predicted_subcategory_1",
+                    defaultContent: "",
+                    {#render: confirmPrediction#}
                   },
                   {
                     data: "category.confidence_1",
                     defaultContent: "",
-                    {#className: "editable",#}
                     render: renderConfidence
                   },
                 ],

@@ -105,13 +105,13 @@ class ReferenceCategorySupport(models.Model):
     https://www.canada.ca/en/health-canada/services/technical-documents-labelling-requirements/table-reference-amounts-food.html
     """
     category_id = models.CharField(max_length=SM_CHAR)
-    category = models.CharField(max_length=MD_CHAR)
+    category_name = models.CharField(max_length=MD_CHAR)
     subcategory_id = models.CharField(max_length=SM_CHAR)
-    subcategory = models.CharField(max_length=MD_CHAR)
+    subcategory_name = models.CharField(max_length=MD_CHAR)
     reference_amount_raw = models.CharField(max_length=SM_CHAR)  # Raw unparsed value, stored for reference
 
     def __str__(self):
-        return f'{self.category_id}: {self.category}'
+        return f'{self.category_id} {self.category_name} - {self.subcategory_id} {self.subcategory_name}'
 
     @staticmethod
     def parse_reference_amount(reference_amount_raw: str) -> [float, str, str]:
@@ -161,8 +161,14 @@ class Category(TimeStampedModel):
 
     model_version = models.CharField(max_length=SM_CHAR, blank=True, null=True)
 
+    def get_related_subcategories(self) -> [str]:
+        """ Returns a list of related subcategories for the best category available for this record """
+        subcategories = [x.subcategory for x in
+                         ReferenceCategorySupport.objects.filter(category__icontains=self.best_category)]
+        return subcategories
+
     @property
-    def best_category(self):
+    def best_category(self) -> str:
         if self.manual_category is None:
             return self.predicted_category_1
         return self.manual_category
@@ -180,7 +186,7 @@ class Category(TimeStampedModel):
         verbose_name_plural = 'Categories'
 
 
-class AssignedSubcategory(TimeStampedModel):
+class Subcategory(TimeStampedModel):
     """
     Mirror of the Category model intended to capture subcategory values for products.
     """
@@ -253,6 +259,7 @@ class Product(TimeStampedModel):
     atwater_result = models.CharField(max_length=SM_CHAR, blank=True, null=True)
 
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, blank=True, null=True)
+    subcategory = models.ForeignKey(Subcategory, on_delete=models.SET_NULL, blank=True, null=True)
 
     history = HistoricalRecords(related_name='product_history')
 

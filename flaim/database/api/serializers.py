@@ -92,6 +92,29 @@ class CategorySerializer(serializers.ModelSerializer):
         return obj.manual_category
 
 
+class SubcategorySerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField()
+    verified_by = UserSerializer()
+    calculated_best_subcategory = serializers.SerializerMethodField()
+    parent_category = CategorySerializer()
+
+    class Meta:
+        model = models.Subcategory
+        fields = (
+            'id',
+            'predicted_subcategory_1', 'confidence_1', 'predicted_subcategory_2', 'confidence_2',
+            'predicted_subcategory_3',
+            'confidence_3', 'manual_subcategory', 'verified', 'verified_by', 'model_version',
+            'parent_category', 'calculated_best_subcategory'
+        )
+
+    @staticmethod
+    def get_calculated_best_subcategory(obj):
+        if obj.manual_subcategory is None:
+            return obj.predicted_subcategory_1
+        return obj.manual_subcategory
+
+
 class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixin):
     _SELECT_RELATED_FIELDS = ['loblaws_product', 'walmart_product']
 
@@ -122,6 +145,7 @@ class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixi
     loblaws_product = LoblawsProductSerializer()
     walmart_product = WalmartProductSerializer()
     category = CategorySerializer()
+    subcategory = SubcategorySerializer()
     batch = ScrapeBatchSerializer()
     scrape_date = serializers.ReadOnlyField(source='batch.scrape_date')
     url = serializers.HyperlinkedIdentityField(view_name='products-detail', lookup_field='pk')
@@ -132,7 +156,8 @@ class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixi
             'loblaws_product',
             'walmart_product',
             'batch',
-            'category'
+            'category',
+            'subcategory'
         ]
         fields = ['id', 'url', 'created', 'modified', 'product_code', 'description', 'breadcrumbs_array', 'name',
                   'brand', 'store', 'price', 'upc_code',
@@ -167,6 +192,7 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     walmart_product = WalmartProductSerializer()
     nutrition_facts = NutritionFactsSerializer()
     category = CategorySerializer()
+    subcategory = SubcategorySerializer()
     images = serializers.SlugRelatedField(many=True, read_only=True, slug_field='image_string')
     url = serializers.HyperlinkedIdentityField(view_name='advanced_products-detail', lookup_field='pk')
 
@@ -210,6 +236,7 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
             'walmart_product',
             'nutrition_facts',
             'category',
+            'subcategory'
         ]
         fields = ['id', 'url', 'product_code', 'name', 'brand', 'store', 'price',
                   'upc_code', 'images'] + reverse_relationships

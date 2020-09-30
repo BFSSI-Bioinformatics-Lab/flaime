@@ -82,3 +82,95 @@ class CategoryPredictor:
 
     def dump_model(self, model_path, model_version):
         pickle.dump((self.model, self.vectorizers, self.target_encoder, model_version), open(model_path, 'wb'))
+
+
+class SubcategoryPredictor:
+    def __init__(self, model_path=None):
+        if model_path is None:
+            self.model = None
+            self.vectorizers = {}
+            self.target_encoder = None
+            self.model_version = None
+        else:
+            self.model, self.vectorizers, self.target_encoder, self.model_version = pickle.load(open(model_path, 'rb'))
+
+    def train(self, ds: DataStore):
+        self.model = {}
+
+        self.vectorizers = {}
+        self.target_encoder = {}
+
+        for cat in ds.target.unique():
+            target = ds.subtarget.loc[ds.target == cat]
+            names = ds.names.loc[ds.target == cat]
+            classes = target.nunique()
+
+            if classes == 1:
+                self.model[cat] = target.unique()[0]
+                continue
+            # 0 classes should probably throw an error instead
+            elif classes == 0:
+                self.model[cat] = ''
+                continue
+
+            self.vectorizers[cat] = CountVectorizer(max_features=1000, stop_words='english', analyzer='word',
+                                                    strip_accents='ascii', dtype=int)
+            names_matrix = pd.DataFrame.sparse.from_spmatrix(self.vectorizers[cat].fit_transform(names),
+                                                             columns=self.vectorizers[cat].get_feature_names(),
+                                                             index=names.index)
+
+            self.target_encoder[cat] = LabelEncoder()
+            encoded_target = self.target_encoder[cat].fit_transform(target)
+
+            X_train, X_test, y_train, y_test = train_test_split(names_matrix, encoded_target,
+                                                                test_size=0.2, shuffle=True, random_state=3)
+
+            lgb_train = lgb.Dataset(X_train, y_train)
+            lgb_eval = lgb.Dataset(X_test, y_test, reference=lgb_train)
+
+            params = {
+                'seed': 1,
+                'objective': 'multiclass',
+                'num_class': classes,
+                'metric': 'multi_error',
+                'max_depth': 31,
+                'num_leaves': 200,
+                'min_data_in_leaf': 5,
+                'bagging_fraction': 0.8,
+                'bagging_freq': 1,
+                'feature_fraction': 0.6
+            }
+
+            self.model[cat] = lgb.train(params, lgb_train, num_boost_round=5000, valid_sets=[lgb_train, lgb_eval],
+                                        early_stopping_rounds=50, verbose_eval=50)
+
+    def predict(self, ds: DataStore, category_predictions: pd.Series):
+        pred = pd.Series(index=ds.names.index, name='Sub-Category')
+        conf = pd.Series(index=ds.names.index, name='Sub-Category Confidence')
+
+        if not category_predictions.index.equals(ds.names.index):
+            print('some error')
+            return None
+
+        for cat in category_predictions.unique():
+            names = ds.names.loc[category_predictions == cat]
+            if cat not in self.model.keys():
+                pred.loc[names.index] = 'Unknown'
+                conf.loc[names.index] = 0.0
+            elif isinstance(self.model[cat], str):
+                pred.loc[names.index] = self.model[cat]
+                conf.loc[names.index] = 1.0
+            else:
+                names_matrix = pd.DataFrame.sparse.from_spmatrix(self.vectorizers[cat].transform(names),
+                                                                 columns=self.vectorizers[cat].get_feature_names(),
+                                                                 index=names.index)
+
+                model_prediction = self.model[cat].predict(names_matrix)
+
+                pred.loc[names.index] = self.target_encoder[cat].inverse_transform(model_prediction.argmax(axis=1))
+                conf.loc[names.index] = model_prediction.max(axis=1)
+
+        return pd.concat([pred, conf], axis=1)
+
+    def dump_model(self, model_path, model_version):
+        pickle.dump((self.model, self.vectorizers, self.target_encoder, model_version), open(model_path, 'wb'))

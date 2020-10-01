@@ -215,6 +215,7 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         category = instance.category
         user = User.objects.get(username=predicted_category_data.get('user', category.verified_by))
         category.manual_category = predicted_category_data.get('manual_category', category.manual_category)
+        # category.manual_subcategory = predicted_category_data.get('manual_subcategory', category.manual_subcategory)
         category.verified = predicted_category_data.get('verified', category.verified)
         category.verified_by = user
         category.save()
@@ -223,6 +224,7 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         product_mapping, created = models.CategoryProductCodeMappingSupport.objects.get_or_create(
             product_code=instance.product_code)
         product_mapping.category = category.manual_category
+        # product_mapping.subcategory = category.manual_subcategory
         product_mapping.verified_by = user
         product_mapping.save()
 

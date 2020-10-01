@@ -3,7 +3,8 @@ from pathlib import Path
 from django.db import models
 from typing import Optional, Union
 from django.contrib.postgres.fields import JSONField, ArrayField
-from flaim.database.product_mappings import VALID_NUTRIENT_COLUMNS, PRODUCT_CATEGORIES
+from flaim.database.product_mappings import VALID_NUTRIENT_COLUMNS, \
+    REFERENCE_SUBCATEGORIES_CODING_DICT, REFERENCE_CATEGORIES_CODING_DICT
 from simple_history.models import HistoricalRecords
 from flaim.users.models import User
 
@@ -113,6 +114,10 @@ class ReferenceCategorySupport(models.Model):
     def __str__(self):
         return f'{self.category_id} {self.category_name} - {self.subcategory_id} {self.subcategory_name}'
 
+    class Meta:
+        verbose_name = 'Reference Category'
+        verbose_name_plural = 'Reference Categories'
+
     @staticmethod
     def parse_reference_amount(reference_amount_raw: str) -> [float, str, str]:
         """
@@ -188,18 +193,12 @@ class Category(TimeStampedModel):
 
 class Subcategory(TimeStampedModel):
     """
-    Mirror of the Category model intended to capture subcategory values for products.
+    Similar to the Category model, intended to capture subcategory values for products.
     """
     parent_category = models.ForeignKey(ReferenceCategorySupport, on_delete=models.CASCADE)
 
     predicted_subcategory_1 = models.CharField(max_length=MD_CHAR, blank=True, null=True)
     confidence_1 = models.FloatField(blank=True, null=True)
-
-    predicted_subcategory_2 = models.CharField(max_length=MD_CHAR, blank=True, null=True)
-    confidence_2 = models.FloatField(blank=True, null=True)
-
-    predicted_subcategory_3 = models.CharField(max_length=MD_CHAR, blank=True, null=True)
-    confidence_3 = models.FloatField(blank=True, null=True)
 
     # This field allows for a user to manually select a category/confirm the predicted category
     manual_subcategory = models.CharField(max_length=MD_CHAR, blank=True, null=True)
@@ -338,12 +337,14 @@ class CategoryProductCodeMappingSupport(models.Model):
     added to this table.
     """
     product_code = models.CharField(max_length=MD_CHAR, unique=True)
-    PRODUCT_CATEGORIES_TUPLES = [(x, x) for x in PRODUCT_CATEGORIES]
+    PRODUCT_CATEGORIES_TUPLES = [(x, x) for x in REFERENCE_CATEGORIES_CODING_DICT.values()]
+    PRODUCT_SUBCATEGORY_TUPLES = [(x, x) for x in REFERENCE_SUBCATEGORIES_CODING_DICT.values()]
     category = models.CharField(max_length=MD_CHAR, choices=PRODUCT_CATEGORIES_TUPLES)
+    subcategory = models.CharField(max_length=MD_CHAR, choices=PRODUCT_SUBCATEGORY_TUPLES, blank=True, null=True)
     verified_by = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
-        return f'{self.product_code}: {self.category}'
+        return f'{self.product_code}: {self.category} - {self.subcategory}'
 
     class Meta:
         verbose_name = 'Category:Product Code Mapping'

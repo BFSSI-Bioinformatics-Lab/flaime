@@ -92,19 +92,25 @@ class CategorySerializer(serializers.ModelSerializer):
         return obj.manual_category
 
 
+class ReferenceCategorySupportSerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField()
+
+    class Meta:
+        model = models.ReferenceCategorySupport
+        fields = '__all__'
+
+
 class SubcategorySerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
     verified_by = UserSerializer()
     calculated_best_subcategory = serializers.SerializerMethodField()
-    parent_category = CategorySerializer()
+    parent_category = ReferenceCategorySupportSerializer()
 
     class Meta:
         model = models.Subcategory
         fields = (
             'id',
-            'predicted_subcategory_1', 'confidence_1', 'predicted_subcategory_2', 'confidence_2',
-            'predicted_subcategory_3',
-            'confidence_3', 'manual_subcategory', 'verified', 'verified_by', 'model_version',
+            'predicted_subcategory_1', 'confidence_1', 'manual_subcategory', 'verified', 'verified_by', 'model_version',
             'parent_category', 'calculated_best_subcategory'
         )
 
@@ -122,6 +128,7 @@ class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadi
     loblaws_product = LoblawsProductSerializer()
     walmart_product = WalmartProductSerializer()
     category = CategorySerializer()
+    subcategory = SubcategorySerializer()
     batch = ScrapeBatchSerializer()
     scrape_date = serializers.ReadOnlyField(source='batch.scrape_date')
 
@@ -129,11 +136,13 @@ class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadi
         model = models.Product
         reverse_relationships = [
             'loblaws_product',
-            'walmart_product'
+            'walmart_product',
+            'category',
+            'subcategory',
+            'batch'
         ]
         fields = ['id', 'url', 'created', 'modified', 'product_code', 'description', 'breadcrumbs_array', 'name',
-                  'brand', 'store', 'price', 'upc_code', 'nutrition_available', 'scrape_date',
-                  'batch', 'category'] + reverse_relationships
+                  'brand', 'store', 'price', 'upc_code', 'nutrition_available', 'scrape_date'] + reverse_relationships
 
 
 class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixin):

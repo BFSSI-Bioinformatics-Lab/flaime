@@ -81,12 +81,30 @@
                     <a href="/reports/category/{{ product.category.manual_category }}/">{{ product.category.manual_category }}</a>
                     <p class="text text-info">Category verified by: {{ product.category.verified_by }}</p>
                   </td>
-
                 {% else %}
                   <td>
                     <a href="/reports/category/{{ product.category.predicted_category_1 }}/">{{ product.category.predicted_category_1 }}</a>
                     <p class="{{ confidence_styling }}">
                       Prediction confidence: {{ product.category.confidence_1|floatformat:2 }}</p>
+                  </td>
+                {% endif %}
+                <td>
+                </td>
+              </tr>
+              <tr>
+                <td class="row-label">
+                  Subcategory
+                </td>
+                {% if product.subcategory.manual_subcategory %}
+                  <td>
+                    <div>{{ product.subcategory.manual_subcategory }}</div>
+                    <p class="text text-info">Subcategory verified by: {{ product.subcategory.verified_by }}</p>
+                  </td>
+                {% else %}
+                  <td>
+                    <div>{{ product.subcategory.predicted_subcategory_1 }}</div>
+                    <p class="{{ confidence_styling }}">
+                      Prediction confidence: {{ product.subcategory.confidence_1|floatformat:2 }}</p>
                   </td>
                 {% endif %}
               </tr>

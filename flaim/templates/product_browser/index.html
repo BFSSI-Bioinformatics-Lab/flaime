@@ -21,6 +21,7 @@
             <th>Brand</th>
             <th>Store</th>
             <th>Category</th>
+            <th>Subcategory</th>
             <th>Product Code</th>
             <th>External URL</th>
           </tr>
@@ -130,6 +131,11 @@
               name: "category.predicted_category_1, category.manual_category",
               defaultContent: "",
               render: $.fn.dataTable.render.hyperlink_category()
+            },
+            {
+              data: "subcategory.calculated_best_subcategory",
+              name: "subcategory.predicted_subcategory_1, subcategory.manual_subcategory",
+              defaultContent: "",
             },
             {data: "product_code"},
             {

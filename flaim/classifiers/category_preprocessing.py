@@ -1,5 +1,8 @@
 import pandas as pd
 
+from flaim.database.product_mappings import REFERENCE_SUBCATEGORIES_CODING_DICT, REFERENCE_CATEGORIES_CODING_DICT, \
+    FLIP_TO_FLAIME_CONVERSION_DICT
+
 
 class DataStore:
     def __init__(self):
@@ -8,6 +11,7 @@ class DataStore:
         self.names = None
         self.ingredients = None
         self.target = None
+        self.subtarget = None
 
     def preprocess(self, process_names=True, process_ingredients=False):
         self.names = self.df.pop('name')
@@ -19,29 +23,15 @@ class DataStore:
 
 
 class FLIP(DataStore):
-    def __init__(self, path):
+    def __init__(self, path, target='TRA_Cat_2', subtarget='TRA_Item_2016'):
         super().__init__()
 
-        category_map = {'A': 'Bakery Products', 'B': 'Beverages', 'C': 'Cereals and Other Grain Products',
-                        'D': 'Dairy Products and Substitutes', 'E': 'Desserts', 'F': 'Dessert Toppings and Fillings',
-                        'G': 'Eggs and Egg Substitutes', 'H': 'Fats and Oils', 'I': 'Marine and Fresh Water Animals',
-                        'J': 'Fruit and Fruit Juices', 'K': 'Legumes',
-                        'L': 'Meat and Poultry, Products and Substitutes',
-                        'M': 'Miscellaneous', 'N': 'Combination Dishes', 'O': 'Nuts and Seeds',
-                        'P': 'Potatoes, Sweet Potatoes and Yams', 'Q': 'Salads',
-                        'R': 'Sauces, Dips, Gravies and Condiments', 'S': 'Snacks', 'T': 'Soups',
-                        'U': 'Sugars and Sweets', 'V': 'Vegetables', 'W': 'Baby Food',
-                        'X': 'Meal Replacements and Supplements'}
-
-        conversion_map = {'Product Name': 'name', 'Ingredients': 'ingredients', 'KCAL': 'calories', 'FAT': 'totalfat',
-                          'FAT_%DV': 'totalfat_dv', 'SATFAT': 'saturatedfat', 'SATFAT_%DV': 'saturatedfat_dv',
-                          'TRANS': 'transfat', 'CHOL': 'cholesterol', 'NA': 'sodium', 'NA_%DV': 'sodium_dv',
-                          'CHO': 'totalcarbohydrate_dv', 'FIBRE': 'dietaryfiber', 'SUGAR': 'sugar', 'PRO': 'protein',
-                          'VITA%': 'vitamina_dv', 'VITC%': 'vitaminc_dv', 'CALCIUM%': 'calcium_dv', 'IRON%': 'iron_dv'}
-
         self.df = pd.read_excel(path)
-        self.df.columns = [conversion_map[c] if c in conversion_map else c for c in self.df.columns]
-        self.target = self.df.pop('TRA_Cat_2').map(category_map)
+        self.df.columns = [FLIP_TO_FLAIME_CONVERSION_DICT[c]
+                           if c in FLIP_TO_FLAIME_CONVERSION_DICT else c for c in self.df.columns]
+        self.target = self.df.pop(target).map(REFERENCE_CATEGORIES_CODING_DICT)
+        self.subtarget = self.df.pop(subtarget).str.replace('\.1', '')
+        self.subtarget = (self.subtarget.str[0] + '.' + self.subtarget.str[1:]).map(REFERENCE_SUBCATEGORIES_CODING_DICT)
         self.flip_preprocess()
 
     def flip_preprocess(self):

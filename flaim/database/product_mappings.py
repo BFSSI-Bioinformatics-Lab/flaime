@@ -330,6 +330,28 @@ REFERENCE_SUBCATEGORIES_CODING_DICT = {
     'X.1': 'Meal replacement, nutritional supplement'
 }
 
+FLIP_TO_FLAIME_CONVERSION_DICT = {
+    'Product Name': 'name',
+    'Ingredients': 'ingredients',
+    'KCAL': 'calories',
+    'FAT': 'totalfat',
+    'FAT_%DV': 'totalfat_dv',
+    'SATFAT': 'saturatedfat',
+    'SATFAT_%DV': 'saturatedfat_dv',
+    'TRANS': 'transfat',
+    'CHOL': 'cholesterol',
+    'NA': 'sodium',
+    'NA_%DV': 'sodium_dv',
+    'CHO': 'totalcarbohydrate_dv',
+    'FIBRE': 'dietaryfiber',
+    'SUGAR': 'sugar',
+    'PRO': 'protein',
+    'VITA%': 'vitamina_dv',
+    'VITC%': 'vitaminc_dv',
+    'CALCIUM%': 'calcium_dv',
+    'IRON%': 'iron_dv'
+}
+
 VALID_NUTRIENT_DICT = {
     'calories': 'Calories',
     'sodium': 'Sodium',

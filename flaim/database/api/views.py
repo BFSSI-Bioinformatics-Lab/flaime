@@ -198,9 +198,19 @@ class ProductNameViewSet(viewsets.ModelViewSet):
             return models.Product.objects.all()
 
 
+class ReferenceCategorySupportViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.ReferenceCategorySupportSerializer
+    queryset = models.ReferenceCategorySupport.objects.all().order_by('id')
+
+
 class CategoryViewSet(viewsets.ModelViewSet, UpdateModelMixin):
     serializer_class = serializers.CategorySerializer
     queryset = models.Category.objects.all().order_by('id')
+
+
+class SubcategoryViewSet(viewsets.ModelViewSet, UpdateModelMixin):
+    serializer_class = serializers.SubcategorySerializer
+    queryset = models.Subcategory.objects.all().order_by('id')
 
 
 class CategoryNameViewSet(viewsets.ModelViewSet):

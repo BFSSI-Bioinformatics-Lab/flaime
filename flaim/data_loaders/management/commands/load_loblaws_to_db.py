@@ -9,8 +9,9 @@ from django.contrib.auth import get_user_model
 
 from tqdm import tqdm
 
-from flaim.database.models import Product, LoblawsProduct, NutritionFacts, ScrapeBatch, ProductImage, Category
-from flaim.data_loaders.management.accessories import find_curated_category
+from flaim.database.models import Product, LoblawsProduct, NutritionFacts, ScrapeBatch, ProductImage
+from flaim.classifiers.management.commands.assign_categories import assign_categories
+from flaim.data_loaders.management.commands.calculate_atwater import calculate_atwater
 
 User = get_user_model()
 
@@ -59,7 +60,7 @@ def get_name(api_data) -> str:
 def get_brand(api_data) -> str:
     """ Returns plain text """
     brand = api_data['brand'].strip()
-    if brand is None or brand is "":
+    if brand is None or brand == "":
         brand = "n/a"
     return brand
 
@@ -365,9 +366,12 @@ class Command(BaseCommand):
             product.save()
             nutrition_facts.save()
 
-            # if created_:
-            #     self.stdout.write(self.style.SUCCESS(f'SAVED {product}'))
-            # else:
-            #     self.stdout.write(self.style.SUCCESS(f'UPDATED {product}'))
+        self.stdout.write(self.style.SUCCESS(f'Done loading Loblaws-{str(scrape_date)} products to database!'))
 
-        self.stdout.write(self.style.SUCCESS(f'\nDone loading Loblaws-{str(scrape_date)} products to database!'))
+        self.stdout.write(self.style.SUCCESS(f'Conducting category assignment step'))
+        assign_categories()
+
+        self.stdout.write(self.style.SUCCESS(f'Calculating Atwater result for products'))
+        calculate_atwater()
+
+        self.stdout.write(self.style.SUCCESS(f'Loading complete!'))

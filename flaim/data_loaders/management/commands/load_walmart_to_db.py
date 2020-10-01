@@ -6,8 +6,9 @@ from django.utils.dateparse import parse_date
 from django.core.management.base import BaseCommand
 from tqdm import tqdm
 
-from flaim.database.models import Product, WalmartProduct, NutritionFacts, ProductImage, ScrapeBatch, Category
-from flaim.data_loaders.management.accessories import find_curated_category
+from flaim.database.models import Product, WalmartProduct, NutritionFacts, ProductImage, ScrapeBatch
+from flaim.classifiers.management.commands.assign_categories import assign_categories
+from flaim.data_loaders.management.commands.calculate_atwater import calculate_atwater
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -253,4 +254,12 @@ class Command(BaseCommand):
                     # Skip if the file path already exists
                     except IntegrityError as e:
                         pass
-        self.stdout.write(self.style.SUCCESS(f'\nDone loading Walmart-{str(scrape_date)} products to database!'))
+        self.stdout.write(self.style.SUCCESS(f'Done loading Walmart-{str(scrape_date)} products to database!'))
+
+        self.stdout.write(self.style.SUCCESS(f'Conducting category assignment step'))
+        assign_categories()
+
+        self.stdout.write(self.style.SUCCESS(f'Calculating Atwater result for products'))
+        calculate_atwater()
+
+        self.stdout.write(self.style.SUCCESS(f'Loading complete!'))

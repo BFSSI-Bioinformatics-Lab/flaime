@@ -152,7 +152,8 @@ REFERENCE_CATEGORIES_CODING_DICT = {
     'U': 'Sugars and Sweets',
     'V': 'Vegetables',
     'W': 'Baby Food',
-    'X': 'Meal Replacements and Nutritional Supplements'
+    'X': 'Meal Replacements and Nutritional Supplements',
+    'ZZ': 'Unknown'
 }
 
 REFERENCE_SUBCATEGORIES_CODING_DICT = {
@@ -327,7 +328,8 @@ REFERENCE_SUBCATEGORIES_CODING_DICT = {
     'W.5': 'Combination dish (one to under four years of age)',
     'W.6': 'All varieties of juice',
     'W.7': 'Yogurt (one to under four years of age)',
-    'X.1': 'Meal replacement, nutritional supplement'
+    'X.1': 'Meal replacement, nutritional supplement',
+    'ZZ.1': 'Unknown'
 }
 
 FLIP_TO_FLAIME_CONVERSION_DICT = {

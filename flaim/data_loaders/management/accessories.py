@@ -9,16 +9,16 @@ Accessory methods for data_loaders.management.commands
 """
 
 
-def find_curated_category(product_code: str) -> [Tuple[Optional[str], Optional[str]]]:
+def find_curated_category(product_code: str) -> [Tuple[Optional[str], Optional[str], Optional[str]]]:
     """
     Tries to retrieve a manually curated category from the database based on the provided product_code
     returns None if query can't find a match
     """
     try:
         obj = CategoryProductCodeMappingSupport.objects.get(product_code=product_code)
-        return obj.category, obj.verified_by
+        return obj.category, obj.subcategory, obj.verified_by
     except CategoryProductCodeMappingSupport.DoesNotExist:
-        return None, None
+        return None, None, None
 
 
 def get_atwater_results(df: pd.DataFrame) -> pd.Series:

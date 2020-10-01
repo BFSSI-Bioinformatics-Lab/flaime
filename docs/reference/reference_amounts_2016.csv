@@ -101,35 +101,35 @@ J,Fruit and Fruit Juices,J.12,Juice as ingredient,5 mL
 K,Legumes,K.1,"Tofu, tempeh",85 g
 K,Legumes,K.2,"Bean, pea, lentil",35 g dry
 K,Legumes,K.2,"Bean, pea, lentil",125 mL cooked or canned
-L,"Meat, Poultry, Their Products and Substitutes",L.1,Pork rind or bacon,54 g uncooked
-L,"Meat, Poultry, Their Products and Substitutes",L.1,Pork rind or bacon,15 g cooked
-L,"Meat, Poultry, Their Products and Substitutes",L.2,"Beef, pork or poultry breakfast strip",30 g uncooked
-L,"Meat, Poultry, Their Products and Substitutes",L.2,"Beef, pork or poultry breakfast strip",15 g cooked
-L,"Meat, Poultry, Their Products and Substitutes",L.3,Dried meat or poultry,30 g
-L,"Meat, Poultry, Their Products and Substitutes",L.4,Luncheon meat,75 g uncooked
-L,"Meat, Poultry, Their Products and Substitutes",L.4,Luncheon meat,55 g cooked
-L,"Meat, Poultry, Their Products and Substitutes",L.5,Sausage,75 g uncooked
-L,"Meat, Poultry, Their Products and Substitutes",L.5,Sausage,55 g cooked
-L,"Meat, Poultry, Their Products and Substitutes",L.6,Meat or poultry without sauce,125 g raw
-L,"Meat, Poultry, Their Products and Substitutes",L.6,Meat or poultry without sauce,100 g cooked
-L,"Meat, Poultry, Their Products and Substitutes",L.7,"Patty, cutlet, ground meat",100 g raw
-L,"Meat, Poultry, Their Products and Substitutes",L.7,"Patty, cutlet, ground meat",60 g cooked
-L,"Meat, Poultry, Their Products and Substitutes",L.8,"Meat or poultry, cured, smoked or pickled",85 g raw
-L,"Meat, Poultry, Their Products and Substitutes",L.8,"Meat or poultry, cured, smoked or pickled",55 g cooked
-L,"Meat, Poultry, Their Products and Substitutes",L.9,Canned meat or poultry,55 g
-L,"Meat, Poultry, Their Products and Substitutes",L.10,Meat or poultry with sauce,140 g
-M,Miscellaneous Category,M.1,"Baking powder or soda, pectin, yeast",0.6 g
-M,Miscellaneous Category,M.2,Baking decoration,4 g
-M,Miscellaneous Category,M.3,"Breadcrumb, batter mix",30 g
-M,Miscellaneous Category,M.4,Cooking wine,30 mL
-M,Miscellaneous Category,M.5,Cocoa or carob powder,5 g
-M,Miscellaneous Category,M.6,Non-alcoholic drink mixer ,Amount to make 250 mL of drink
-M,Miscellaneous Category,M.7,Chewing gum,3 g
-M,Miscellaneous Category,M.8,Salad or potato topper,7 g
-M,Miscellaneous Category,M.9,"Salt, salt substitute, seasoning with salt",1 g
-M,Miscellaneous Category,M.10,Spice or herb without salt,0.5 g
-M,Miscellaneous Category,M.11,Coconut milk,83 mL
-M,Miscellaneous Category,M.12,Dried coconut flakes or shredded,15 g
+L,"Meat and Poultry, Products and Substitutes",L.1,Pork rind or bacon,54 g uncooked
+L,"Meat and Poultry, Products and Substitutes",L.1,Pork rind or bacon,15 g cooked
+L,"Meat and Poultry, Products and Substitutes",L.2,"Beef, pork or poultry breakfast strip",30 g uncooked
+L,"Meat and Poultry, Products and Substitutes",L.2,"Beef, pork or poultry breakfast strip",15 g cooked
+L,"Meat and Poultry, Products and Substitutes",L.3,Dried meat or poultry,30 g
+L,"Meat and Poultry, Products and Substitutes",L.4,Luncheon meat,75 g uncooked
+L,"Meat and Poultry, Products and Substitutes",L.4,Luncheon meat,55 g cooked
+L,"Meat and Poultry, Products and Substitutes",L.5,Sausage,75 g uncooked
+L,"Meat and Poultry, Products and Substitutes",L.5,Sausage,55 g cooked
+L,"Meat and Poultry, Products and Substitutes",L.6,Meat or poultry without sauce,125 g raw
+L,"Meat and Poultry, Products and Substitutes",L.6,Meat or poultry without sauce,100 g cooked
+L,"Meat and Poultry, Products and Substitutes",L.7,"Patty, cutlet, ground meat",100 g raw
+L,"Meat and Poultry, Products and Substitutes",L.7,"Patty, cutlet, ground meat",60 g cooked
+L,"Meat and Poultry, Products and Substitutes",L.8,"Meat or poultry, cured, smoked or pickled",85 g raw
+L,"Meat and Poultry, Products and Substitutes",L.8,"Meat or poultry, cured, smoked or pickled",55 g cooked
+L,"Meat and Poultry, Products and Substitutes",L.9,Canned meat or poultry,55 g
+L,"Meat and Poultry, Products and Substitutes",L.10,Meat or poultry with sauce,140 g
+M,Miscellaneous,M.1,"Baking powder or soda, pectin, yeast",0.6 g
+M,Miscellaneous,M.2,Baking decoration,4 g
+M,Miscellaneous,M.3,"Breadcrumb, batter mix",30 g
+M,Miscellaneous,M.4,Cooking wine,30 mL
+M,Miscellaneous,M.5,Cocoa or carob powder,5 g
+M,Miscellaneous,M.6,Non-alcoholic drink mixer ,Amount to make 250 mL of drink
+M,Miscellaneous,M.7,Chewing gum,3 g
+M,Miscellaneous,M.8,Salad or potato topper,7 g
+M,Miscellaneous,M.9,"Salt, salt substitute, seasoning with salt",1 g
+M,Miscellaneous,M.10,Spice or herb without salt,0.5 g
+M,Miscellaneous,M.11,Coconut milk,83 mL
+M,Miscellaneous,M.12,Dried coconut flakes or shredded,15 g
 N,Combination Dishes,N.1,Combination dish measurable with a cup,300 g
 N,Combination Dishes,N.2,Combination dish not measurable with a cup,200 g
 N,Combination Dishes,N.3,Hors d'oeurve,85 g
@@ -195,4 +195,5 @@ W,Baby Food,W.4,"Strained or junior meat, fruit or vegetable",110 mL
 W,Baby Food,W.5,Combination dish (one to under four years of age),170 g
 W,Baby Food,W.6,All varieties of juice,125 mL
 W,Baby Food,W.7,Yogurt (one to under four years of age),100 g
-X,Meal Replacements and Nutritional Supplements,X.1,"Meal replacement, nutritional supplement",Amount required as per B.24.200 or B.24.201
+X,Meal Replacements and Supplements,X.1,"Meal replacement, nutritional supplement",Amount required as per B.24.200 or B.24.201
+ZZ,Unknown,ZZ.1,Unknown,Not applicable

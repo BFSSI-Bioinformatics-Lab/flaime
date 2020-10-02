@@ -101,10 +101,6 @@ class Command(BaseCommand):
             for k in EXPECTED_KEYS:
                 if k not in p:
                     p[k] = None
-                if k == 'carbohydrate':
-                    p['totalcarbohydrate'] = p.pop('carbohydrate')
-                if k == 'carbohydrate_dv':
-                    p['totalcarbohydrate_dv'] = p.pop('carbohydrate_dv')
 
             product = Product.objects.create(product_code=p['product_code'])
 
@@ -169,11 +165,21 @@ class Command(BaseCommand):
             # Pass over the nutrition dict to replace 'absent' with 0 and 'conflict' with None
             nutrition_dict = p['nutrition'].copy()
             for key, val in nutrition_dict.items():
+                # Override bad values with 0 or None
                 if val == 'absent':
                     nutrition_dict[key] = 0
                 if val == 'conflict':
                     nutrition_dict[key] = None
-                # TODO: This is a hack to convert any 'o' values to numeric 0. This is an OCR error.
+
+                # Correct carbohydrate values to proper name to ensure fields match with database
+                if key == 'carbohydrate':
+                    nutrition_dict['totalcarbohydrate'] = val
+                if key == 'carbohydrate_dv':
+                    nutrition_dict['totalcarbohydrate_dv'] = val
+                if key == 'carbohydrate_unit':
+                    nutrition_dict['totalcarbohydrate_unit'] = val
+
+                # Convert any 'o' values to numeric 0. This is an OCR error.
                 if '_dv' in key and val is not None:
                     if type(val) == str and val.lower() == 'o':
                         nutrition_dict[key] = 0

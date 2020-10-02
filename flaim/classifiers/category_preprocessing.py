@@ -17,7 +17,7 @@ class DataStore:
         self.names = self.df.pop('name')
         self.ingredients = self.df.pop('ingredients')
 
-        columns = ['calories', 'sodium', 'calcium_dv', 'totalfat', 'saturatedfat', 'transfat', 'totalcarbohydrate_dv',
+        columns = ['calories', 'sodium', 'calcium_dv', 'totalfat', 'saturatedfat', 'transfat', 'totalcarbohydrate',
                    'dietaryfiber', 'sugar', 'protein', 'cholesterol', 'vitamina_dv', 'vitaminc_dv', 'iron_dv']
         self.df = self.df[columns]
 
@@ -38,7 +38,6 @@ class FLIP(DataStore):
         # flip has these columns in different units
         self.df['sodium'] /= 1000
         self.df['calcium_dv'] /= 100
-        self.df['totalcarbohydrate_dv'] /= 100
         self.df['cholesterol'] /= 100
         self.df['vitamina_dv'] /= 100
         self.df['vitaminc_dv'] /= 100

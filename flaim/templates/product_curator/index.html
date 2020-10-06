@@ -104,7 +104,13 @@
           data.data[key]['category']['user'] = "{{ user }}"
           data.data[key]['category']['verified'] = true
           data.data[key]['category']['manual_category'] = data.data[key]['category']['manual_category']
+
+          data.data[key]['subcategory']['user'] = "{{ user }}"
+          data.data[key]['subcategory']['verified'] = true
+          data.data[key]['subcategory']['manual_subcategory'] = data.data[key]['subcategory']['manual_subcategory']
+
           delete data.data[key]['category']['predicted_category_1']
+          $('#products').DataTable().draw('page') // redraw table to show correct selected data
         })
       })
 

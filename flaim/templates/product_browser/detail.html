@@ -103,7 +103,7 @@
                 {% else %}
                   <td>
                     <div>{{ product.subcategory.predicted_subcategory_1 }}</div>
-                    <p class="{{ confidence_styling }}">
+                    <p class="{{ subcategory_confidence_styling }}">
                       Prediction confidence: {{ product.subcategory.confidence_1|floatformat:2 }}</p>
                   </td>
                 {% endif %}

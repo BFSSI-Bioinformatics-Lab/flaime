@@ -49,6 +49,7 @@ class ProductView(LoginRequiredMixin, DetailView):
         except ObjectDoesNotExist as e:
             context['nutrition_changes'] = None
 
+        # Predicted category styling
         if context['product'].category.predicted_category_1 is not None:
             if context['product'].category.confidence_1 > 0.90:
                 context['confidence_styling'] = 'text-success'
@@ -56,5 +57,14 @@ class ProductView(LoginRequiredMixin, DetailView):
                 context['confidence_styling'] = 'text-warning'
             elif context['product'].category.confidence_1 < 0.50:
                 context['confidence_styling'] = 'text-danger'
+
+        # Predicted subcategory
+        if context['product'].subcategory.predicted_subcategory_1 is not None:
+            if context['product'].subcategory.confidence_1 > 0.90:
+                context['subcategory_confidence_styling'] = 'text-success'
+            elif context['product'].subcategory.confidence_1 > 0.50:
+                context['subcategory_confidence_styling'] = 'text-warning'
+            elif context['product'].subcategory.confidence_1 < 0.50:
+                context['subcategory_confidence_styling'] = 'text-danger'
 
         return context

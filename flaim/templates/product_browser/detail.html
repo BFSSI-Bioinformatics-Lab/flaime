@@ -100,6 +100,8 @@
                     <div>{{ product.subcategory.manual_subcategory }}</div>
                     <p class="text text-info">Subcategory verified by: {{ product.subcategory.verified_by }}</p>
                   </td>
+                {% elif product.category.manual_category %}
+                  <td>N/A</td>
                 {% else %}
                   <td>
                     <div>{{ product.subcategory.predicted_subcategory_1 }}</div>

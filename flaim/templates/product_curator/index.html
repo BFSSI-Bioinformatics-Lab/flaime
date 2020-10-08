@@ -30,10 +30,11 @@
   <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
   <script src="{% static 'datatables/datatables.min.js' %}"></script>
   <script src="{% static 'axios/dist/axios.min.js' %}"></script>
+  <script src="{% static 'datatables/select2.min.js' %}"></script>
+  <script src="{% static 'datatables/editor.select2.js' %}"></script>
 
   <script>
     // TODO: Add 'verify' button to allow user to quickly confirm a predicted category
-    // TODO: Add subcategory support
 
     // This displays options for the user dropdown. Extend as necessary.
     const AVAILABLE_CATEGORIES =
@@ -59,8 +60,8 @@
                     }
                   }
                 },
-                "idSrc": "id",
-                "fields": [
+                idSrc: "id",
+                fields: [
                   {
                     label: "ID",
                     name: "id"
@@ -72,49 +73,65 @@
                   {
                     label: "Predicted Category",
                     name: "category.predicted_category_1",
-                    type: "select",
-                    options: AVAILABLE_CATEGORIES
-                  },
-                  {
-                    label: "Verified?",
-                    name: "category.verified"
                   },
                   {
                     label: "Manual Category",
                     name: "category.manual_category",
-                    type: "select",
-                    options: AVAILABLE_CATEGORIES
+                    type: "select2",
+                    options: AVAILABLE_CATEGORIES,
+                    opts: {
+                      "placeholder": "Select value",
+                      "allowClear": true
+                    }
                   },
                   {
                     label: "Manual Subcategory",
                     name: "subcategory.manual_subcategory",
-                    type: "select",
-                    options: AVAILABLE_SUBCATEGORIES
+                    type: "select2",
+                    options: AVAILABLE_SUBCATEGORIES,
+                    opts: {
+                      "placeholder": "Select value",
+                      "allowClear": true
+                    }
                   }]
               }
       );
 
+      // editor.on('initEdit', function (e, node, data) {
+      //   console.log('initEdit', JSON.stringify(data))
+      // })
+
+
       editor.on('preSubmit', function (e, data, action) {
+        // console.log('preSubmit', JSON.stringify(data))
         $.each(data.data, function (key, values) {
           /*
-          Sets the manual category field, sets verified=True, and makes sure the original predicted_category_1 field
-          does not get overwritten.
+          Sets the manual category field, sets verified=True,
            */
-          data.data[key]['category']['user'] = "{{ user }}"
-          data.data[key]['category']['verified'] = true
-          data.data[key]['category']['manual_category'] = data.data[key]['category']['manual_category']
 
-          data.data[key]['subcategory']['user'] = "{{ user }}"
-          data.data[key]['subcategory']['verified'] = true
-          data.data[key]['subcategory']['manual_subcategory'] = data.data[key]['subcategory']['manual_subcategory']
+          // Set user and verified status
+          values['user'] = "{{ user }}"
+          values['verified'] = true
 
-          delete data.data[key]['category']['predicted_category_1']
-          $('#products').DataTable().draw('page') // redraw table to show correct selected data
+          // clean up the object depending on if the user is submitting a subcategory or category
+          if (values.subcategory.manual_subcategory !== null) {
+            values.manual_subcategory = values.subcategory.manual_subcategory
+            delete values.category
+            delete values.subcategory
+          } else {
+            values.manual_category = values.category.manual_category
+            delete values.category
+          }
+
         })
       })
 
+      editor.on('postSubmit', function (e, data, action) {
+        $('#products').DataTable().draw('page') // redraw table to show correct selected data
+      })
 
-      const renderManualCategory = function (data, type, row) {
+
+      const renderEditField = function (data, type, row) {
         if (type === 'display') {
           if (data === null || data === undefined) {
             return 'n/a <i class="fas fa-edit"/>'
@@ -220,22 +237,20 @@
                     data: "category.manual_category",
                     defaultContent: "N/A",
                     className: "editable",
-                    render: renderManualCategory
+                    render: renderEditField
                   }, {
                     data: "subcategory.manual_subcategory",
                     defaultContent: "N/A",
                     className: "editable",
-                    render: renderManualCategory
+                    render: renderEditField
                   },
                   {
                     data: "category.predicted_category_1",
                     defaultContent: "",
-                    {#render: confirmPrediction#}
                   },
                   {
                     data: "subcategory.predicted_subcategory_1",
                     defaultContent: "",
-                    {#render: confirmPrediction#}
                   },
                   {
                     data: "category.confidence_1",
@@ -252,19 +267,17 @@
 
       // Activate an inline edit on click of a table cell
       table.on('click', 'tbody td.editable', function (e) {
-        let cell = table.cell(this)
         editor.inline(this,
                 {
                   // On clicking the save button, submit data to REST API. See preSubmit method to change the payload.
                   buttons: {
-                    label: '<btn class="btn btn-sm btn-outline-primary">Save</btn>', fn: function (data) {
+                    label: '<button class="btn btn-sm btn-outline-primary">Save</button>', fn: function (data) {
                       this.submit();
-                      $('#products').DataTable().draw('page') // redraw table to show correct selected data
                     }
                   }
                 }
         );
-      });
+      })
 
 
     });

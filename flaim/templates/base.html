@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
 
-  {# TODO: Move all CDN scripts/CSS files to a static directory! #}
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <title>{% block title %}FLAIME{% endblock title %}</title>
@@ -33,7 +32,7 @@
 
     <!-- Your stuff: Third-party CSS libraries go here -->
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <link href="{% static 'select2/dist/css/select2.css' %}" rel="stylesheet"/>
+    <link href="{% static 'datatables/select2.min.css' %}" rel="stylesheet"/>
 
     <!-- This file stores project-specific CSS -->
     <link href="{% static 'css/project.css' %}" rel="stylesheet">

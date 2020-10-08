@@ -195,7 +195,7 @@ class Subcategory(TimeStampedModel):
     """
     Similar to the Category model, intended to capture subcategory values for products.
     """
-    parent_category = models.ForeignKey(ReferenceCategorySupport, on_delete=models.CASCADE)
+    parent_category = models.ForeignKey(ReferenceCategorySupport, on_delete=models.CASCADE, blank=True, null=True)
 
     predicted_subcategory_1 = models.CharField(max_length=MD_CHAR, blank=True, null=True)
     confidence_1 = models.FloatField(blank=True, null=True)

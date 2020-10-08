@@ -3,6 +3,7 @@ from flaim.database import models
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from flaim.database.product_mappings import REFERENCE_CATEGORIES_DICT
+from flaim.database.models import ReferenceCategorySupport
 
 User = get_user_model()
 
@@ -216,44 +217,51 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         The workaround is to pull the data from self.initial_data (this is where the datatables ajax patch data is
         stored) and force it into validated_data.
         """
-        # Check if the validated_data dict is empty/doesn't contain expected results
-        if 'category' not in validated_data:
-            validated_data = self.initial_data['data'][str(self.data['id'])]
-            print(validated_data)
-
-        # This will set the category automatically if ONLY the subcategory is chosen by the user
-        if 'manual_category' not in validated_data['category'].keys():
-            if 'manual_subcategory' in validated_data['subcategory'].keys():
-                manual_subcategory = validated_data['subcategory']['manual_subcategory']
-                for key, val in REFERENCE_CATEGORIES_DICT.items():
-                    if manual_subcategory in val:
-                        validated_data['category']['manual_subcategory'] = key
-
-        # Category
-        predicted_category_data = validated_data.pop('category')
-        category = instance.category
-        user = User.objects.get(username=predicted_category_data.get('user', category.verified_by))
-        category.manual_category = predicted_category_data.get('manual_category', category.manual_category)
-        category.verified = predicted_category_data.get('verified', category.verified)
-        category.verified_by = user
-        category.save()
-
-        # Subcategory
-        subcategory = instance.subcategory
-        predicted_subcategory_data = validated_data.pop('subcategory')
-        subcategory.manual_subcategory = predicted_subcategory_data.get('manual_subcategory',
-                                                                        subcategory.manual_subcategory)
-        subcategory.verified = predicted_subcategory_data.get('verified', subcategory.verified)
-        subcategory.verified_by = user
-        subcategory.save()
-
-        # Store the generic relationship between product code and category/subcategory
-        product_mapping, created = models.CategoryProductCodeMappingSupport.objects.get_or_create(
+        validated_data = self.initial_data['data'][str(self.data['id'])]
+        user = User.objects.get(username=validated_data['user'])
+        product_mapping, c = models.CategoryProductCodeMappingSupport.objects.get_or_create(
             product_code=instance.product_code)
-        product_mapping.category = category.manual_category
-        product_mapping.subcategory = subcategory.manual_subcategory
         product_mapping.verified_by = user
-        product_mapping.save()
+
+        # Handling if user is submitting a subcategory
+        if 'manual_subcategory' in validated_data.keys():
+            instance.subcategory.manual_subcategory = validated_data['manual_subcategory']
+            instance.subcategory.verified = validated_data['verified']
+            instance.subcategory.verified_by = user
+            instance.subcategory.parent_category = ReferenceCategorySupport.objects.filter(
+                subcategory_name=validated_data['manual_subcategory']).last()
+            instance.subcategory.save()
+
+            # Grab category corresponding to the subcategory
+            for key, val in REFERENCE_CATEGORIES_DICT.items():
+                if validated_data['manual_subcategory'] in val:
+                    instance.category.manual_category = key
+            instance.category.verified = validated_data['verified']
+            instance.category.verified_by = user
+            instance.category.save()
+
+            product_mapping.category = instance.category.manual_category
+            product_mapping.subcategory = instance.subcategory.manual_subcategory
+            product_mapping.save()
+
+        # Handling if user submitted only a category
+        elif 'manual_category' in validated_data.keys():
+            instance.category.manual_category = validated_data['manual_category']
+            instance.category.verified = validated_data['verified']
+            instance.category.verified_by = user
+            instance.category.save()
+
+            # Disable the whole subcategory, set arbitrary parent category
+            instance.subcategory.parent_category = None
+            instance.subcategory.manual_subcategory = None
+            instance.subcategory.verified = False
+            instance.subcategory.verified_by = None
+            instance.subcategory.save()
+            product_mapping.subcategory = None
+
+            # Store the generic relationship between product code and category
+            product_mapping.category = instance.category.manual_category
+            product_mapping.save()
 
         return instance
 

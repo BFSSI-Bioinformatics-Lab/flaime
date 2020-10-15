@@ -1,7 +1,10 @@
 import pickle
+import string
 
 import lightgbm as lgb
 import pandas as pd
+from nltk.stem import SnowballStemmer
+from nltk.tokenize import word_tokenize
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
@@ -18,18 +21,24 @@ class CategoryPredictor:
             self.model_version = None
         else:
             self.model, self.vectorizers, self.target_encoder, self.model_version = pickle.load(open(model_path, 'rb'))
+        self.stemmer = SnowballStemmer("english", ignore_stopwords=True)
 
-    def train(self, ds: DataStore, process_names=True, process_ingredients=False):
+    def snowball(self, row):
+        return ' '.join([self.stemmer.stem(w) for w in word_tokenize(row) if w not in string.punctuation])
+
+    def train(self, ds: DataStore, process_names=True):
         if process_names:
-            self.vectorizers['name'] = CountVectorizer(max_features=10000, stop_words='english', analyzer='word',
-                                                       strip_accents='ascii', dtype=int)
-            name_matrix = self.vectorizers['name'].fit_transform(ds.names)
+            self.vectorizers['name'] = CountVectorizer(max_features=4000, stop_words='english', analyzer='word',
+                                                       strip_accents='ascii', dtype=bool, token_pattern='[a-zA-Z]{3,}',
+                                                       binary=True)
+
+            name_matrix = self.vectorizers['name'].fit_transform(ds.names.apply(self.snowball))
             column_names = self.vectorizers['name'].get_feature_names()
             names = pd.DataFrame.sparse.from_spmatrix(name_matrix, columns=column_names, index=ds.names.index)
 
             self.target_encoder = LabelEncoder()
             x_train, x_test, y_train, y_test = train_test_split(names, self.target_encoder.fit_transform(ds.target),
-                                                                test_size=0.2, shuffle=True, random_state=3)
+                                                                test_size=0.1, shuffle=True, random_state=3)
 
             lgb_train = lgb.Dataset(x_train, y_train)
             lgb_eval = lgb.Dataset(x_test, y_test, reference=lgb_train)
@@ -39,21 +48,18 @@ class CategoryPredictor:
                 'objective': 'multiclass',
                 'num_class': ds.target.nunique(),
                 'metric': 'multi_error',
-                'max_depth': 31,
-                'num_leaves': 200,
-                'min_data_in_leaf': 5,
-                'bagging_fraction': 0.8,
-                'bagging_freq': 1,
-                'feature_fraction': 0.6
+                'max_depth': 9,
+                'num_leaves': 45,
+                'min_data_in_leaf': 2,
+                'feature_fraction': 0.2,
             }
 
             self.model = lgb.train(params, lgb_train, num_boost_round=5000, valid_sets=[lgb_train, lgb_eval],
-                                   early_stopping_rounds=50, verbose_eval=False)
-        # note: alternate models not yet added to module
+                                   early_stopping_rounds=100, verbose_eval=False)
 
     def predict(self, ds: DataStore, process=True):
         if 'name' in self.vectorizers:
-            name_matrix = self.vectorizers['name'].transform(ds.names)
+            name_matrix = self.vectorizers['name'].transform(ds.names.apply(self.snowball))
             column_names = self.vectorizers['name'].get_feature_names()
             test = pd.DataFrame.sparse.from_spmatrix(name_matrix, columns=column_names, index=ds.names.index)
         else:
@@ -122,11 +128,11 @@ class SubcategoryPredictor:
             self.target_encoder[cat] = LabelEncoder()
             encoded_target = self.target_encoder[cat].fit_transform(target)
 
-            X_train, X_test, y_train, y_test = train_test_split(names_matrix, encoded_target,
+            x_train, x_test, y_train, y_test = train_test_split(names_matrix, encoded_target,
                                                                 test_size=0.2, shuffle=True, random_state=3)
 
-            lgb_train = lgb.Dataset(X_train, y_train)
-            lgb_eval = lgb.Dataset(X_test, y_test, reference=lgb_train)
+            lgb_train = lgb.Dataset(x_train, y_train)
+            lgb_eval = lgb.Dataset(x_test, y_test, reference=lgb_train)
 
             params = {
                 'seed': 1,
@@ -142,7 +148,7 @@ class SubcategoryPredictor:
             }
 
             self.model[cat] = lgb.train(params, lgb_train, num_boost_round=5000, valid_sets=[lgb_train, lgb_eval],
-                                        early_stopping_rounds=50, verbose_eval=50)
+                                        early_stopping_rounds=50, verbose_eval=False)
 
     def predict(self, ds: DataStore, category_predictions: pd.Series):
         pred = pd.Series(index=ds.names.index, name='Sub-Category')

@@ -125,7 +125,9 @@ REFERENCE_CATEGORIES_DICT = {
          'Strained or junior meat, fruit or vegetable',
          'All varieties of juice', 'Cereal dry or instant'],
     'Meal Replacements and Nutritional Supplements':
-        ['Meal replacement, nutritional supplement']
+        ['Meal replacement, nutritional supplement'],
+    'Not Food':
+        ['Not Food']
 }
 
 REFERENCE_CATEGORIES_CODING_DICT = {
@@ -153,6 +155,7 @@ REFERENCE_CATEGORIES_CODING_DICT = {
     'V': 'Vegetables',
     'W': 'Baby Food',
     'X': 'Meal Replacements and Nutritional Supplements',
+    'ZX': 'Not Food',
     'ZZ': 'Unknown'
 }
 
@@ -182,7 +185,7 @@ REFERENCE_SUBCATEGORIES_CODING_DICT = {
     'A.23': 'Pie crust',
     'A.24': 'Pizza crust',
     'A.25': 'Taco shell (hard)',
-    'B.1': 'Carbonated or non-carbonated beverage ',
+    'B.1': 'Carbonated or non-carbonated beverage',
     'B.2': 'Alcoholic beverage',
     'B.3': 'Coffee',
     'B.4': 'Tea (hot)',
@@ -329,7 +332,8 @@ REFERENCE_SUBCATEGORIES_CODING_DICT = {
     'W.6': 'All varieties of juice',
     'W.7': 'Yogurt (one to under four years of age)',
     'X.1': 'Meal replacement, nutritional supplement',
-    'ZZ.1': 'Unknown'
+    'ZX.1': 'Not Food',
+    'ZZ.1': 'Unknown',
 }
 
 FLIP_TO_FLAIME_CONVERSION_DICT = {

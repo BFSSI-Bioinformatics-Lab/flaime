@@ -18,10 +18,10 @@ class IndexView(ListView):
         # Grab available categories and dump them context for use as a dropdown menu within datatables
 
         product_categories = [{'value': category, 'label': f'{key}: {category}'} for key, category in
-                              REFERENCE_CATEGORIES_CODING_DICT.items()]
+                              REFERENCE_CATEGORIES_CODING_DICT.items() if category != 'Unknown']
 
         product_subcategories = [{'value': subcategory, 'label': f'{key}: {subcategory}'} for key, subcategory in
-                                 REFERENCE_SUBCATEGORIES_CODING_DICT.items()]
+                                 REFERENCE_SUBCATEGORIES_CODING_DICT.items() if subcategory != 'Unknown']
         context['product_categories'] = json.dumps(product_categories)
         context['product_subcategories'] = json.dumps(product_subcategories)
         context['user'] = self.request.user

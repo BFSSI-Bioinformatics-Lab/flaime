@@ -100,3 +100,30 @@ To upload Loblaws data:
 >python manage.py load_loblaws_to_db --input_dir /media/scraper_output/loblaws/2020-01-01 --date 2020-01-01
 
 Following upload of data, categories will be automatically predicted and assigned and Atwater calculations will be run.
+
+
+### Export reports
+
+Ad-hoc product reports can be generated using `manage.py export_product_report`
+
+`python manage.py export_product_report --help`
+
+```text
+usage: manage.py export_product_report [-h] --outdir OUTDIR [--all_products]
+                                       [--categories {Bakery Products,Beverages,Cereals and Other Grain Products,Dairy Products and Substitutes,Desserts,Eggs and Egg Substitutes,Fats and Oils,Marine and Fresh Water Animals,Fruit and Fruit Juices,Legumes,Meat and Poultry, Products and Substitutes,Miscellaneous,Combination Dishes,Nuts and Seeds,Potatoes, Sweet Potatoes and Yams,Salads,Sauces, Dips, Gravies and Condiments,Snacks,Soups,Sugars and Sweets,Vegetables,Baby Food,Meal Replacements and Nutritional Supplements,Not Food} [{Bakery Products,Beverages,Cereals and Other Grain Products,Dairy Products and Substitutes,Desserts,Eggs and Egg Substitutes,Fats and Oils,Marine and Fresh Water Animals,Fruit and Fruit Juices,Legumes,Meat and Poultry, Products and Substitutes,Miscellaneous,Combination Dishes,Nuts and Seeds,Potatoes, Sweet Potatoes and Yams,Salads,Sauces, Dips, Gravies and Condiments,Snacks,Soups,Sugars and Sweets,Vegetables,Baby Food,Meal Replacements and Nutritional Supplements,Not Food} ...]]
+
+Export a full product report to a .csv file with ease. Can filter on a variety
+of options.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --outdir OUTDIR       Path to export reports
+  --all_products        Sets most_recent=False when filtering the product set.
+                        Beware, this will make the script run considerably
+                        slower.
+  --categories          Filter queryset to only the specified categories. Can
+                        take multiple categories at once, delimited by a space
+                        e.g. --categories "Soups" "Beverages" will filter the
+                        queryset to only contain products from the Soups and
+                        Beverages categories.
+```

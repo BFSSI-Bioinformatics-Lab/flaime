@@ -16,6 +16,8 @@
               // Filter the data into two separate sets
               let walmart_results = results.filter(x => x.store === "WALMART")
               let loblaws_results = results.filter(x => x.store === "LOBLAWS")
+              let voila_results = results.filter(x => x.store === "VOILA")
+              let gateway_results = results.filter(x => x.store === "GROCERYGATEWAY")
 
               // Trace setup
               let walmart_trace = {
@@ -32,7 +34,23 @@
                 name: 'Loblaws'
               }
 
-              let data = [walmart_trace, loblaws_trace]
+              let voila_trace = {
+                x: voila_results.map(x => x.scrape_date),
+                y: voila_results.map(x => x.total_products),
+                type: 'bar',
+                name: 'Voila'
+              }
+
+
+              let gateway_trace = {
+                x: gateway_results.map(x => x.scrape_date),
+                y: gateway_results.map(x => x.total_products),
+                type: 'bar',
+                name: 'Grocery Gateway'
+              }
+
+
+              let data = [walmart_trace, loblaws_trace, voila_trace, gateway_trace]
 
               let layout = {
                 autosize: true,

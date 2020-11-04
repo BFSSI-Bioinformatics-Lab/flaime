@@ -133,6 +133,10 @@
               {% include 'product_browser/amazon_detail.html' %}
             {% elif product.store.upper == 'WALMART' %}
               {% include 'product_browser/walmart_detail.html' %}
+            {% elif product.store.upper == 'VOILA' %}
+              {% include 'product_browser/voila_detail.html' %}
+            {% elif product.store.upper == 'GROCERYGATEWAY' %}
+              {% include 'product_browser/grocerygateway_detail.html' %}
             {% endif %}
           </div>
           <div class="product-nutrition">

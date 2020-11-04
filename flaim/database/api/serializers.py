@@ -58,6 +58,26 @@ class WalmartProductSerializer(serializers.HyperlinkedModelSerializer):
         )
 
 
+class VoilaProductSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.ReadOnlyField()
+
+    class Meta:
+        model = models.VoilaProduct
+        fields = (
+            'url', 'id', 'image_directory', 'sku', 'bullets', 'dietary_info',
+        )
+
+
+class GroceryGatewayProductSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.ReadOnlyField()
+
+    class Meta:
+        model = models.GroceryGatewayProduct
+        fields = (
+            'url', 'id', 'image_directory', 'sku', 'bullets', 'dietary_info',
+        )
+
+
 class AmazonProductSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.ReadOnlyField()
 
@@ -129,6 +149,8 @@ class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadi
     id = serializers.ReadOnlyField()
     loblaws_product = LoblawsProductSerializer()
     walmart_product = WalmartProductSerializer()
+    voila_product = VoilaProductSerializer()
+    grocerygateway_product = GroceryGatewayProductSerializer()
     category = CategorySerializer()
     subcategory = SubcategorySerializer()
     batch = ScrapeBatchSerializer()
@@ -139,6 +161,8 @@ class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadi
         reverse_relationships = [
             'loblaws_product',
             'walmart_product',
+            'voila_product',
+            'grocerygateway_product',
             'category',
             'subcategory',
             'batch'
@@ -155,6 +179,8 @@ class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixi
     id = serializers.ReadOnlyField()
     loblaws_product = LoblawsProductSerializer()
     walmart_product = WalmartProductSerializer()
+    voila_product = VoilaProductSerializer()
+    grocergateway_product = GroceryGatewayProductSerializer()
     category = CategorySerializer()
     subcategory = SubcategorySerializer()
     batch = ScrapeBatchSerializer()
@@ -166,6 +192,8 @@ class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixi
         reverse_relationships = [
             'loblaws_product',
             'walmart_product',
+            'voila_product',
+            'grocerygateway_product',
             'batch',
             'category',
             'subcategory'
@@ -201,6 +229,8 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     id = serializers.ReadOnlyField()
     loblaws_product = LoblawsProductSerializer()
     walmart_product = WalmartProductSerializer()
+    voila_product = VoilaProductSerializer()
+    grocerygateway_product = GroceryGatewayProductSerializer()
     nutrition_facts = NutritionFactsSerializer()
     category = CategorySerializer()
     subcategory = SubcategorySerializer()
@@ -271,6 +301,8 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
         reverse_relationships = [
             'loblaws_product',
             'walmart_product',
+            'voila_product',
+            'grocerygateway_product',
             'nutrition_facts',
             'category',
             'subcategory'

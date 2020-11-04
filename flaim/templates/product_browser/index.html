@@ -73,8 +73,15 @@
             // Capitalize first letter of string (lol javascript is terrible)
             data = data.toLowerCase().replace(/\w\S*/g, (w) => (w.replace(/^\w/, (c) => c.toUpperCase())));
 
+            let text = data
+
+            // Nicer display for gateway
+            if (data === 'Grocerygateway'){
+              text = 'Grocery Gateway'
+            }
+
             let url = `/reports/store/${encodeURIComponent(data)}/`
-            return `<a href=${url}>${data}</a>`
+            return `<a href=${url}>${text}</a>`
           }
           // Search, order and type can use the original data
           return data;

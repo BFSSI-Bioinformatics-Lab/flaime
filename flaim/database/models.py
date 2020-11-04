@@ -12,6 +12,13 @@ from flaim.users.models import User
 LG_CHAR = 1500
 MD_CHAR = 500
 SM_CHAR = 50
+VALID_STORES = (
+    ('LOBLAWS', 'Loblaws'),
+    ('WALMART', 'Walmart'),
+    ('VOILA', 'Voila'),
+    ('GROCERYGATEWAY', 'Grocery Gateway'),
+    ('AMAZON', 'Amazon')
+)
 
 
 def upload_product_image(obj):
@@ -70,11 +77,6 @@ class ScrapeBatch(models.Model):
     scrape_date = models.DateField(null=True)  # Should be populated manually once scrape job is complete
 
     # Scraper specifics
-    VALID_STORES = (
-        ('LOBLAWS', 'Loblaws'),
-        ('WALMART', 'Walmart'),
-        ('AMAZON', 'Amazon')
-    )
     store = models.CharField(max_length=SM_CHAR, choices=VALID_STORES)
 
     # Version of web scraper
@@ -240,11 +242,6 @@ class Product(TimeStampedModel):
     # TODO: Make batch field required upon instantiation once we move towards a more production-ready version of FLAIME
     batch = models.ForeignKey(ScrapeBatch, on_delete=models.CASCADE, blank=True, null=True)
 
-    VALID_STORES = (
-        ('LOBLAWS', 'Loblaws'),
-        ('WALMART', 'Walmart'),
-        ('AMAZON', 'Amazon')
-    )
     store = models.CharField(max_length=SM_CHAR, choices=VALID_STORES)
     price = models.CharField(max_length=MD_CHAR, blank=True, null=True)
     price_float = models.FloatField(blank=True, null=True)
@@ -651,6 +648,61 @@ class WalmartProduct(TimeStampedModel):
     class Meta:
         verbose_name = 'Walmart Product'
         verbose_name_plural = 'Walmart Products'
+
+
+# GROCERY GATEWAY MODELS
+
+class GroceryGatewayProduct(TimeStampedModel):
+    """
+    Extension of the generic Product model to store Grocery Gateway specific metadata
+    """
+
+    product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name="grocerygateway_product")
+    image_directory = models.CharField(max_length=MD_CHAR, blank=True, null=True)
+
+    sku = models.CharField(max_length=SM_CHAR, blank=True, null=True)
+    bullets = models.TextField(blank=True, null=True)
+    dietary_info = models.TextField(blank=True, null=True)  # Corresponds to "Lifestyle and Dietary Need" in JSON
+    nutrition_facts_json = JSONField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.product.product_code}: {self.product.name}"
+
+    class Meta:
+        verbose_name = 'Grocery Gateway Product'
+        verbose_name_plural = 'Grocery Gateway Products'
+        indexes = [
+            models.Index(fields=['product'])
+        ]
+
+    history = HistoricalRecords()
+
+
+# VOILA MODELS
+class VoilaProduct(TimeStampedModel):
+    """
+    Extension of the generic Product model to store Voila specific metadata
+    """
+
+    product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name="voila_product")
+    image_directory = models.CharField(max_length=MD_CHAR, blank=True, null=True)
+
+    sku = models.CharField(max_length=SM_CHAR, blank=True, null=True)
+    bullets = models.TextField(blank=True, null=True)
+    dietary_info = models.TextField(blank=True, null=True)  # Corresponds to "Lifestyle and Dietary Need" in JSON
+    nutrition_facts_json = JSONField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.product.product_code}: {self.product.name}"
+
+    class Meta:
+        verbose_name = 'Voila Product'
+        verbose_name_plural = 'Voila Products'
+        indexes = [
+            models.Index(fields=['product'])
+        ]
+
+    history = HistoricalRecords()
 
 
 # AMAZON MODELS

@@ -180,7 +180,7 @@ class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixi
     loblaws_product = LoblawsProductSerializer()
     walmart_product = WalmartProductSerializer()
     voila_product = VoilaProductSerializer()
-    grocergateway_product = GroceryGatewayProductSerializer()
+    grocerygateway_product = GroceryGatewayProductSerializer()
     category = CategorySerializer()
     subcategory = SubcategorySerializer()
     batch = ScrapeBatchSerializer()
@@ -234,8 +234,16 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     nutrition_facts = NutritionFactsSerializer()
     category = CategorySerializer()
     subcategory = SubcategorySerializer()
+    calculated_best_category = serializers.SerializerMethodField()
+
     images = serializers.SlugRelatedField(many=True, read_only=True, slug_field='image_string')
     url = serializers.HyperlinkedIdentityField(view_name='advanced_products-detail', lookup_field='pk')
+
+    @staticmethod
+    def get_calculated_best_category(obj):
+        if obj.category.manual_category is None:
+            return obj.category.predicted_category_1
+        return obj.category.manual_category
 
     def update(self, instance, validated_data):
         """
@@ -308,7 +316,7 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
             'subcategory'
         ]
         fields = ['id', 'url', 'product_code', 'name', 'brand', 'store', 'price',
-                  'upc_code', 'images'] + reverse_relationships
+                  'upc_code', 'images', 'calculated_best_category'] + reverse_relationships
 
 
 class ProductNameSerializer(serializers.ModelSerializer):

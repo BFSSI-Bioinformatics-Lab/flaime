@@ -7,37 +7,6 @@ PRODUCT_STORES = [
 
 # All available categories that can be selected/predicted for any particular product. This list should be maintained.
 # https://www.canada.ca/en/health-canada/services/technical-documents-labelling-requirements/table-reference-amounts-food.html
-PRODUCT_CATEGORIES = [
-    "Baby Food",
-    "Bakery Products",
-    "Beverages",
-    "Cereals and Other Grain Products",
-    "Combination Dishes",
-    "Dairy Products and Substitutes",
-    "Desserts",
-    "Dessert Toppings and Fillings",
-    "Eggs and Egg Substitutes",
-    "Fats and Oils",
-    "Fruit and Fruit Juices",
-    "Legumes",
-    "Marine and Fresh Water Animals",
-    "Meal Replacements and Supplements",
-    "Meat and Poultry, Products and Substitutes",
-    "Miscellaneous",
-    "Nuts and Seeds",
-    "Potatoes, Sweet Potatoes and Yams",
-    "Salads",
-    "Sauces, Dips, Gravies and Condiments",
-    "Snacks",
-    "Soups",
-    "Sugars and Sweets",
-    "Vegetables",
-    "Not Food",
-    "Unknown"
-]
-
-# TODO: Use this instead of the PRODUCT_CATEGORIES list. This properly displays all categories and their respective
-#  sub-categories.
 REFERENCE_CATEGORIES_DICT = {
     'Bakery Products':
         ['Rice cake, corn cake', 'Pancake, waffle', 'Pizza crust', 'Bagel, naan, flatbread', 'Crouton',
@@ -486,51 +455,3 @@ VALID_NUTRIENT_COLUMNS = [
     'thiamine',
     'zinc'
 ]
-
-EXPECTED_NUTRIENTS = (
-    'Sugars',
-    'Calories',
-    'Sodium',
-    'Calcium',
-    'Total Fat',
-    'Polyunsaturated Fat',
-    'Monounsaturated Fat',
-    'Saturated Fat',
-    'Omega 3',
-    'Omega 6',
-    'Trans. Fat',
-    'Potassium',
-    'Total Carbohydrate',
-    'Dietary Fiber',
-    'Protein',
-    'Cholesterol',
-    'Vitamin A',
-    'Vitamin C',
-    'Vitamin D',
-    'Vitamin E',
-    'Vitamin B6',
-    'Folacin',
-    'Vitamin B12',
-    'Pantothenic Acid',
-    'Pantothenate',
-    'Alcohol',
-    'Carbohydrate',
-    'Erythritol',
-    'Glycerol',
-    'Isomalt',
-    'Lactitol',
-    'Maltitol',
-    'Mannitol',
-    'Polydextrose',
-    'Sorbitol',
-    'Xylitol',
-    'Iron',
-    'Riboflavin',
-    'Folate',
-    'Selenium',
-    'Magnesium',
-    'Niacin',
-    'Phosphorus',
-    'Thiamine',
-    'Zinc'
-)

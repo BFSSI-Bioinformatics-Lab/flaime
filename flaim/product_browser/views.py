@@ -1,7 +1,9 @@
 import logging
 from django.views.generic import TemplateView, DetailView
 from django.core.exceptions import ObjectDoesNotExist
-from flaim.database.models import Product, ProductImage, LoblawsProduct, WalmartProduct, NutritionFacts
+from flaim.database.models import Product, ProductImage, \
+    LoblawsProduct, WalmartProduct, VoilaProduct, GroceryGatewayProduct, \
+    NutritionFacts
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 logger = logging.getLogger(__name__)
@@ -42,6 +44,11 @@ class ProductView(LoginRequiredMixin, DetailView):
             context['store_changes'] = get_product_history_diff(LoblawsProduct.objects.get(product=context['product']))
         elif context['product'].store == 'WALMART':
             context['store_changes'] = get_product_history_diff(WalmartProduct.objects.get(product=context['product']))
+        elif context['product'].store == 'VOILA':
+            context['store_changes'] = get_product_history_diff(VoilaProduct.objects.get(product=context['product']))
+        elif context['product'].store == 'GROCERYGATEWAY':
+            context['store_changes'] = get_product_history_diff(
+                GroceryGatewayProduct.objects.get(product=context['product']))
 
         try:
             context['nutrition_changes'] = get_product_history_diff(
@@ -49,6 +56,7 @@ class ProductView(LoginRequiredMixin, DetailView):
         except ObjectDoesNotExist as e:
             context['nutrition_changes'] = None
 
+        # TODO: Move this styling junk somewhere else
         # Predicted category styling
         if context['product'].category.predicted_category_1 is not None:
             if context['product'].category.confidence_1 > 0.90:

@@ -13,8 +13,9 @@ admin.site.register(models.NutritionFacts)
 admin.site.register(models.ProductImage)
 
 admin.site.register(models.LoblawsProduct)
-
 admin.site.register(models.WalmartProduct)
+admin.site.register(models.VoilaProduct)
+admin.site.register(models.GroceryGatewayProduct)
 
 admin.site.register(models.AmazonProduct)
 admin.site.register(models.AmazonProductReview)

@@ -267,6 +267,16 @@ class WalmartProductViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.WalmartProductSerializer
 
 
+class VoilaProductViewSet(viewsets.ModelViewSet):
+    queryset = models.VoilaProduct.objects.all().order_by('-created')
+    serializer_class = serializers.VoilaProductSerializer
+
+
+class GroceryGatewayProductViewSet(viewsets.ModelViewSet):
+    queryset = models.GroceryGatewayProduct.objects.all().order_by('-created')
+    serializer_class = serializers.GroceryGatewayProductSerializer
+
+
 class AmazonProductViewSet(viewsets.ModelViewSet):
     queryset = models.AmazonProduct.objects.all().order_by('-created')
     serializer_class = serializers.AmazonProductSerializer

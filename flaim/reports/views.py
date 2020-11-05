@@ -67,7 +67,7 @@ class StoreView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['product_stores'] = PRODUCT_STORES
+        context['product_stores'] = [x[0] for x in PRODUCT_STORES]
 
         plot_df = get_plot_df()
 

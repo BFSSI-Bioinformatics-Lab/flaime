@@ -1,8 +1,8 @@
 PRODUCT_STORES = [
-    'Loblaws',
-    'Walmart',
-    # 'Voila',
-    # 'Grocery Gateway'
+    ('LOBLAWS', 'Loblaws'),
+    ('WALMART', 'Walmart'),
+    ('VOILA', 'Voila'),
+    ('GROCERYGATEWAY', 'Grocery Gateway'),
 ]
 
 # All available categories that can be selected/predicted for any particular product. This list should be maintained.
@@ -382,6 +382,7 @@ VALID_NUTRIENT_DICT = {
     'saturatedfat': 'Saturated Fat',
     'saturatedfat_dv': 'Saturated Fat',
     'omega3fattyacids': 'Omega 3',
+    'omega6fattyacids': 'Omega 6',
     'transfat': 'Trans. Fat',
     'transfat_dv': 'Trans. Fat',
     'potassium': 'Potassium',
@@ -440,6 +441,7 @@ VALID_NUTRIENT_COLUMNS = [
     'saturatedfat',
     'saturatedfat_dv',
     'omega3fattyacids',
+    'omega6fattyacids',
     'transfat',
     'transfat_dv',
     'potassium',
@@ -495,6 +497,7 @@ EXPECTED_NUTRIENTS = (
     'Monounsaturated Fat',
     'Saturated Fat',
     'Omega 3',
+    'Omega 6',
     'Trans. Fat',
     'Potassium',
     'Total Carbohydrate',

@@ -33,6 +33,8 @@ REFERENCE_CATEGORIES_DICT = {
     'Desserts':
         ['Ice cream as cake, sandwich or cone', 'Ice cream in tub', 'Custard, gelatin, pudding',
          'Ice cream as pop, bar or cup', 'Sundae'],
+    'Dessert Toppings and Fillings':
+        ['Dessert topping', 'Frosting, icing', 'Pie filling'],
     'Eggs and Egg Substitutes':
         ['Egg substitute', 'Egg in shell, liquid or dried', 'Egg mixture'],
     'Fats and Oils':

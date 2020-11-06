@@ -280,7 +280,7 @@ REFERENCE_SUBCATEGORIES_CODING_DICT = {
     'S.3': 'Meat or poultry stick for snacking',
     'T.1': 'All varieties of soup',
     'U.1': 'Candy, chocolate',
-    'U.2': 'After-dinner confection ',
+    'U.2': 'After-dinner confection',
     'U.3': 'Hard, powder or liquid candy',
     'U.4': 'Baking candy',
     'U.5': 'Breath mint',

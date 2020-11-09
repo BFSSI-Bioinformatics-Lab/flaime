@@ -1,9 +1,9 @@
 {% load static i18n %}
 
-<head>
+{% block extra_css %}
   <link rel="stylesheet" href="{% static 'css/d3.css' %}">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap" rel="stylesheet">
-</head>
+{% endblock %}
 
 <br/>
 <br/>
@@ -15,195 +15,196 @@
 {% block extra_js %}
   <script src="https://d3js.org/d3.v6.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.min.js"
-         integrity="sha512-wNH6xsp2n8CfB91nrBtfc4sfLwYPBMjSWVUwQOp60AYYXH6i8yCwuKFZ4rgK2i6pQek/b+bSyR7b01/922IBzQ==" crossorigin="anonymous"></script>
+          integrity="sha512-wNH6xsp2n8CfB91nrBtfc4sfLwYPBMjSWVUwQOp60AYYXH6i8yCwuKFZ4rgK2i6pQek/b+bSyR7b01/922IBzQ=="
+          crossorigin="anonymous"></script>
 
   <script>
-  // d3 code
+    // d3 code
 
 
     // Date parse
     const parseTime = d3.timeParse("%Y-%m-%d");
     const formatTime = d3.timeFormat("%b %d, %Y");
 
-    const margin = {top: 30, right: 100, bottom: 100, left:100},
-          h = 400,
-          w = 600,
-          plotH = h - margin.top - margin.bottom,
-          plotW = w - margin.left - margin.right;
+    const margin = {top: 30, right: 100, bottom: 100, left: 100},
+            h = 400,
+            w = 600,
+            plotH = h - margin.top - margin.bottom,
+            plotW = w - margin.left - margin.right;
 
     const svg = d3.select('#scrapeChart')
-        .append('svg')
-        .attr('width', w)
-        .attr('height', h);
+            .append('svg')
+            .attr('width', w)
+            .attr('height', h);
 
     const plot = svg.append('g')
-        .attr('width', plotW)
-        .attr('height', plotH)
-        .attr('transform', `translate(${margin.left}, ${margin.top})`);
+            .attr('width', plotW)
+            .attr('height', plotH)
+            .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
     // Color
     const color = d3.scaleOrdinal()
-        .range(['#21243d', '#ff7c7c', '#ffd082', '#88e1f2']);
+            .range(['#21243d', '#ff7c7c', '#ffd082', '#88e1f2']);
 
 
     // Axis Groups
     const xAxisGroup = plot.append('g')
-        .attr('transform', `translate(0, ${plotH})`);
+            .attr('transform', `translate(0, ${plotH})`);
 
     const yAxisGroup = plot.append('g');
 
     // Legend
     const legendGroup = svg.append('g')
-        .attr('class', 'legend')
-        .attr('transform', `translate(${plotW + margin.left + 15}, ${margin.top})`)
-        .attr('font-size', 12)
+            .attr('class', 'legend')
+            .attr('transform', `translate(${plotW + margin.left + 15}, ${margin.top})`)
+            .attr('font-size', 12)
 
 
     const legend = d3.legendColor().shape('circle')
-        .scale(color)
-        .shapePadding(4)
-        .shapeRadius(8)
+            .scale(color)
+            .shapePadding(4)
+            .shapeRadius(8)
     ;
     // ########## Add tool tip ################
     const tooltip = d3.select('body')
-      .append('div')
-      .attr('class', 'tooltip')
-      .style('opacity', 0)
-          //all other props are in css
-       ;
+                    .append('div')
+                    .attr('class', 'tooltip')
+                    .style('opacity', 0)
+            //all other props are in css
+    ;
 
     const mouseLeave = d => {
       tooltip
-         .transition()
-         .duration(400)
-         .style('opacity', 0)
+              .transition()
+              .duration(400)
+              .style('opacity', 0)
     };
 
-    String.prototype.capitalize = function() {
-        return this.charAt(0).toUpperCase() + this.slice(1);
+    String.prototype.capitalize = function () {
+      return this.charAt(0).toUpperCase() + this.slice(1);
     }
 
-// ##### data join and plot #######
-//##################################
+    // ##### data join and plot #######
+    //##################################
 
-    d3.json('/api/scrape_batches').then( data => {
+    d3.json('/api/scrape_batches').then(data => {
 
-        let df = data.results;
-        df.forEach( function (d) {
-                d.date= parseTime(d['scrape_date']);
-                d.store= d['store'].toLowerCase().capitalize();
-                d.total= +d['total_products'];
-        })
-        //console.log(df.map(d=> d.total),df.map(d=> d.store))
+      let df = data.results;
+      df.forEach(function (d) {
+        d.date = parseTime(d['scrape_date']);
+        d.store = d['store'].toLowerCase().capitalize();
+        d.total = +d['total_products'];
+      })
+      //console.log(df.map(d=> d.total),df.map(d=> d.store))
 
-        const storeGroup = Array.from(d3.groups(df, d => d.date), ([key, value]) => ({key, value}))
-        //console.log(storeGroup)
-        //console.log(Array.from(storeGroup.keys()))
+      const storeGroup = Array.from(d3.groups(df, d => d.date), ([key, value]) => ({key, value}))
+      //console.log(storeGroup)
+      //console.log(Array.from(storeGroup.keys()))
 
-        let dates = storeGroup.map((d)=> d.key );
-        let stores =storeGroup.map(function(d) {
-            return d.value.map(d=> d.store);
-        });
-        //console.log(dates, stores)
+      let dates = storeGroup.map((d) => d.key);
+      let stores = storeGroup.map(function (d) {
+        return d.value.map(d => d.store);
+      });
+      //console.log(dates, stores)
 
 
       // // Add X axis
-        const x = d3.scaleBand()
-          .domain(df.map(d => d.date).sort((a,b)=> a-b))
-          .range([0, plotW])
-          .padding(0.2);
-        const x0  = d3.scaleBand()
-            .rangeRound([0, plotW], .5)
-            .domain(dates.sort((a,b)=> a-b))
-        const x1 = d3.scaleBand()
-            .domain(df.map(d => d.store))
-            .rangeRound([0, x0.bandwidth()])
-            .padding(0.05);
+      const x = d3.scaleBand()
+              .domain(df.map(d => d.date).sort((a, b) => a - b))
+              .range([0, plotW])
+              .padding(0.2);
+      const x0 = d3.scaleBand()
+              .rangeRound([0, plotW], .5)
+              .domain(dates.sort((a, b) => a - b))
+      const x1 = d3.scaleBand()
+              .domain(df.map(d => d.store))
+              .rangeRound([0, x0.bandwidth()])
+              .padding(0.05);
 
       // Add Y axis
-        const y = d3.scaleLinear()
-          .domain([0, d3.max(df, d => d.total)*1.2])
-          .range([ plotH, 0 ]);
+      const y = d3.scaleLinear()
+              .domain([0, d3.max(df, d => d.total) * 1.2])
+              .range([plotH, 0]);
 
 
-        const bars = plot.selectAll('rect')
+      const bars = plot.selectAll('rect')
               .data(storeGroup)
               .enter().append("g")
-            .attr("class", "g")
-            .attr("transform",(d) =>`translate(${x0(d.key)},0)`);
+              .attr("class", "g")
+              .attr("transform", (d) => `translate(${x0(d.key)},0)`);
 
-        bars.selectAll('rects')
-            .data(d => d.value)
-            .join(
-                enter => enter
-                    .append('rect')
-                    .attr('x',d=> x1(d.store))
-                    .attr('width',x1.bandwidth())
-                    .attr('height', 0)
-                    .attr('y', plotH)
-                    .attr('fill', d=> color(d.store))
-                    .attr('rx',4)
-                    .on('mouseover', function (event,d) {
-                       tooltip
-                          .transition()
-                          .duration(200)
-                          .style('opacity', 1)
-                       tooltip
-                          .html(d.store + '<br/>'+'Total: '+ d.total + '<br/>'+  'Date: ' + formatTime(d.date)) // Change to
-                       // current data
-                      .style('left', (event.pageX)+'px')
-                      .style('top', (event.pageY)+ 'px')
-                      .style("display", "inline-block")
-                    })
-                    .on('mouseleave', mouseLeave)
-                  .on('mouseleave', mouseLeave)
+      bars.selectAll('rects')
+              .data(d => d.value)
+              .join(
+                      enter => enter
+                              .append('rect')
+                              .attr('x', d => x1(d.store))
+                              .attr('width', x1.bandwidth())
+                              .attr('height', 0)
+                              .attr('y', plotH)
+                              .attr('fill', d => color(d.store))
+                              .attr('rx', 4)
+                              .on('mouseover', function (event, d) {
+                                tooltip
+                                        .transition()
+                                        .duration(200)
+                                        .style('opacity', 1)
+                                tooltip
+                                        .html(d.store + '<br/>' + 'Total: ' + d.total + '<br/>' + 'Date: ' + formatTime(d.date)) // Change to
+                                        // current data
+                                        .style('left', (event.pageX) + 'px')
+                                        .style('top', (event.pageY) + 'px')
+                                        .style("display", "inline-block")
+                              })
+                              .on('mouseleave', mouseLeave)
+                              .on('mouseleave', mouseLeave)
+              ).transition()
+              .duration(1000)
+              .attr('height', d => plotH - y(d.total))
+              .attr('y', d => y(d.total))
 
+      // Legend
+      legendGroup.call(legend);
+      legendGroup
+              .selectAll('text')
 
-            ).transition()
-                  .duration(1000)
-                  .attr('height', d => plotH - y(d.total))
-                  .attr('y', d => y(d.total))
-
-        // Legend
-           legendGroup.call(legend);
-           legendGroup
-                .selectAll('text')
-
-          xAxisGroup
-            .call(d3.axisBottom(x0)
-                .tickSize(0)
-                .tickFormat(d3.timeFormat("%b %d,%Y"))
-                .tickValues(x.domain().filter(function(d,i){ return !(i%2)}))
-            )
-            .style('font-size', 12)
-            .selectAll('text')
-            //.attr('transform', 'rotate(-40)')
-               .style('text-anchor', 'center')
-            .attr("dy", "1.2em")
-            //.style('text-anchor', 'end')
-            ;
-          yAxisGroup
-            .call(d3.axisLeft(y)
-                .ticks(6)
-            )
-            .style('font-size', 12)
+      xAxisGroup
+              .call(d3.axisBottom(x0)
+                      .tickSize(0)
+                      .tickFormat(d3.timeFormat("%b %d,%Y"))
+                      .tickValues(x.domain().filter(function (d, i) {
+                        return !(i % 2)
+                      }))
+              )
+              .style('font-size', 12)
+              .selectAll('text')
+              //.attr('transform', 'rotate(-40)')
               .style('text-anchor', 'center')
-            .call(g => g.select(".domain").remove())
-            {#.call(g => g.select(".tick:last-of-type text").clone()#}
-            {#    .attr("x", 3)#}
-            {#    .attr('y', -10)#}
-            {#    .attr('font-size', 11)#}
-            {#  .attr("text-anchor", "start")#}
-            {#  //.attr("font-weight", "bold")#}
-            {#  .attr("font-family", "Arial")#}
-            {#  .text('Products Collected'));#}
+              .attr("dy", "1.2em")
+      //.style('text-anchor', 'end')
+      ;
+      yAxisGroup
+              .call(d3.axisLeft(y)
+                      .ticks(6)
+              )
+              .style('font-size', 12)
+              .style('text-anchor', 'center')
+              .call(g => g.select(".domain").remove())
+      {#.call(g => g.select(".tick:last-of-type text").clone()#}
+      {#    .attr("x", 3)#}
+      {#    .attr('y', -10)#}
+      {#    .attr('font-size', 11)#}
+      {#  .attr("text-anchor", "start")#}
+      {#  //.attr("font-weight", "bold")#}
+      {#  .attr("font-family", "Arial")#}
+      {#  .text('Products Collected'));#}
 
-          plot.append('text')
-            .attr('class', 'title')
-            .attr('x', (plotW/2))
-            .attr('y', 0 - (margin.top / 2))
-            .attr('text-anchor', 'middle')
-            .text('Number of Products Collected')
+      plot.append('text')
+              .attr('class', 'title')
+              .attr('x', (plotW / 2))
+              .attr('y', 0 - (margin.top / 2))
+              .attr('text-anchor', 'middle')
+              .text('Number of Products Collected')
     });
 
   </script>

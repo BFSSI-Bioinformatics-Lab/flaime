@@ -26,9 +26,9 @@
     const parseTime = d3.timeParse("%Y-%m-%d");
     const formatTime = d3.timeFormat("%b %d, %Y");
 
-    const margin = {top: 30, right: 100, bottom: 100, left: 100},
-            h = 400,
-            w = 600,
+    const margin = {top: 70, right: 130, bottom: 90, left: 85},
+            h = 550,
+            w = 750,
             plotH = h - margin.top - margin.bottom,
             plotW = w - margin.left - margin.right;
 
@@ -172,9 +172,9 @@
               .call(d3.axisBottom(x0)
                       .tickSize(0)
                       .tickFormat(d3.timeFormat("%b %d,%Y"))
-                      .tickValues(x.domain().filter(function (d, i) {
-                        return !(i % 2)
-                      }))
+//                       .tickValues(x.domain().filter(function (d, i) {
+//                         return !(i % 2)
+//                       }))
               )
               .style('font-size', 12)
               .selectAll('text')
@@ -184,27 +184,27 @@
       //.style('text-anchor', 'end')
       ;
       yAxisGroup
-              .call(d3.axisLeft(y)
-                      .ticks(6)
-              )
-              .style('font-size', 12)
+            .call(d3.axisLeft(y)
+                .ticks(6)
+            )
+            .style('font-size', 13)
               .style('text-anchor', 'center')
-              .call(g => g.select(".domain").remove())
-      {#.call(g => g.select(".tick:last-of-type text").clone()#}
-      {#    .attr("x", 3)#}
-      {#    .attr('y', -10)#}
-      {#    .attr('font-size', 11)#}
-      {#  .attr("text-anchor", "start")#}
-      {#  //.attr("font-weight", "bold")#}
-      {#  .attr("font-family", "Arial")#}
-      {#  .text('Products Collected'));#}
-
-      plot.append('text')
-              .attr('class', 'title')
-              .attr('x', (plotW / 2))
-              .attr('y', 0 - (margin.top / 2))
-              .attr('text-anchor', 'middle')
-              .text('Number of Products Collected')
+            .call(g => g.select(".domain").remove())
+            .call(g => g.select(".tick:last-of-type text").clone()
+                .attr("x", -20)
+                .attr('y', -30)
+                .attr('font-size', 15)
+              .attr("text-anchor", "start")
+              .attr("font-weight", "bold")
+              .attr("font-family", "Arial")
+              .text('Products Collected'));
+      //title
+//       plot.append('text')
+//               .attr('class', 'title')
+//               .attr('x', (plotW / 2))
+//               .attr('y', 0 - (margin.top / 2))
+//               .attr('text-anchor', 'middle')
+//               .text('Number of Products Collected')
     });
 
   </script>

@@ -1,7 +1,7 @@
 import pandas as pd
 from django.core.management.base import BaseCommand
 from django.db.models import Q
-from flaim.database.product_mappings import REFERENCE_CATEGORIES_DICT
+from flaim.database.product_mappings import REFERENCE_CATEGORIES_DICT, PRODUCT_STORES
 from flaim.database.models import Product, NutritionFacts
 from pathlib import Path
 from typing import Optional
@@ -9,7 +9,7 @@ from datetime import datetime
 from django.db.models import F
 
 
-def get_report(most_recent: bool, categories: Optional[list]) -> pd.DataFrame:
+def get_report(most_recent: bool, categories: Optional[list], stores: Optional[list]) -> pd.DataFrame:
     products = Product.objects.all()
     products = products.filter(most_recent=most_recent)
     nutrition = NutritionFacts.objects.filter(product__most_recent=most_recent)
@@ -23,6 +23,16 @@ def get_report(most_recent: bool, categories: Optional[list]) -> pd.DataFrame:
         nutrition = nutrition.filter(
             Q(product__category__predicted_category_1__in=categories) | Q(
                 product__category__manual_category__in=categories)
+        )
+
+    if stores is not None:
+        products = products.filter(
+            Q(store__in=stores) | Q(
+                store__in=stores)
+        )
+        nutrition = nutrition.filter(
+            Q(product__store__in=stores) | Q(
+                product__store__in=stores)
         )
 
     # Add more informative columns for category/subcategory
@@ -56,6 +66,12 @@ class Command(BaseCommand):
                             help='Filter queryset to only the specified categories. Can take multiple categories at '
                                  'once, delimited by a space e.g. --categories "Soups" "Beverages" will filter the '
                                  'queryset to only contain products from the Soups and Beverages categories.')
+        parser.add_argument('--stores',
+                            type=str,
+                            nargs='+',
+                            default=None,
+                            choices=[x[0] for x in PRODUCT_STORES],
+                            help='Filter queryset to only selected stores. e.g. LOBLAWS,WALMART')
 
     def handle(self, *args, **options):
         self.stdout.write(self.style.SUCCESS(f'Retrieving product report data'))
@@ -71,12 +87,17 @@ class Command(BaseCommand):
         else:
             categories = None
 
+        if options['stores'] is not None:
+            stores = [x for x in options['stores']]
+        else:
+            stores = None
+
         # Create outdir if it does not exist
         outdir = Path(options['outdir'])
         if not outdir.exists():
             outdir.mkdir()
 
-        df = get_report(most_recent, categories)
+        df = get_report(most_recent, categories, stores)
         outcsv = outdir / f'product_report_{datetime.today().strftime("%Y-%m-%d")}.csv'
         df.to_csv(outcsv, index=False)
 

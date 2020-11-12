@@ -109,7 +109,9 @@ REFERENCE_CATEGORIES_DICT = {
     'Meal Replacements and Nutritional Supplements':
         ['Meal replacement, nutritional supplement'],
     'Not Food':
-        ['Not Food']
+        ['Not Food'],
+    'Uncategorized':
+        ['Uncategorized']
 }
 
 REFERENCE_CATEGORIES_CODING_DICT = {
@@ -137,8 +139,9 @@ REFERENCE_CATEGORIES_CODING_DICT = {
     'V': 'Vegetables',
     'W': 'Baby Food',
     'X': 'Meal Replacements and Nutritional Supplements',
+    'ZY': 'Uncategorized',
     'ZX': 'Not Food',
-    'ZZ': 'Unknown'
+    'ZZ': 'Unknown',
 }
 
 REFERENCE_SUBCATEGORIES_CODING_DICT = {
@@ -314,6 +317,7 @@ REFERENCE_SUBCATEGORIES_CODING_DICT = {
     'W.6': 'All varieties of juice',
     'W.7': 'Yogurt (one to under four years of age)',
     'X.1': 'Meal replacement, nutritional supplement',
+    'ZY.1': 'Uncategorized',
     'ZX.1': 'Not Food',
     'ZZ.1': 'Unknown',
 }

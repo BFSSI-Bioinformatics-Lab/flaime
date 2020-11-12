@@ -8,8 +8,8 @@
 <br/>
 <br/>
 
-<div class="row justify-content-center">
-  <div  id="scrapeChart"></div>
+<div class="row">
+  <div  id="scrapeChart" class="d-flex justify-content-center"></div>
 </div>
 
 {% block extra_js %}
@@ -27,15 +27,15 @@
     const formatTime = d3.timeFormat("%b %d, %Y");
 
     const margin = {top: 70, right: 130, bottom: 90, left: 85},
-            h = 500,
-            w = 650,
+            h = 700,
+            w = $("#scrapeChart").parent().width(),
             plotH = h - margin.top - margin.bottom,
             plotW = w - margin.left - margin.right;
 
     const svg = d3.select('#scrapeChart')
             .append('svg')
-            //.attr('width', w)
-            //.attr('height', h)
+            .attr('width', w)
+            .attr('height', h)
             .attr('preserveAspectRatio', 'xMidYMid meet')
             .attr('viewBox', [0, 0, w, h])
             .classed('svg-content', true);

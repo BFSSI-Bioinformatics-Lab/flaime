@@ -113,6 +113,11 @@
           values['user'] = "{{ user }}"
           values['verified'] = true
 
+          if (typeof values.subcategory === 'undefined') {
+            values.subcategory = []
+            values.subcategory.manual_subcategory = null
+          }
+
           // clean up the object depending on if the user is submitting a subcategory or category
           if (values.subcategory.manual_subcategory !== null) {
             values.manual_subcategory = values.subcategory.manual_subcategory
@@ -194,7 +199,6 @@
           }
         });
       });
-
 
       let table = $("#products").DataTable(
               {

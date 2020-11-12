@@ -8,8 +8,8 @@
 <br/>
 <br/>
 
-<div class="row justify-content-center">
-  <div id="scrapeChart"></div>
+<div class="row">
+  <div  id="scrapeChart" class="d-flex justify-content-center"></div>
 </div>
 
 {% block extra_js %}
@@ -27,15 +27,18 @@
     const formatTime = d3.timeFormat("%b %d, %Y");
 
     const margin = {top: 70, right: 130, bottom: 90, left: 85},
-            h = 550,
-            w = 750,
+            h = 700,
+            w = $("#scrapeChart").parent().width(),
             plotH = h - margin.top - margin.bottom,
             plotW = w - margin.left - margin.right;
 
     const svg = d3.select('#scrapeChart')
             .append('svg')
             .attr('width', w)
-            .attr('height', h);
+            .attr('height', h)
+            .attr('preserveAspectRatio', 'xMidYMid meet')
+            .attr('viewBox', [0, 0, w, h])
+            .classed('svg-content', true);
 
     const plot = svg.append('g')
             .attr('width', plotW)
@@ -176,12 +179,12 @@
 //                         return !(i % 2)
 //                       }))
               )
-              .style('font-size', 12)
+              .style('font-size', 13)
               .selectAll('text')
-              //.attr('transform', 'rotate(-40)')
+              .attr('transform', 'rotate(-40)')
               .style('text-anchor', 'center')
               .attr("dy", "1.2em")
-      //.style('text-anchor', 'end')
+              .style('text-anchor', 'end')
       ;
       yAxisGroup
             .call(d3.axisLeft(y)
@@ -193,7 +196,7 @@
             .call(g => g.select(".tick:last-of-type text").clone()
                 .attr("x", -20)
                 .attr('y', -30)
-                .attr('font-size', 15)
+                .attr('font-size', 13)
               .attr("text-anchor", "start")
               .attr("font-weight", "bold")
               .attr("font-family", "Arial")

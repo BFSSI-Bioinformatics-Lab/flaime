@@ -36,8 +36,10 @@ def get_report(most_recent: bool, categories: Optional[list], stores: Optional[l
         )
 
     # Add more informative columns for category/subcategory
-    products = products.annotate(predicted_category=F('category__predicted_category_1')).annotate(
-        predicted_subcategory=F('subcategory__predicted_subcategory_1'))
+    products = products.annotate(predicted_category=F('category__predicted_category_1'))
+    products = products.annotate(predicted_subcategory=F('subcategory__predicted_subcategory_1'))
+    products = products.annotate(manual_category=F('category__manual_category'))
+    products = products.annotate(manual_subcategory=F('subcategory__manual_subcategory'))
 
     product_df = pd.DataFrame(list(products.values()))
     nft_df = pd.DataFrame(list(nutrition.values()))

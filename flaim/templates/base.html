@@ -54,7 +54,7 @@
   <a class="navbar-brand col-sm-2 col-md-2 mr-0" href="{% url 'home' %}"><h5><i class="fas fa-home"></i> FLAIME</h5></a>
 
   <div class="col-md-8 mr-0">
-    {% block section %}Home{% endblock %}
+    <h4 class="text-white">{% block section %}Home{% endblock %}</h4>
   </div>
   {% if request.user.is_authenticated %}
     <ul class="navbar-nav px-3">
@@ -87,7 +87,6 @@
     </ul>
   {% endif %}
 </nav>
-
 
 <div class="container-fluid">
   <div class="row">
@@ -237,12 +236,26 @@
 
       <div class="container-fluid">
         <br>
-
         {% block content %}
           <p>Content goes here</p>
         {% endblock content %}
 
+        {% block footer %}
+          <div class="footer navbar-fixed-bottom text-center">
+            <hr>
+            <a href="https://github.com/BFSSI-Bioinformatics-Lab/flaime"><i class="fab fa-github fa-3x"></i></a>
+            <br>
+            <p>© 2020 Copyright:
+              <a href="https://www.canada.ca"> Government of Canada</a>
+            </p>
+            <br>
+            <br>
+          </div>
+        {% endblock %}
+
       </div>
+
+
     </main>
   </div>
 </div> <!-- /container -->

@@ -234,7 +234,7 @@
         {% endfor %}
       {% endif %}
 
-      <div class="container-fluid">
+      <div class="container-fluid" id="content">
         <br>
         {% block content %}
           <p>Content goes here</p>
@@ -245,8 +245,9 @@
             <hr>
             <a href="https://github.com/BFSSI-Bioinformatics-Lab/flaime"><i class="fab fa-github fa-3x"></i></a>
             <br>
-            <p>© 2020 Copyright:
-              <a href="https://www.canada.ca"> Government of Canada</a>
+            <p>
+              <img class="img-fluid" style="width: 10%" href="https://www.canada.ca" src="{% static 'images/general/goc_logo.png' %}"
+                   alt="Government of Canada">
             </p>
             <br>
             <br>

@@ -239,23 +239,21 @@
         {% block content %}
           <p>Content goes here</p>
         {% endblock content %}
-
-        {% block footer %}
-          <div class="footer navbar-fixed-bottom text-center">
-            <hr>
-            <a href="https://github.com/BFSSI-Bioinformatics-Lab/flaime"><i class="fab fa-github fa-3x"></i></a>
-            <br>
-            <p>
-              <img class="img-fluid" style="width: 10%" href="https://www.canada.ca" src="{% static 'images/general/goc_logo.png' %}"
-                   alt="Government of Canada">
-            </p>
-            <br>
-            <br>
-          </div>
-        {% endblock %}
-
       </div>
 
+      {% block footer %}
+        <div class="footer navbar-fixed-bottom text-center">
+          <hr>
+          <a href="https://github.com/BFSSI-Bioinformatics-Lab/flaime"><i class="fab fa-github fa-3x"></i></a>
+          <br>
+          <p>
+            <img class="img-fluid" style="width: 10%" href="https://www.canada.ca"
+                 src="{% static 'images/general/goc_logo.png' %}"
+                 alt="Government of Canada">
+          </p>
+          <br>
+        </div>
+      {% endblock %}
 
     </main>
   </div>

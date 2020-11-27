@@ -49,12 +49,16 @@ def get_df():
     nutrition_facts = models.NutritionFacts
     df1 = pd.DataFrame(list(products.objects
                             .annotate(category_text=F('category__predicted_category_1'))
+                            .annotate(manual_category_text=F('category__manual_category'))
                             .filter(most_recent=True)
                             .values()))
     df2 = pd.DataFrame(list(nutrition_facts.objects.filter(product__most_recent=True).values()))
     df2.drop(columns=['id', 'created', 'modified'], inplace=True)
     df = df1.merge(df2, left_on='id', right_on='product_id').drop(columns=['id', 'created', 'modified', 'most_recent',
                                                                            'category_id'])
+    manual_index = df['manual_category_text'].dropna().index
+    df['category_text'].loc[manual_index] = df['manual_category_text'].dropna()
+    df = df.loc[(df['category_text'] != 'Unknown') & (df['category_text'] != 'Not Food')]
     df['sugar'] /= 100
     df['brand'] = df['brand'].str.replace('’', "'")
 
@@ -68,7 +72,7 @@ def get_missing_nft_graph(df):
                  .rename(columns={'nutrition_available': 'Product Has NFT'}),
                  x='category_text', y='name', color='Product Has NFT')
     fig.update_layout(xaxis={'categoryorder': 'total descending', 'tickangle': 45, 'title': 'Predicted Category'},
-                      yaxis_title='Product Count')
+                      yaxis_title='Product Count', height=650, margin=dict(t=30, l=100))
 
     return to_html(fig, include_plotlyjs=False, full_html=False)
 

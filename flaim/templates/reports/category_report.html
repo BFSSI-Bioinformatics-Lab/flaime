@@ -52,26 +52,26 @@
 {% endblock %}
 
 {% block body %}
-  <div style="flex: 33%">
+  <div style="flex: 33%; padding-right: 25px">
     {#  how the product counts compares to other categories #}
     {#  how the products are spread across stores #}
-    <b>Overview:</b> Eu condimentum tortor bibendum. Sed elemum lectus pharetra, pulvinar massa a,
-    dapibus quam. Nulla quis nulla porttitor, blandit tellus id, pretium ipsum. Etiam velit nunc, ultricies id quam a,
-    finibus maximus eros. Pellentesque tellus ipsum, consectetur nec lectus non, ornare molestie leo.
+    <b>Overview:</b> The {{ category }} category consists of {{ product_count }} products across
+    {{ store_count }} stores. Of these products, <b>{{ manual_category_count }}</b> were manually verified and
+    <b>{{ predicted_category_count }}</b> were predicted to fall in this category using a machine learning model.
   </div>
-  <div style="flex: 33%">
-    <b>Nutrients:</b> Sed euismod pharetra massa, et fringilla elit consequat et. Mauris tempus molestie hendrerit.
-    Fusce vitae lorem porttitor, euismod metus condimentum, faucibus elit. Ut eu metus purus. Praesent condimentum nisl
-    et neque sollicitudin, eu lacinia sapien pulvinar.
+  <div style="flex: 33%; padding-right: 25px; padding-left: 25px">
+    <b>Nutrients:</b> Of the {{ category_count }} food categories, {{ category }} have the
+    <b>{{ sodium_rank }}</b> highest sodium, <b>{{ fat_rank }}</b> highest saturated fat, and <b>{{ sugar_rank }}</b>
+    highest sugar content.
   </div>
-  <div style="flex: 33%">
-    <b>Ingredients:</b> Vivamus ornare ante turpis, vel pulvinar erat posuere laoreet. Nullam ac enim a elit aliquet.
-    Sed cursus metus vel ipsum dapibus egestas. Cras magna eros, pretium et scelerisque cursus, feugiat quis est.
-    Fusce facilisis, sem nec tempor ultricies, lacus ipsum imperdiet mi, sed scelerisque arcu nunc laoreet nisl.
+  <div style="flex: 33%; padding-left: 25px">
+    <b>Ingredients:</b> {{ category }} typically contain <b>{{ ingredient_q25 }}</b> to
+    <b>{{ ingredient_q75 }}</b> ingredients. The three most common ingredients in this category are
+    {{ common_ingredients }}.
   </div>
 {% endblock %}
 
-{% block footer %}
+{% block lower %}
   {% block product_javascript %}
     <script src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'plotly.js-dist/plotly.js' %}"></script>
@@ -81,11 +81,9 @@
       Nutrient Distribution
     </h3>
     <p>
-      In placerat vestibulum massa, ac blandit libero
-      iaculis vitae. Cras porttitor sapien ut arcu cursus condimentum. Nullam porta finibus laoreet. Sed lacus tellus,
-      vestibulum in cursus in, pulvinar sit amet tellus. Praesent dignissim, quam eu condimentum consectetur, tortor
-      lectus lacinia dui, ut malesuada lectus eros at nisl. Cras at est vitae augue pellentesque iaculis. In quis
-      finibus leo.
+      To visualize the distribution of sugar, saturated fat, and sodium within this category, the values are graphed in
+      three ways: a histogram, a kernel density estimation, and a rug plot. A vertical red line is placed at the 15%
+      daily value mark.
     </p>
   </div>
   <div style="flex: 80%">

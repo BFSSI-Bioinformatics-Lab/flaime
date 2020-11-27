@@ -37,18 +37,55 @@ class CategoryView(LoginRequiredMixin, TemplateView):
             # pulls category from URL e.g. /reports/category/Beverages
             context['category'] = unquote(self.kwargs['category'])
 
+        context['category_count'] = plot_df['category_text'].nunique()
+        means = plot_df.groupby('category_text').mean()
+
+        def get_rank_suffix(i):
+            i = i+1
+            if i >= 11 and 11 <= int(str(i)[-2:]) <= 13:
+                return f'{i}th'
+            remainder = i % 10
+            if remainder == 1:
+                return f'{i}st'
+            elif remainder == 2:
+                return f'{i}nd'
+            elif remainder == 3:
+                return f'{i}rd'
+            else:
+                return f'{i}th'
+
+        context['sodium_rank'] = get_rank_suffix(means.sort_values(by='sodium_dv', ascending=False)
+                                                 .index.get_loc(context['category']))
+        context['fat_rank'] = get_rank_suffix(means.sort_values(by='saturatedfat_dv', ascending=False)
+                                              .index.get_loc(context['category']))
+        context['sugar_rank'] = get_rank_suffix(means.sort_values(by='sugar', ascending=False)
+                                                .index.get_loc(context['category']))
+
         plot_df = plot_df.loc[plot_df['category_text'] == context['category']]
+
+        ingredient_count = plot_df['ingredients'].str.findall(',').fillna('').apply(lambda row: len(row)+1)
+        context['ingredient_q25'] = int(ingredient_count.quantile(0.25))
+        context['ingredient_q75'] = int(ingredient_count.quantile(0.75))
+
+        # This gets the 3 most common ingredients but does not preprocess the ingredient lists
+        common_ingredients = pd.Series(' '.join(plot_df['ingredients'].fillna('').str.lower().tolist())
+                                       .split(',')).value_counts().head(3).index.tolist()
+        context['common_ingredients'] = f'{common_ingredients[0]}, {common_ingredients[1]}, and {common_ingredients[2]}'
 
         # Top bar
         context['image'] = context['category'].lower()
         context['product_count'] = plot_df.shape[0]
+        context['store_count'] = plot_df['store'].nunique()
+        context['manual_category_count'] = plot_df['manual_category_text'].dropna().shape[0]
+        context['predicted_category_count'] = context['product_count'] - context['manual_category_count']
+
         context['calorie_median'] = f'{plot_df.calories.median():.0f}'
 
         context['sodium_color'] = get_nutrient_color(plot_df.sodium_dv.median())
         context['sodium_median'] = f'{plot_df.sodium_dv.median() * 100:.0f}%'
 
-        context['fat_color'] = get_nutrient_color(plot_df.totalfat_dv.median())
-        context['fat_median'] = f'{plot_df.totalfat_dv.median() * 100:.0f}%'
+        context['fat_color'] = get_nutrient_color(plot_df.saturatedfat_dv.median())
+        context['fat_median'] = f'{plot_df.saturatedfat_dv.median() * 100:.0f}%'
 
         context['sugar_color'] = get_nutrient_color(plot_df.sugar.median())
         context['sugar_median'] = f'{plot_df.sugar.median() * 100:.0f}%'
@@ -71,6 +108,8 @@ class StoreView(LoginRequiredMixin, TemplateView):
 
         plot_df = get_plot_df()
 
+        context['category_count'] = plot_df['category_text'].nunique()
+
         if 'store' not in self.kwargs:
             context['store'] = np.random.choice(plot_df['store'].unique())  # set default category
         else:
@@ -79,13 +118,36 @@ class StoreView(LoginRequiredMixin, TemplateView):
 
         plot_df = plot_df.loc[plot_df['store'] == context['store']]
 
+        context['manual_category_count'] = plot_df['manual_category_text'].dropna().shape[0]
+
+        # This can probably be split off into a utility function
+        common_categories = plot_df['category_text'].value_counts().head(3).to_dict()
+        sen = ', '.join([f'{key} ({common_categories[key]} products)' for key in common_categories])
+        sen_par = sen.rpartition(', ')
+        context['common_categories'] = sen_par[0] + ', and ' + sen_par[-1]
+
+        # above function would be repeated here
+        common_brands = plot_df['brand'].value_counts().head(5).to_dict()
+        sen = ', '.join([f'{key} ({common_brands[key]} products)' for key in common_brands])
+        sen_par = sen.rpartition(', ')
+        context['common_brands'] = sen_par[0] + ', and ' + sen_par[-1]
+
         # Top bar
         context['image'] = context['store'].lower()
         context['store'] = context['store'].capitalize()
         context['product_count'] = plot_df.shape[0]
+
         context['sodium_products_over_15'] = plot_df[plot_df.sodium_dv > 0.15].shape[0]
-        context['fat_products_over_15'] = plot_df[plot_df.totalfat_dv > 0.15].shape[0]
+        sodium_percent = context['sodium_products_over_15'] / context['product_count'] * 100
+        context['sodium_products_percent'] = f'{sodium_percent:.1f}%'
+
+        context['fat_products_over_15'] = plot_df[plot_df.saturatedfat_dv > 0.15].shape[0]
+        fat_percent = context['fat_products_over_15'] / context['product_count'] * 100
+        context['fat_products_percent'] = f'{fat_percent:.1f}%'
+
         context['sugar_products_over_15'] = plot_df[plot_df.sugar > 0.15].shape[0]
+        sugar_percent = context['sugar_products_over_15'] / context['product_count'] * 100
+        context['sugar_products_percent'] = f'{sugar_percent:.1f}%'
 
         # Visualizations
         context['figure1'] = get_category_nutrient_distribution_plot(plot_df)
@@ -102,10 +164,14 @@ def get_plot_df():
     nutrition_facts = models.NutritionFacts
     df1 = pd.DataFrame(list(products.objects
                             .annotate(category_text=F('category__predicted_category_1'))
+                            .annotate(manual_category_text=F('category__manual_category'))
                             .filter(most_recent=True)
                             .values()))
     df2 = pd.DataFrame(list(nutrition_facts.objects.filter(product__most_recent=True).values()))
     df = df1.merge(df2, left_on='id', right_on='product_id')
+    manual_index = df['manual_category_text'].dropna().index
+    df['category_text'].loc[manual_index] = df['manual_category_text'].dropna()
+    df = df.loc[(df['category_text'] != 'Unknown') & (df['category_text'] != 'Not Food')]
     df['sugar'] /= 100
     df['brand'] = df['brand'].str.replace('’', "'")
 
@@ -114,8 +180,8 @@ def get_plot_df():
 
 # Figure generation
 def get_nutrient_distribution_plot(df):
-    nutrients = ['sodium_dv', 'totalfat_dv', 'sugar']
-    fig = ff.create_distplot(df[nutrients].dropna().T.values, nutrients, bin_size=.01)
+    nutrients = ['sodium_dv', 'saturatedfat_dv', 'sugar']
+    fig = ff.create_distplot(df[nutrients].dropna().T.values, ['Sodium', 'Saturated Fat', 'Sugar'], bin_size=.01)
 
     fig.update_layout(
         width=1100,
@@ -125,6 +191,13 @@ def get_nutrient_distribution_plot(df):
             r=20,
             b=30,
             t=30,
+        ),
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=0.92,
+            xanchor="right",
+            x=0.998
         )
     )
 
@@ -146,7 +219,8 @@ def get_category_nutrient_distribution_plot(df):
     def over_15(row):
         return 1 if row > 0.15 else 0
 
-    nutrients = ['sodium_dv', 'totalfat_dv', 'sugar']
+    nutrients = ['sodium_dv', 'saturatedfat_dv', 'sugar']
+    nutrient_map = {'sodium_dv': 'Sodium', 'saturatedfat_dv': 'Saturated Fat', 'sugar': 'Sugar'}
     categories = ['Beverages', 'Cereals and Other Grain Products', 'Dairy Products and Substitutes',
                   'Meat and Poultry, Products and Substitutes', 'Snacks']
 
@@ -161,17 +235,18 @@ def get_category_nutrient_distribution_plot(df):
         'category_text').sum().reindex(categories)
 
     data = [
-        go.Bar(name=nutrient, x=category_labels, y=plot_df[f'{nutrient}_count']) for nutrient in nutrients
+        go.Bar(name=nutrient_map[nutrient], x=category_labels, y=plot_df[f'{nutrient}_count']) for nutrient in nutrients
     ]
 
     layout = dict(
         width=1100,
         margin=dict(
-            l=50,
+            l=100,
             r=20,
             b=20,
             t=30,
         ),
+        yaxis_title='Products Exceeding Threshold',
         xaxis=dict(
             showgrid=True,
             tickson='boundaries',

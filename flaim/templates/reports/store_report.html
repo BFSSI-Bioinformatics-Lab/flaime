@@ -47,13 +47,13 @@
 {% endblock %}
 
 {% block body %}
-  <div style="flex: 33%; padding-right: 25px"">
+  <div style="flex: 33%; padding-right: 25px">
     {#  top 3 brands, avg cost? #}
     <b>Overview:</b> {{ store }} has a total of {{ product_count }} products across {{ category_count }} food
     categories. <b>{{ manual_category_count }}</b> of the store's products were manually verified and the rest were
     assigned categories using a machine learning model.
   </div>
-  <div style="flex: 33%; padding-right: 25px; padding-left: 25px"">
+  <div style="flex: 33%; padding-right: 25px; padding-left: 25px">
     {# add rankings #}
     <b>Products:</b> <b>{{ sodium_products_percent }}</b> of {{ store }} products are over 15% sodium,
     <b>{{ fat_products_percent }}</b> over 15% saturated fat, and <b>{{ sugar_products_percent }}</b> over 15% sugar.

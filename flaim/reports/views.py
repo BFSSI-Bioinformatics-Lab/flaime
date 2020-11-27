@@ -38,7 +38,7 @@ class CategoryView(LoginRequiredMixin, TemplateView):
             context['category'] = unquote(self.kwargs['category'])
 
         context['category_count'] = plot_df['category_text'].nunique()
-        means = plot_df.groupby('category_text').mean()
+        medians = plot_df.groupby('category_text').median()
 
         def get_rank_suffix(i):
             i = i+1
@@ -54,11 +54,11 @@ class CategoryView(LoginRequiredMixin, TemplateView):
             else:
                 return f'{i}th'
 
-        context['sodium_rank'] = get_rank_suffix(means.sort_values(by='sodium_dv', ascending=False)
+        context['sodium_rank'] = get_rank_suffix(medians.sort_values(by='sodium_dv', ascending=False)
                                                  .index.get_loc(context['category']))
-        context['fat_rank'] = get_rank_suffix(means.sort_values(by='saturatedfat_dv', ascending=False)
+        context['fat_rank'] = get_rank_suffix(medians.sort_values(by='saturatedfat_dv', ascending=False)
                                               .index.get_loc(context['category']))
-        context['sugar_rank'] = get_rank_suffix(means.sort_values(by='sugar', ascending=False)
+        context['sugar_rank'] = get_rank_suffix(medians.sort_values(by='sugar', ascending=False)
                                                 .index.get_loc(context['category']))
 
         plot_df = plot_df.loc[plot_df['category_text'] == context['category']]

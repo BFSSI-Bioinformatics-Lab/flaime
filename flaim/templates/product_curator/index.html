@@ -98,11 +98,6 @@
               }
       );
 
-      // editor.on('initEdit', function (e, node, data) {
-      //   console.log('initEdit', JSON.stringify(data))
-      // })
-
-
       editor.on('preSubmit', function (e, data, action) {
         // console.log('preSubmit', JSON.stringify(data))
         $.each(data.data, function (key, values) {
@@ -148,16 +143,6 @@
       };
 
 
-      const confirmPrediction = function (data, type, row) {
-        if (type === 'display') {
-          if (data === null) {
-            return 'N/A'
-          }
-          return data + '<br><button class="btn btn-primary btn-sm">Verify</button>';
-        }
-        return data;
-      };
-
       const linkToId = function (data, type, row) {
         if (type === 'display') {
           let id = data.toString(); // cast numbers
@@ -186,19 +171,28 @@
         return data
       }
 
-      // Per-column filtering
+      function debounce(fn, delay) {
+        // Debounce to allow for throttling the number of requests sent to the API on typing
+        let timer = null;
+        return function () {
+          let context = this, args = arguments;
+          clearTimeout(timer);
+          timer = setTimeout(function () {
+            fn.apply(context, args);
+          }, delay);
+        };
+      }
+
+      // Per-column filtering (typing is debounced)
       $('#products thead tr').clone(true).appendTo('#products thead');
       $('#products thead tr:eq(1) th').each(function (i) {
         let title = $(this).text();
-        $(this).html('<input type="text" placeholder="Filter" style="width: 100%" />');
-        $('input', this).on('keyup change', function () {
-          if (table.column(i).search() !== this.value) {
-            table
-                    .column(i)
-                    .search(`${this.value}`, true, true)
-                    .draw();
-          }
-        });
+        let column_id = title.replace(/\s+/g, '_').toLowerCase();
+        $(this).html(`<input type="text" id="${column_id}" placeholder="Filter" style="width: 100%" />`);
+        $('input', this).on('keyup change', debounce(function () {
+                  table.ajax.reload()
+                }, 300)
+        );
       });
 
       let table = $("#products").DataTable(
@@ -211,7 +205,21 @@
                 buttons: [
                   'colvis'
                 ],
-                ajax: base_url,
+                ajax: {
+                  url: base_url,
+                  data: function (d) {
+                    // column filters to pass to api/views.py
+                    d.column_filters = true
+                    d.name = $('#name').val()
+                    d.brand = $('#brand').val()
+                    d.store = $('#store').val()
+                    d.prediction_confidence = parseFloat($('#prediction_confidence').val())
+                    d.manual_category = $('#manual_category').val()
+                    d.manual_subcategory = $('#manual_subcategory').val()
+                    d.predicted_category = $('#predicted_category').val()
+                    d.predicted_subcategory = $('#predicted_subcategory').val()
+                  }
+                },
                 aoColumnDefs: [
                   {
                     bSortable: false,
@@ -221,10 +229,10 @@
                     searchable: false,
                     targets: [1]
                   },
-                  {
-                    visible: false,
-                    targets: [3, 4, 9]  // brand, store, confidence all not visible by default
-                  }
+                  // {
+                  //   visible: false,
+                  //   targets: [3, 4, 9]  // brand, store, confidence all not visible by default
+                  // }
                 ],
                 columns: [
                   {
@@ -240,12 +248,10 @@
                   {data: "store"},
                   {
                     data: "category.manual_category",
-                    defaultContent: "N/A",
                     className: "editable",
                     render: renderEditField
                   }, {
                     data: "subcategory.manual_subcategory",
-                    defaultContent: "N/A",
                     className: "editable",
                     render: renderEditField
                   },

@@ -30,6 +30,10 @@
         <h1>{{ product_count }}</h1>
       </div>
       <div style="flex: auto">
+        Products with NFTs
+        <h1>{{ has_nft }}</h1>
+      </div>
+      <div style="flex: auto">
         Products Over 15% Sodium
         <h1>{{ sodium_products_over_15 }}</h1>
       </div>
@@ -55,9 +59,10 @@
   </div>
   <div style="flex: 33%; padding-right: 25px; padding-left: 25px">
     {# add rankings #}
-    <b>Products:</b> <b>{{ sodium_products_percent }}</b> of {{ store }} products are over 15% sodium,
-    <b>{{ fat_products_percent }}</b> over 15% saturated fat, and <b>{{ sugar_products_percent }}</b> over 15% sugar.
-    The most common categories are {{ common_categories }}.
+    <b>Products:</b> Of the {{ store }} products with nutrition fact tables, <b>{{ sodium_products_percent }}</b> are
+    over 15% sodium, <b>{{ fat_products_percent }}</b> are over 15% saturated fat, and <b>{{ sugar_products_percent }}</b>
+    are over 15% sugar.
+{#    The most common categories are {{ common_categories }}.#}
   </div>
   <div style="flex: 33%; padding-left: 25px">
     <b>Brands:</b> The 5 top {{ store }} brands are {{ common_brands }}.

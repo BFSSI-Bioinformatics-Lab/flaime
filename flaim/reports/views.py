@@ -31,8 +31,9 @@ class CategoryView(LoginRequiredMixin, TemplateView):
 
         context['product_categories'] = REFERENCE_CATEGORIES_DICT.keys()
 
+        # set default category
         if 'category' not in self.kwargs:
-            context['category'] = np.random.choice(plot_df['category_text'].unique())  # set default category
+            context['category'] = plot_df['category_text'].unique()[0]
         else:
             # pulls category from URL e.g. /reports/category/Beverages
             context['category'] = unquote(self.kwargs['category'])
@@ -41,7 +42,7 @@ class CategoryView(LoginRequiredMixin, TemplateView):
         medians = plot_df.groupby('category_text').median()
 
         def get_rank_suffix(i):
-            i = i+1
+            i = i + 1
             if i >= 11 and 11 <= int(str(i)[-2:]) <= 13:
                 return f'{i}th'
             remainder = i % 10
@@ -63,7 +64,7 @@ class CategoryView(LoginRequiredMixin, TemplateView):
 
         plot_df = plot_df.loc[plot_df['category_text'] == context['category']]
 
-        ingredient_count = plot_df['ingredients'].str.findall(',').fillna('').apply(lambda row: len(row)+1)
+        ingredient_count = plot_df['ingredients'].str.findall(',').fillna('').apply(lambda row: len(row) + 1)
         context['ingredient_q25'] = int(ingredient_count.quantile(0.25))
         context['ingredient_q75'] = int(ingredient_count.quantile(0.75))
 
@@ -136,17 +137,20 @@ class StoreView(LoginRequiredMixin, TemplateView):
         context['image'] = context['store'].lower()
         context['store'] = context['store'].capitalize()
         context['product_count'] = plot_df.shape[0]
+        products_with_nft = plot_df.shape[0] - plot_df.calories.isnull().sum()
+        # context['missing_nft'] = f'{plot_df.calories.isnull().sum()/plot_df.shape[0]*100:.1f}%'
+        context['has_nft'] = f'{products_with_nft} ({products_with_nft / plot_df.shape[0] * 100:.0f}%)'
 
         context['sodium_products_over_15'] = plot_df[plot_df.sodium_dv > 0.15].shape[0]
-        sodium_percent = context['sodium_products_over_15'] / context['product_count'] * 100
+        sodium_percent = context['sodium_products_over_15'] / products_with_nft * 100
         context['sodium_products_percent'] = f'{sodium_percent:.1f}%'
 
         context['fat_products_over_15'] = plot_df[plot_df.saturatedfat_dv > 0.15].shape[0]
-        fat_percent = context['fat_products_over_15'] / context['product_count'] * 100
+        fat_percent = context['fat_products_over_15'] / products_with_nft * 100
         context['fat_products_percent'] = f'{fat_percent:.1f}%'
 
         context['sugar_products_over_15'] = plot_df[plot_df.sugar > 0.15].shape[0]
-        sugar_percent = context['sugar_products_over_15'] / context['product_count'] * 100
+        sugar_percent = context['sugar_products_over_15'] / products_with_nft * 100
         context['sugar_products_percent'] = f'{sugar_percent:.1f}%'
 
         # Visualizations
@@ -171,7 +175,8 @@ def get_plot_df():
     df = df1.merge(df2, left_on='id', right_on='product_id')
     manual_index = df['manual_category_text'].dropna().index
     df['category_text'].loc[manual_index] = df['manual_category_text'].dropna()
-    df = df.loc[(df['category_text'] != 'Unknown') & (df['category_text'] != 'Not Food')]
+    df = df.loc[(df['category_text'] != 'Unknown') & (df['category_text'] != 'Not Food')
+                & (df['category_text'] != 'Uncategorized')]
     df['sugar'] /= 100
     df['brand'] = df['brand'].str.replace('’', "'")
 
@@ -181,13 +186,23 @@ def get_plot_df():
 # Figure generation
 def get_nutrient_distribution_plot(df):
     nutrients = ['sodium_dv', 'saturatedfat_dv', 'sugar']
-    fig = ff.create_distplot(df[nutrients].dropna().T.values, ['Sodium', 'Saturated Fat', 'Sugar'], bin_size=.01)
+    fig = ff.create_distplot(df[nutrients].dropna().T.values, ['Sodium', 'Saturated Fat', 'Sugar'], bin_size=0.01,
+                             histnorm='probability')
 
     fig.update_layout(
         width=1100,
-        xaxis_range=[0, min([1, max(df[n].quantile(0.95) for n in nutrients)])],
+        font_size=18,
+        xaxis=dict(
+            title='Daily Value',
+            tickformat='%',
+            range=[0, min([1, max(df[n].quantile(0.95) for n in nutrients)])]
+        ),
+        yaxis=dict(
+            tickformat='%',
+            title='Proportion of Products'
+        ),
         margin=dict(
-            l=50,
+            l=100,
             r=20,
             b=30,
             t=30,
@@ -240,6 +255,7 @@ def get_category_nutrient_distribution_plot(df):
 
     layout = dict(
         width=1100,
+        font_size=18,
         margin=dict(
             l=100,
             r=20,

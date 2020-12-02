@@ -36,8 +36,8 @@ class QualityView(TemplateView):
 
         context['product_count'] = df.shape[0]
         context['column_count'] = df.shape[1]
-        context['missing_nft'] = f'{df.calories.isnull().sum()/df.shape[0]*100:.1f}%'
-        context['completeness'] = f'{(1-df.isnull().sum().sum()/(df.shape[0]*df.shape[1]))*100:.1f}%'
+        context['missing_nft'] = f'{df.calories.isnull().sum()} ({df.calories.isnull().sum()/df.shape[0]*100:.0f}%)'
+        # context['completeness'] = f'{(1-df.isnull().sum().sum()/(df.shape[0]*df.shape[1]))*100:.1f}%'
         context['figure1'] = get_missing_nft_graph(df)
 
         return context
@@ -71,8 +71,18 @@ def get_missing_nft_graph(df):
     fig = px.bar(plot_df.sort_values(by='nutrition_available', ascending=False)
                  .rename(columns={'nutrition_available': 'Product Has NFT'}),
                  x='category_text', y='name', color='Product Has NFT')
-    fig.update_layout(xaxis={'categoryorder': 'total descending', 'tickangle': 45, 'title': 'Predicted Category'},
-                      yaxis_title='Product Count', height=650, margin=dict(t=30, l=100))
+    fig.update_layout(
+        xaxis={'categoryorder': 'total descending',
+               'tickangle': 45,
+               'title': 'Category'
+               },
+        font_size=18,
+        yaxis_title='Product Count',
+        height=650,
+        margin=dict(
+            t=30,
+            l=100)
+    )
 
     return to_html(fig, include_plotlyjs=False, full_html=False)
 

@@ -179,8 +179,73 @@ class AdvancedProductViewSet(viewsets.ModelViewSet, UpdateModelMixin):
             queryset = queryset.filter(
                 Q(category__manual_category__iexact=category) | Q(category__predicted_category_1__iexact=category))
 
-        # # Return everything by default
+        # Per column filtering from product_curator
+        if query_params.get('column_filters', None):
+            queryset = self.per_column_filter(queryset, query_params)
+
+            # # Return everything by default
         return queryset.order_by('-id')
+
+    @staticmethod
+    def per_column_filter(queryset, query_params):
+        """
+        Method to tidy up the horrific per-column filtering code which is called when using the product_curator's
+        individual column filtering UI.
+
+        Supports the value 'n/a' to filter for only null values
+        """
+        columns = [
+            'manual_category',
+            'manual_subcategory',
+            'predicted_category',
+            'predicted_subcategory',
+            'name',
+            'brand',
+            'store',
+            'prediction_confidence'
+        ]
+        column_filters = {}
+        for c in columns:
+            if query_params.get(c, "") is not "":
+                column_filters[c] = query_params.get(c, "")
+
+        if 'name' in column_filters:
+            queryset = queryset.filter(name__icontains=column_filters['name'])
+
+        if 'brand' in column_filters:
+            queryset = queryset.filter(brand__icontains=column_filters['brand'])
+
+        if 'store' in column_filters:
+            queryset = queryset.filter(store__icontains=column_filters['store'])
+
+        if 'prediction_confidence' in column_filters:
+            queryset = queryset.filter(category__confidence_1__lte=column_filters['prediction_confidence'])
+
+        # Special handling for n/a value
+        if 'manual_category' in column_filters:
+            if column_filters['manual_category'] == 'n/a':
+                queryset = queryset.filter(
+                    category__manual_category__isnull=True)
+            else:
+                queryset = queryset.filter(
+                    category__manual_category__icontains=column_filters['manual_category'])
+
+        if 'manual_subcategory' in column_filters:
+            if column_filters['manual_subcategory'] == 'n/a':
+                queryset = queryset.filter(
+                    subcategory__manual_subcategory__isnull=True)
+            else:
+                queryset = queryset.filter(
+                    subcategory__manual_subcategory__icontains=column_filters['manual_subcategory'])
+
+        if 'predicted_category' in column_filters:
+            queryset = queryset.filter(
+                category__predicted_category_1__icontains=column_filters['predicted_category'])
+
+        if 'predicted_subcategory' in column_filters:
+            queryset = queryset.filter(
+                subcategory__predicted_subcategory_1__icontains=column_filters['predicted_subcategory'])
+        return queryset
 
 
 class ProductNameViewSet(viewsets.ModelViewSet):

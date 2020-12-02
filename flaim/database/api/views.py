@@ -240,11 +240,11 @@ class AdvancedProductViewSet(viewsets.ModelViewSet, UpdateModelMixin):
 
         if 'predicted_category' in column_filters:
             queryset = queryset.filter(
-                category__predicted_category_1__icontains=column_filters['predicted_category'])
+                category__predicted_category_1__iregex=column_filters['predicted_category'])
 
         if 'predicted_subcategory' in column_filters:
             queryset = queryset.filter(
-                subcategory__predicted_subcategory_1__icontains=column_filters['predicted_subcategory'])
+                subcategory__predicted_subcategory_1__iregex=column_filters['predicted_subcategory'])
         return queryset
 
 

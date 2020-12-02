@@ -34,11 +34,12 @@
 
     const svg = d3.select('#scrapeChart')
             .append('svg')
-            .attr('width', w)
-            .attr('height', h)
-            .attr('preserveAspectRatio', 'xMidYMid meet')
             .attr('viewBox', [0, 0, w, h])
-            .classed('svg-content', true);
+            .style("width", "100%")
+            .style("height", "auto")
+            .style("padding", "10px")
+            .attr('preserveAspectRatio', 'xMidYMid meet')
+            .style("box-sizing", "border-box");
 
     const plot = svg.append('g')
             .attr('width', plotW)
@@ -60,7 +61,7 @@
     const legendGroup = svg.append('g')
             .attr('class', 'legend')
             .attr('transform', `translate(${plotW + margin.left + 15}, ${margin.top})`)
-            .attr('font-size', 12)
+            .attr('font-size', 18); // Change legend text size
 
 
     const legend = d3.legendColor().shape('circle')
@@ -179,8 +180,8 @@
 //                         return !(i % 2)
 //                       }))
               )
-              .style('font-size', 13)
               .selectAll('text')
+              .attr('class', 'axis')
               .attr('transform', 'rotate(-40)')
               .style('text-anchor', 'center')
               .attr("dy", "1.2em")
@@ -190,17 +191,18 @@
             .call(d3.axisLeft(y)
                 .ticks(6)
             )
-            .style('font-size', 13)
               .style('text-anchor', 'center')
-            .call(g => g.select(".domain").remove())
-            .call(g => g.select(".tick:last-of-type text").clone()
-                .attr("x", -20)
-                .attr('y', -30)
-                .attr('font-size', 13)
-              .attr("text-anchor", "start")
-              .attr("font-weight", "bold")
-              .attr("font-family", "Arial")
-              .text('Products Collected'));
+              .attr('class','axis')
+              .call(g => g.select(".domain").remove())
+              .call(g => g.select(".tick:last-of-type text").clone()
+                  .attr("x", -20)
+                  .attr('y', -30)
+                  .attr('font-size', 20)
+                  .attr("text-anchor", "start")
+                  .attr("font-weight", "bold")
+                  .attr("font-family", "Arial")
+                  .text('Products Collected'));
+
       //title
 //       plot.append('text')
 //               .attr('class', 'title')

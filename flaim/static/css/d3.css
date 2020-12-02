@@ -3,19 +3,11 @@
 /*
  * Scraper Viz D3
  */
-#scrapeChart {
-  position: relative;
-  display: inline-block;
-  max-height: 50vh;
-  padding-bottom: 20%;
+
+.axis {
+  font-size: 17px;
 }
 
-.svg-content {
-  display: inline-block;
-  position: absolute;
-  top: 0;
-  left: 0;
-}
 
 .tooltip {
   position: absolute;

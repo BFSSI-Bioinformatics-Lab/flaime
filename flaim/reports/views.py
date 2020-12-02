@@ -195,6 +195,7 @@ def get_nutrient_distribution_plot(df):
         xaxis=dict(
             title='Daily Value',
             tickformat='%',
+            showgrid=True,
             range=[0, min([1, max(df[n].quantile(0.95) for n in nutrients)])]
         ),
         yaxis=dict(
@@ -264,6 +265,7 @@ def get_category_nutrient_distribution_plot(df):
         ),
         yaxis_title='Products Exceeding Threshold',
         xaxis=dict(
+            title='Food Category',
             showgrid=True,
             tickson='boundaries',
             tickangle=0,

@@ -9,6 +9,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import F
 from django.views.generic import TemplateView
 from plotly.io import to_html
+from plotly.express.colors import qualitative
 
 from flaim.database import models
 from flaim.database.product_mappings import PRODUCT_STORES, REFERENCE_CATEGORIES_DICT
@@ -186,8 +187,9 @@ def get_plot_df():
 # Figure generation
 def get_nutrient_distribution_plot(df):
     nutrients = ['sodium_dv', 'saturatedfat_dv', 'sugar']
+    # colors = [qualitative.Vivid[0], qualitative.Vivid[0], qualitative.Vivid[0]]
     fig = ff.create_distplot(df[nutrients].dropna().T.values, ['Sodium', 'Saturated Fat', 'Sugar'], bin_size=0.01,
-                             histnorm='probability')
+                             histnorm='probability', colors=qualitative.Vivid)
 
     fig.update_layout(
         width=1100,
@@ -208,26 +210,36 @@ def get_nutrient_distribution_plot(df):
             b=30,
             t=30,
         ),
-        legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=0.92,
-            xanchor="right",
-            x=0.998
-        )
+        legend_title='Nutrients'
     )
 
     fig.add_shape(dict(
-        type="line",
+        type='line',
         yref='paper',
         x0=0.15,
         y0=0,
         x1=0.15,
         y1=1,
         line=dict(
-            color="Red",
+            color='Black',
             width=2
         )))
+
+    fig.add_annotation(text='← Low in Nutrient',
+                       yref='paper',
+                       x=0.145, y=1,
+                       showarrow=False,
+                       xanchor='right',
+                       yanchor='bottom',
+                       font_color='green')
+    fig.add_annotation(text='High in Nutrient →',
+                       yref='paper',
+                       x=0.155, y=1,
+                       showarrow=False,
+                       xanchor='left',
+                       yanchor='bottom',
+                       font_color='red')
+
     return to_html(fig, include_plotlyjs=False, full_html=False)
 
 

@@ -3,12 +3,12 @@
 {% block section %}Data Quality{% endblock %}
 
 {% block header %}
-  <div style="flex: 25%; display: flex; align-items: center;">
+  <div style="flex: 25%; display: flex; align-items: center;" xmlns="http://www.w3.org/1999/html">
     <h1>Data Quality</h1>
   </div>
   <div style="flex: 75%;display: flex;text-align:center">
       <div style="flex: auto">
-        Product Count</br>
+        Product Count<sup>1</sup>
         <h1>{{ product_count }}</h1>
       </div>
 {#      <div style="flex: auto">#}
@@ -19,10 +19,10 @@
         Products Missing NFTs
         <h1>{{ missing_nft }}</h1>
       </div>
-      <div style="flex: auto">
-        Total Data Completeness
-        <h1>{{ completeness }}</h1>
-      </div>
+{#      <div style="flex: auto">#}
+{#        Total Data Completeness#}
+{#        <h1>{{ completeness }}</h1>#}
+{#      </div>#}
     </div>
 {% endblock %}
 
@@ -45,16 +45,21 @@
     <script src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'plotly.js-dist/plotly.js' %}"></script>
   {% endblock %}
-  <div style="flex: 20%;padding-top: 20px">
+  <div style="flex: 20%;padding-top: 20px; padding-right: 25px">
     <h3>
       Products Missing Nutrition Facts Tables by Category
     </h3>
+    <br>
     <p>
       This graph shows products which are missing nutrition facts information, grouped by predicted category.
       The graph uses data for all stores combined.
+      <br><br>
+      <small>
+        <sup>1</sup> This includes products not required to carry NFTs (e.g. fresh fruits and vegetables).
+      </small>
     </p>
   </div>
-  <div style="flex: 80%">
+  <div style="flex: 80%; padding-left: 25px">
     {% autoescape off %}
       {{ figure1 }}
     {% endautoescape %}

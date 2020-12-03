@@ -33,13 +33,20 @@
             plotW = w - margin.left - margin.right;
 
     const svg = d3.select('#scrapeChart')
-            .append('svg')
-            .attr('viewBox', [0, 0, w, h])
-            .style("width", "100%")
-            .style("height", "auto")
-            .style("padding", "10px")
-            .attr('preserveAspectRatio', 'xMidYMid meet')
-            .style("box-sizing", "border-box");
+        .append('svg')
+        .attr('width', w)
+        .attr('height', h)
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .attr('viewBox', [0, 0, w, h])
+        .classed('svg-content', true);
+{#    const svg = d3.select('#scrapeChart')#}
+{#            .append('svg')#}
+{#.attr('viewBox', [0, 0, w, h])#}
+{#        .style("width", "100%")#}
+{#        .style("height", "auto")#}
+{#        .style("padding", "10px")#}
+{#        //.style("font", "10px sans-serif")#}
+{#        .style("box-sizing", "border-box");#}
 
     const plot = svg.append('g')
             .attr('width', plotW)
@@ -202,7 +209,6 @@
                   .attr("font-weight", "bold")
                   .attr("font-family", "Arial")
                   .text('Products Collected'));
-
       //title
 //       plot.append('text')
 //               .attr('class', 'title')

@@ -98,7 +98,7 @@
     // ##### data join and plot #######
     //##################################
 
-    d3.json('/api/scrape_batches').then(data => {
+    d3.json('/api/scrape_batches/?disable_pagination=true').then(data => {
 
       let df = data;
       df.forEach(function (d) {

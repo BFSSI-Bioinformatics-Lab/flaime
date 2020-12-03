@@ -312,9 +312,14 @@ class BrandNameViewSet(viewsets.ModelViewSet):
 
 
 class ScrapeBatchViewSet(viewsets.ModelViewSet):
-    queryset = models.ScrapeBatch.objects.all().order_by('-created')
     serializer_class = serializers.ScrapeBatchSerializer
-    pagination_class = None
+
+    def get_queryset(self):
+        disable_pagination = self.request.query_params.get('disable_pagination', None)
+        if disable_pagination:
+            self.pagination_class = None
+        query = models.ScrapeBatch.objects.all().order_by('-created')
+        return query
 
 
 class LoblawsProductViewSet(viewsets.ModelViewSet):

@@ -191,7 +191,7 @@
         $(this).html(`<input type="text" id="${column_id}" placeholder="Filter" style="width: 100%" />`);
         $('input', this).on('keyup change', debounce(function () {
                   table.ajax.reload()
-                }, 300)
+                }, 200)
         );
       });
 

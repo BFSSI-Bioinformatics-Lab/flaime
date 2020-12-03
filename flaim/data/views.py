@@ -81,7 +81,8 @@ def get_missing_nft_graph(df):
         height=650,
         margin=dict(
             t=30,
-            l=100)
+            l=100,
+            b=300)
     )
 
     return to_html(fig, include_plotlyjs=False, full_html=False)

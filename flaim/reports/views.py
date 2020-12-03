@@ -34,7 +34,7 @@ class CategoryView(LoginRequiredMixin, TemplateView):
 
         # set default category
         if 'category' not in self.kwargs:
-            context['category'] = plot_df['category_text'].unique()[0]
+            context['category'] = plot_df['category_text'].value_counts().index[0]
         else:
             # pulls category from URL e.g. /reports/category/Beverages
             context['category'] = unquote(self.kwargs['category'])

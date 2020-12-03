@@ -206,7 +206,7 @@ class AdvancedProductViewSet(viewsets.ModelViewSet, UpdateModelMixin):
         ]
         column_filters = {}
         for c in columns:
-            if query_params.get(c, "") is not "":
+            if query_params.get(c, "") != "":
                 column_filters[c] = query_params.get(c, "")
 
         if 'name' in column_filters:

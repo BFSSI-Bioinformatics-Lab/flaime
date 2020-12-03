@@ -67,7 +67,7 @@
     // Legend
     const legendGroup = svg.append('g')
             .attr('class', 'legend')
-            .attr('transform', `translate(${plotW + margin.left + 15}, ${margin.top})`)
+            .attr('transform', `translate(${plotW}, ${margin.top-30})`)
             .attr('font-size', 18); // Change legend text size
 
 
@@ -100,7 +100,7 @@
 
     d3.json('/api/scrape_batches').then(data => {
 
-      let df = data.results;
+      let df = data;
       df.forEach(function (d) {
         d.date = parseTime(d['scrape_date']);
         d.store = d['store'].toLowerCase().capitalize();

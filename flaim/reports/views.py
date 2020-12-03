@@ -189,7 +189,7 @@ def get_nutrient_distribution_plot(df):
     nutrients = ['sodium_dv', 'saturatedfat_dv', 'sugar']
     # colors = [qualitative.Vivid[0], qualitative.Vivid[0], qualitative.Vivid[0]]
     fig = ff.create_distplot(df[nutrients].dropna().T.values, ['Sodium', 'Saturated Fat', 'Sugar'], bin_size=0.01,
-                             histnorm='probability', colors=qualitative.Vivid)
+                             histnorm='probability', colors=qualitative.Vivid, show_rug=False)
 
     fig.update_layout(
         width=1100,

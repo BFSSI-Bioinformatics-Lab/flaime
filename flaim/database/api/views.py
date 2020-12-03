@@ -314,6 +314,7 @@ class BrandNameViewSet(viewsets.ModelViewSet):
 class ScrapeBatchViewSet(viewsets.ModelViewSet):
     queryset = models.ScrapeBatch.objects.all().order_by('-created')
     serializer_class = serializers.ScrapeBatchSerializer
+    pagination_class = None
 
 
 class LoblawsProductViewSet(viewsets.ModelViewSet):

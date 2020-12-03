@@ -183,9 +183,10 @@
               .call(d3.axisBottom(x0)
                       .tickSize(0)
                       .tickFormat(d3.timeFormat("%b %d,%Y"))
-//                       .tickValues(x.domain().filter(function (d, i) {
-//                         return !(i % 2)
-//                       }))
+                      .ticks(10)
+                       //.tickValues(x.domain().filter(function (d, i) {
+                       //  return !(i % 2)
+                       //}))
               )
               .selectAll('text')
               .attr('class', 'axis')

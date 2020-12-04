@@ -1,23 +1,23 @@
 {% extends 'reports_base.html' %}
 {% load static %}
-{% block section %}Category Report{% endblock %}
+{% block section %}Subcategory Report{% endblock %}
 
 {% block header %}
   <div style="flex: 10%">
-    <img src="{% static 'images/category_icons/' %}{{ image }}.png" height="160" width="160"
+    <img src="{% static 'images/category_icons/' %}{{ parent_category }}.png" height="160" width="160"
          style="padding-bottom: 5px">
   </div>
   <div style="flex: 90%;padding-left: 10px">
     <div style="padding-left: 76px">
       <div class="row" style="text-align: left">
-        <h1>{{ category }}</h1>
+        <h1>{{ subcategory }}</h1>
         <div class="dropdown show" style="padding-top: 10px; padding-left: 15px">
-          <label for="category-select">
-            <select id="category-select">
+          <label for="subcategory-select">
+            <select id="subcategory-select">
               {# Default empty option to display the placeholder #}
               <option></option>
-              {% for category in product_categories %}
-                <option value="{{ category }}">{{ category }}</option>
+              {% for subcategory in subcategories %}
+                <option value="{{ subcategory }}">{{ subcategory }}</option>
               {% endfor %}
             </select>
           </label>
@@ -75,6 +75,19 @@
   {% block product_javascript %}
     <script src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'plotly.js-dist/plotly.js' %}"></script>
+
+    <script>
+      $(document).ready(function () {
+        $('#subcategory-select').select2({
+          placeholder: 'Select new subcategory'
+        });
+
+        $("#subcategory-select").on("select2:select", function (e) {
+          window.location.replace(`/reports/subcategory/${e.params.data.id}`);
+        });
+      });
+    </script>
+
   {% endblock %}
   <div style="flex: 20%;padding-top: 20px; padding-right: 25px">
     <h3>
@@ -91,18 +104,4 @@
       {{ figure1 }}
     {% endautoescape %}
   </div>
-{% endblock %}
-
-{% block javascript %}
-  <script>
-    $(document).ready(function () {
-      $('#category-select').select2({
-        placeholder: 'Select a new category'
-      });
-
-      $("#category-select").on("select2:select", function (e) {
-        window.location.replace(`/reports/category/${e.params.data.id}`);
-      });
-    });
-  </script>
 {% endblock %}

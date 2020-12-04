@@ -12,7 +12,8 @@ from plotly.io import to_html
 from plotly.express.colors import qualitative
 
 from flaim.database import models
-from flaim.database.product_mappings import PRODUCT_STORES, REFERENCE_CATEGORIES_DICT
+from flaim.database.product_mappings import PRODUCT_STORES, REFERENCE_CATEGORIES_DICT, \
+    REFERENCE_SUBCATEGORIES_CODING_DICT
 
 
 class ProductView(LoginRequiredMixin, TemplateView):
@@ -21,6 +22,23 @@ class ProductView(LoginRequiredMixin, TemplateView):
 
 class NutrientView(LoginRequiredMixin, TemplateView):
     template_name = 'reports_base.html'
+
+
+class SubcategoryView(LoginRequiredMixin, TemplateView):
+    template_name = 'reports/subcategory_report.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Figure out parent category for image display
+        context['parent_category'] = None
+        for category, subcategories in REFERENCE_CATEGORIES_DICT.items():
+            if self.kwargs['subcategory'] in subcategories:
+                context['parent_category'] = category.lower()
+
+        context['subcategories'] = REFERENCE_SUBCATEGORIES_CODING_DICT.values()
+
+        return context
 
 
 class CategoryView(LoginRequiredMixin, TemplateView):

@@ -1,0 +1,107 @@
+{% extends 'reports_base.html' %}
+{% load static %}
+{% block section %}Subcategory Report{% endblock %}
+
+{% block header %}
+  <div style="flex: 10%">
+    <img src="{% static 'images/category_icons/' %}{{ parent_category }}.png" height="160" width="160"
+         style="padding-bottom: 5px">
+  </div>
+  <div style="flex: 90%;padding-left: 10px">
+    <div style="padding-left: 76px">
+      <div class="row" style="text-align: left">
+        <h1>{{ subcategory }}</h1>
+        <div class="dropdown show" style="padding-top: 10px; padding-left: 15px">
+          <label for="subcategory-select">
+            <select id="subcategory-select">
+              {# Default empty option to display the placeholder #}
+              <option></option>
+              {% for subcategory in subcategories %}
+                <option value="{{ subcategory }}">{{ subcategory }}</option>
+              {% endfor %}
+            </select>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex;text-align:center">
+      <div style="flex: auto">
+        Product Count</br>
+        <h1>{{ product_count }}</h1>
+      </div>
+      <div style="flex: auto">
+        Median Calories
+        <h1>{{ calorie_median }}</h1>
+      </div>
+      <div style="flex: auto">
+        Median Sodium
+        <h1 class={{ sodium_color }}>{{ sodium_median }}</h1>
+      </div>
+      <div style="flex: auto">
+        Median Sat. Fat
+        <h1 class={{ fat_color }}>{{ fat_median }}</h1>
+      </div>
+      <div style="flex: auto">
+        Median Sugar
+        <h1 class={{ sugar_color }}>{{ sugar_median }}</h1>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block body %}
+  <div style="flex: 33%; padding-right: 25px">
+    {#  how the product counts compares to other categories #}
+    {#  how the products are spread across stores #}
+    <b>Overview:</b> The {{ category }} category consists of {{ product_count }} products across
+    {{ store_count }} stores. Of these products, <b>{{ manual_category_count }}</b> were manually verified and
+    <b>{{ predicted_category_count }}</b> were predicted to fall in this category using a machine learning model.
+  </div>
+  <div style="flex: 33%; padding-right: 25px; padding-left: 25px">
+    <b>Nutrients:</b> Of the {{ category_count }} food categories, {{ category }} have the
+    <b>{{ sodium_rank }}</b> highest sodium, <b>{{ fat_rank }}</b> highest saturated fat, and <b>{{ sugar_rank }}</b>
+    highest sugar content.
+  </div>
+  <div style="flex: 33%; padding-left: 25px">
+    <b>Ingredients:</b> {{ category }} typically contain <b>{{ ingredient_q25 }}</b> to
+    <b>{{ ingredient_q75 }}</b> ingredients. The three most common ingredients in this category are
+    {{ common_ingredients }}.
+  </div>
+{% endblock %}
+
+{% block lower %}
+  {% block product_javascript %}
+    <script src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'plotly.js-dist/plotly.js' %}"></script>
+
+    <script>
+      $(document).ready(function () {
+        $('#subcategory-select').select2({
+          placeholder: 'Select new subcategory'
+        });
+
+        $("#subcategory-select").on("select2:select", function (e) {
+          window.location.replace(`/reports/subcategory/${e.params.data.id}`);
+        });
+      });
+    </script>
+
+  {% endblock %}
+  <div style="flex: 20%;padding-top: 20px; padding-right: 25px">
+    <h3>
+      Nutrient Distribution
+    </h3>
+    <p>
+      To visualize the distribution of sugar, saturated fat, and sodium within this category, the values are graphed in
+      two different ways: a histogram and a kernel density estimation. The Y axis shows the probability of a product
+      having the daily value on the X axis. A vertical line is placed at the 15% daily value mark.
+    </p>
+  </div>
+  <div style="flex: 80%; padding-left: 25px">
+    {% autoescape off %}
+      {{ figure1 }}
+    {% endautoescape %}
+  </div>
+{% endblock %}

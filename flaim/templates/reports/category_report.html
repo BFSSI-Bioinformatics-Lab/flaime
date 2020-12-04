@@ -4,23 +4,23 @@
 
 {% block header %}
   <div style="flex: 10%">
-    <img src="{% static 'images/category_icons/' %}{{ image }}.png" height="160" width="160" style="padding-bottom: 5px">
+    <img src="{% static 'images/category_icons/' %}{{ image }}.png" height="160" width="160"
+         style="padding-bottom: 5px">
   </div>
   <div style="flex: 90%;padding-left: 10px">
     <div style="padding-left: 76px">
       <div class="row" style="text-align: left">
-      <h1>{{ category }}</h1>
+        <h1>{{ category }}</h1>
         <div class="dropdown show" style="padding-top: 10px; padding-left: 15px">
-          <a class="btn btn-primary btn-sm dropdown-toggle" href="#" role="button"
-             id="dropdownMenuLink"
-             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            More
-          </a>
-          <div class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="overflow-y:auto; max-height: 300px">
-            {% for product in product_categories %}
-              <a class="dropdown-item" href="/reports/category/{{ product }}/">{{ product }}</a>
-            {% endfor %}
-          </div>
+          <label for="category-select">
+            <select id="category-select">
+              {# Default empty option to display the placeholder #}
+              <option></option>
+              {% for category in product_categories %}
+                <option value="{{ category }}">{{ category }}</option>
+              {% endfor %}
+            </select>
+          </label>
         </div>
       </div>
     </div>
@@ -91,4 +91,18 @@
       {{ figure1 }}
     {% endautoescape %}
   </div>
+{% endblock %}
+
+{% block javascript %}
+  <script>
+    $(document).ready(function () {
+      $('#category-select').select2({
+        placeholder: 'Select a new category'
+      });
+
+      $("#category-select").on("select2:select", function (e) {
+        window.location.replace(`/reports/category/${e.params.data.id}`);
+      });
+    });
+  </script>
 {% endblock %}

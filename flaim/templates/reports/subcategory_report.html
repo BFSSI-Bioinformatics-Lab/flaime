@@ -4,7 +4,7 @@
 
 {% block header %}
   <div style="flex: 10%">
-    <img src="{% static 'images/category_icons/' %}{{ parent_category }}.png" height="160" width="160"
+    <img src="{% static 'images/category_icons/' %}{{ image }}.png" height="160" width="160"
          style="padding-bottom: 5px">
   </div>
   <div style="flex: 90%;padding-left: 10px">
@@ -55,17 +55,17 @@
   <div style="flex: 33%; padding-right: 25px">
     {#  how the product counts compares to other categories #}
     {#  how the products are spread across stores #}
-    <b>Overview:</b> The {{ category }} category consists of {{ product_count }} products across
+    <b>Overview:</b> The {{ subcategory }} subcategory consists of {{ product_count }} products across
     {{ store_count }} stores. Of these products, <b>{{ manual_category_count }}</b> were manually verified and
     <b>{{ predicted_category_count }}</b> were predicted to fall in this category using a machine learning model.
   </div>
   <div style="flex: 33%; padding-right: 25px; padding-left: 25px">
-    <b>Nutrients:</b> Of the {{ category_count }} food categories, {{ category }} have the
+    <b>Nutrients:</b> Of the {{ category_count }} {{ category }} subcategories, {{ subcategory }} products have the
     <b>{{ sodium_rank }}</b> highest sodium, <b>{{ fat_rank }}</b> highest saturated fat, and <b>{{ sugar_rank }}</b>
     highest sugar content.
   </div>
   <div style="flex: 33%; padding-left: 25px">
-    <b>Ingredients:</b> {{ category }} typically contain <b>{{ ingredient_q25 }}</b> to
+    <b>Ingredients:</b> {{ subcategory }} typically contain <b>{{ ingredient_q25 }}</b> to
     <b>{{ ingredient_q75 }}</b> ingredients. The three most common ingredients in this category are
     {{ common_ingredients }}.
   </div>

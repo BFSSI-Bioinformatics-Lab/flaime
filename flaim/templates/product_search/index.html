@@ -25,6 +25,11 @@
         <select id="categorySearch" style="width: 80%"></select>
       </div>
 
+      <div class="col-lg-3">
+        <div>Subcategory</div>
+        <select id="subcategorySearch" style="width: 80%"></select>
+      </div>
+
 
     </div>
     <br>
@@ -66,6 +71,7 @@
           <th>Name</th>
           <th>Brand</th>
           <th>Category</th>
+          <th>Subcategory</th>
           <th>Ingredients</th>
         </tr>
         </thead>
@@ -159,10 +165,35 @@
                     },
                     processResults: function (data, params) {
                       let page = params.page || 1;
-                      // Transforms the top-level key of the response object from 'items' to 'results'
-                      {#console.log(data)#}
-                      {#console.log(page)#}
-                      {#console.log((page * 15) <= data.count)#}
+                      return {
+                        results: data.results,
+                        pagination: {
+                          more: (page * 15) <= data.count
+                        }
+                      };
+                    }
+                  }
+                }
+        );
+
+        $('#subcategorySearch').select2(
+                {
+                  placeholder: '',
+                  allowClear: true,
+                  cache: true,
+                  tags: true,
+                  {#minimumInputLength: 3,#}
+                  ajax: {
+                    url: '/api/predicted_subcategory_name/',
+                    data: function (params) {
+                      // Query parameters will be ?search=[term]
+                      return {
+                        page: params.page || 1,
+                        search: params.term || ""
+                      };
+                    },
+                    processResults: function (data, params) {
+                      let page = params.page || 1;
                       return {
                         results: data.results,
                         pagination: {
@@ -313,6 +344,7 @@
           name_contains: $('#nameSearch :selected').text(),
           brand_contains: $('#brandSearch :selected').text(),
           category: $('#categorySearch :selected').text(),
+          subcategory: $('#subcategorySearch :selected').text(),
         };
 
         // Filter out empty keys to simplify the query we pass to the API
@@ -360,6 +392,7 @@
             {"data": "name"},
             {"data": "brand"},
             {"data": "category.calculated_best_category", "defaultContent": ""},
+            {"data": "subcategory.calculated_best_subcategory", "defaultContent": ""},
             {"data": "nutrition_facts.ingredients", "defaultContent": ""},
           ]
         });

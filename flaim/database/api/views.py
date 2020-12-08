@@ -151,6 +151,7 @@ class AdvancedProductViewSet(viewsets.ModelViewSet, UpdateModelMixin):
         brand_contains = query_params.get('brand_contains', None)
         recent = query_params.get('recent', None)
         category = query_params.get('category', None)
+        subcategory = query_params.get('subcategory', None)
 
         queryset = models.Product.objects.all()
 
@@ -178,6 +179,11 @@ class AdvancedProductViewSet(viewsets.ModelViewSet, UpdateModelMixin):
         if category:
             queryset = queryset.filter(
                 Q(category__manual_category__iexact=category) | Q(category__predicted_category_1__iexact=category))
+
+        if subcategory:
+            queryset = queryset.filter(
+                Q(subcategory__manual_subcategory__iexact=subcategory) | Q(
+                    subcategory__predicted_subcategory_1__iexact=subcategory))
 
         # Per column filtering from product_curator
         if query_params.get('column_filters', None):
@@ -290,8 +296,25 @@ class CategoryNameViewSet(viewsets.ModelViewSet):
         disable_pagination = self.request.query_params.get('disable_pagination', None)
         if disable_pagination:
             self.pagination_class = None
-        query = models.Category.objects.filter(predicted_category_1__icontains=search).order_by(
-            'predicted_category_1').distinct('predicted_category_1')
+        query = models.ReferenceCategorySupport.objects.filter(category_name__icontains=search).order_by(
+            'category_name').distinct('category_name')
+        return query
+
+
+class SubcategoryNameViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for autocomplete brand dropdown
+    """
+    pagination_class = Select2PaginationClass
+    serializer_class = serializers.SubcategoryNameSerializer
+
+    def get_queryset(self):
+        search = self.request.query_params.get('search', '')
+        disable_pagination = self.request.query_params.get('disable_pagination', None)
+        if disable_pagination:
+            self.pagination_class = None
+        query = models.ReferenceCategorySupport.objects.filter(subcategory_name__icontains=search).order_by(
+            'subcategory_name').distinct('subcategory_name')
         return query
 
 

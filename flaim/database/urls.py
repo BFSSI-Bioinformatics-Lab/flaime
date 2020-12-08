@@ -16,6 +16,7 @@ router.register(r'nutrition_facts', views.NutritionFactsViewSet)
 # Had to manually set the basename here because otherwise it tries to use the queryset as the basename
 router.register(r'product_name', views.ProductNameViewSet, basename='product_name')
 router.register(r'predicted_category_name', views.CategoryNameViewSet, basename='predicted_category_name')
+router.register(r'predicted_subcategory_name', views.SubcategoryNameViewSet, basename='predicted_subcategory_name')
 router.register(r'category', views.CategoryViewSet, basename='category')
 router.register(r'subcategory', views.SubcategoryViewSet, basename='subcategory')
 router.register(r'reference_category_support', views.ReferenceCategorySupportViewSet,

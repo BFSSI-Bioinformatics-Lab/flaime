@@ -345,10 +345,23 @@ class CategoryNameSerializer(serializers.ModelSerializer):
     Fields are named for compatibiltiy with select2
     """
     id = serializers.ReadOnlyField()
-    text = serializers.CharField(source='predicted_category_1')
+    text = serializers.CharField(source='category_name')
 
     class Meta:
-        model = models.Category
+        model = models.ReferenceCategorySupport
+        fields = ['id', 'text']
+
+
+class SubcategoryNameSerializer(serializers.ModelSerializer):
+    """
+    Simple serializer for storing only predicted category names.
+    Fields are named for compatibiltiy with select2
+    """
+    id = serializers.ReadOnlyField()
+    text = serializers.CharField(source='subcategory_name')
+
+    class Meta:
+        model = models.ReferenceCategorySupport
         fields = ['id', 'text']
 
 

@@ -334,7 +334,7 @@ def get_nutrient_distribution_plot(df):
     except LinAlgError:
         return "Graph can't be displayed."
     except ValueError:
-        return "Graph can't be displayed."
+        return "Not enough data to generate graph."
 
     return to_html(fig, include_plotlyjs=False, full_html=False)
 

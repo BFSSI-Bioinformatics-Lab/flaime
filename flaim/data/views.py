@@ -66,10 +66,11 @@ def get_df():
 
 
 def get_missing_nft_graph(df):
-    plot_df = df.groupby(['category_text', 'nutrition_available']).count()['name'].reset_index()
+    plot_df = df.copy()
+    plot_df['Product Has NFT'] = ~df.calories.isnull()
+    plot_df = plot_df.groupby(['category_text', 'Product Has NFT']).count()['name'].reset_index()
 
-    fig = px.bar(plot_df.sort_values(by='nutrition_available', ascending=False)
-                 .rename(columns={'nutrition_available': 'Product Has NFT'}),
+    fig = px.bar(plot_df.sort_values(by='Product Has NFT', ascending=False),
                  x='category_text', y='name', color='Product Has NFT')
     fig.update_layout(
         xaxis={'categoryorder': 'total descending',

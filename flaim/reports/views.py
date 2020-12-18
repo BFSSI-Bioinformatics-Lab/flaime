@@ -8,6 +8,7 @@ import plotly.graph_objects as go
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import F
 from django.views.generic import TemplateView
+from numpy.linalg import LinAlgError
 from plotly.io import to_html
 from plotly.express.colors import qualitative
 
@@ -37,9 +38,12 @@ class SubcategoryView(LoginRequiredMixin, TemplateView):
             if self.kwargs['subcategory'] in subcategories:
                 context['category'] = category
                 context['image'] = category.lower()
-        context['subcategories'] = REFERENCE_SUBCATEGORIES_CODING_DICT.values()
+        subcategories = list(set(REFERENCE_SUBCATEGORIES_CODING_DICT.values()).intersection(set(plot_df['subcategory_text'].unique())))
+        subcategories.sort()
+        context['subcategories'] = subcategories
 
         plot_df = plot_df.loc[plot_df['category_text'] == context['category']]
+
         context['category_count'] = plot_df['subcategory_text'].nunique()
         medians = plot_df.groupby('subcategory_text').median()
 
@@ -60,7 +64,16 @@ class SubcategoryView(LoginRequiredMixin, TemplateView):
         # This gets the 3 most common ingredients but does not preprocess the ingredient lists
         common_ingredients = pd.Series(' '.join(plot_df['ingredients'].fillna('').str.lower().tolist())
                                        .split(',')).value_counts().head(3).index.tolist()
-        context['common_ingredients'] = f'{common_ingredients[0]}, {common_ingredients[1]}, and {common_ingredients[2]}'
+        if len(common_ingredients) >= 3:
+            context['common_ingredients'] = f'The three most common ingredients in this category are \
+            {common_ingredients[0]}, {common_ingredients[1]}, and {common_ingredients[2]}.'
+        elif len(common_ingredients) == 2:
+            context['common_ingredients'] = f'The two most common ingredients in this category are \
+            {common_ingredients[0]} and {common_ingredients[1]}.'
+        # Seems unlikely to only have one ingredient, note it can still have 0 ingredients in which case this sentence
+        # will not be displayed
+        elif len(common_ingredients) == 1:
+            context['common_ingredients'] = f'The only ingredient in this category is {common_ingredients[0]}.'
 
         # Top bar
         context['product_count'] = plot_df.shape[0]
@@ -119,7 +132,16 @@ class CategoryView(LoginRequiredMixin, TemplateView):
         # This gets the 3 most common ingredients but does not preprocess the ingredient lists
         common_ingredients = pd.Series(' '.join(plot_df['ingredients'].fillna('').str.lower().tolist())
                                        .split(',')).value_counts().head(3).index.tolist()
-        context['common_ingredients'] = f'{common_ingredients[0]}, {common_ingredients[1]}, and {common_ingredients[2]}'
+        if len(common_ingredients) >= 3:
+            context['common_ingredients'] = f'The three most common ingredients in this category are \
+            {common_ingredients[0]}, {common_ingredients[1]}, and {common_ingredients[2]}.'
+        elif len(common_ingredients) == 2:
+            context['common_ingredients'] = f'The two most common ingredients in this category are \
+            {common_ingredients[0]} and {common_ingredients[1]}.'
+        # Seems unlikely to only have one ingredient, note it can still have 0 ingredients in which case this sentence
+        # will not be displayed
+        elif len(common_ingredients) == 1:
+            context['common_ingredients'] = f'The only ingredient in this category is {common_ingredients[0]}.'
 
         # Top bar
         context['image'] = context['category'].lower()
@@ -256,58 +278,63 @@ def get_plot_df():
 # Figure generation
 def get_nutrient_distribution_plot(df):
     nutrients = ['sodium_dv', 'saturatedfat_dv', 'sugar']
-    # colors = [qualitative.Vivid[0], qualitative.Vivid[0], qualitative.Vivid[0]]
-    fig = ff.create_distplot(df[nutrients].dropna().T.values, ['Sodium', 'Saturated Fat', 'Sugar'], bin_size=0.01,
-                             histnorm='probability', colors=qualitative.Vivid, show_rug=False)
 
-    fig.update_layout(
-        width=1100,
-        font_size=18,
-        xaxis=dict(
-            title='Daily Value',
-            tickformat='%',
-            showgrid=True,
-            range=[0, min([1, max(df[n].quantile(0.95) for n in nutrients)])]
-        ),
-        yaxis=dict(
-            tickformat='%',
-            title='Proportion of Products'
-        ),
-        margin=dict(
-            l=100,
-            r=20,
-            b=30,
-            t=30,
-        ),
-        legend_title='Nutrients'
-    )
+    try:
+        fig = ff.create_distplot(df[nutrients].dropna(how='all').fillna(0).T.values,
+                                 ['Sodium', 'Saturated Fat', 'Sugar'], colors=qualitative.Vivid, histnorm='probability',
+                                 bin_size=0.01, show_rug=False,)
+        fig.update_layout(
+            width=1100,
+            font_size=18,
+            xaxis=dict(
+                title='Daily Value',
+                tickformat='%',
+                showgrid=True,
+                range=[0, min([1, max(df[n].quantile(0.95) for n in nutrients)])]
+            ),
+            yaxis=dict(
+                tickformat='%',
+                title='Proportion of Products'
+            ),
+            margin=dict(
+                l=100,
+                r=20,
+                b=30,
+                t=30,
+            ),
+            legend_title='Nutrients'
+        )
 
-    fig.add_shape(dict(
-        type='line',
-        yref='paper',
-        x0=0.15,
-        y0=0,
-        x1=0.15,
-        y1=1,
-        line=dict(
-            color='Black',
-            width=2
-        )))
+        fig.add_shape(dict(
+            type='line',
+            yref='paper',
+            x0=0.15,
+            y0=0,
+            x1=0.15,
+            y1=1,
+            line=dict(
+                color='Black',
+                width=2
+            )))
 
-    fig.add_annotation(text='← Low in Nutrient',
-                       yref='paper',
-                       x=0.145, y=1,
-                       showarrow=False,
-                       xanchor='right',
-                       yanchor='bottom',
-                       font_color='green')
-    fig.add_annotation(text='High in Nutrient →',
-                       yref='paper',
-                       x=0.155, y=1,
-                       showarrow=False,
-                       xanchor='left',
-                       yanchor='bottom',
-                       font_color='red')
+        fig.add_annotation(text='← Low in Nutrient',
+                           yref='paper',
+                           x=0.145, y=1,
+                           showarrow=False,
+                           xanchor='right',
+                           yanchor='bottom',
+                           font_color='green')
+        fig.add_annotation(text='High in Nutrient →',
+                           yref='paper',
+                           x=0.155, y=1,
+                           showarrow=False,
+                           xanchor='left',
+                           yanchor='bottom',
+                           font_color='red')
+    except LinAlgError:
+        return "Graph can't be displayed."
+    except ValueError:
+        return "Graph can't be displayed."
 
     return to_html(fig, include_plotlyjs=False, full_html=False)
 

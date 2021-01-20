@@ -251,15 +251,22 @@ class StoreView(LoginRequiredMixin, TemplateView):
             context['failed_ocr'] = 0
 
         context['has_ingredients'] = len(plot_df['ingredients'].dropna())
-        context['has_allergy_info'] = len(plot_df.loc[plot_df['ingredients'].str.contains(
-            'contain', flags=re.IGNORECASE).fillna(False), 'ingredients'].drop_duplicates())
+        plot_df['allergy'] = plot_df['ingredients'].str.contains('contain', flags=re.IGNORECASE).fillna(False)
+        context['has_allergy_info'] = len(plot_df.loc[plot_df['allergy'], ['name', 'ingredients']].drop_duplicates())
 
         pack_img = agg_df["('image_path', nan)"].apply(len)
         if "('image_path', 'other')" in flat_cols:
             pack_img += agg_df["('image_path', 'other')"].apply(len)
+        pack_img.name = 'pack images'
         context['front_img_mean'] = f'{pack_img.mean():.1f}'
         context['missing_img'] = pack_img.value_counts()[0]
         context['has_img'] = pack_img.value_counts()[1:].sum()
+
+        complete_df = plot_df[['name', 'calories', 'allergy']].drop_duplicates().merge(pack_img, left_on='name',
+                                                                                       right_index=True)
+        complete_df['complete'] = (~complete_df['calories'].isnull()) & \
+                                  (complete_df['pack images'] > 0) & complete_df['allergy']
+        context['complete'] = complete_df['complete'].value_counts()[True]
 
         # Visualizations
         context['figure1'] = get_category_nutrient_distribution_plot(plot_df)

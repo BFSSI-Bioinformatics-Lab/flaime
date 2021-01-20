@@ -1,3 +1,6 @@
+import re
+from functools import partial
+from operator import is_not
 from textwrap import wrap
 from urllib.parse import unquote
 
@@ -9,8 +12,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import F
 from django.views.generic import TemplateView
 from numpy.linalg import LinAlgError
-from plotly.io import to_html
 from plotly.express.colors import qualitative
+from plotly.io import to_html
 
 from flaim.database import models
 from flaim.database.product_mappings import PRODUCT_STORES, REFERENCE_CATEGORIES_DICT, \
@@ -38,7 +41,8 @@ class SubcategoryView(LoginRequiredMixin, TemplateView):
             if self.kwargs['subcategory'] in subcategories:
                 context['category'] = category
                 context['image'] = category.lower()
-        subcategories = list(set(REFERENCE_SUBCATEGORIES_CODING_DICT.values()).intersection(set(plot_df['subcategory_text'].unique())))
+        subcategories = list(
+            set(REFERENCE_SUBCATEGORIES_CODING_DICT.values()).intersection(set(plot_df['subcategory_text'].unique())))
         subcategories.sort()
         context['subcategories'] = subcategories
 
@@ -209,7 +213,8 @@ class StoreView(LoginRequiredMixin, TemplateView):
         context['product_count'] = plot_df.shape[0]
         products_with_nft = plot_df.shape[0] - plot_df.calories.isnull().sum()
         # context['missing_nft'] = f'{plot_df.calories.isnull().sum()/plot_df.shape[0]*100:.1f}%'
-        context['has_nft'] = f'{products_with_nft} ({products_with_nft / plot_df.shape[0] * 100:.0f}%)'
+        context['has_nft'] = products_with_nft
+        context['has_nft_percent'] = f'{products_with_nft} ({products_with_nft / plot_df.shape[0] * 100:.0f}%)'
 
         context['sodium_products_over_15'] = plot_df[plot_df.sodium_dv > 0.15].shape[0]
         sodium_percent = context['sodium_products_over_15'] / products_with_nft * 100
@@ -222,6 +227,46 @@ class StoreView(LoginRequiredMixin, TemplateView):
         context['sugar_products_over_15'] = plot_df[plot_df.sugar > 0.15].shape[0]
         sugar_percent = context['sugar_products_over_15'] / products_with_nft * 100
         context['sugar_products_percent'] = f'{sugar_percent:.1f}%'
+
+        cols = ['name', 'image_path', 'image_number', 'image_label']
+        pivot_df = pd.concat([plot_df['name'], plot_df[cols].pivot(columns='image_label', values=['image_path'])],
+                             axis=1)
+        pivot_df.columns = [str(c) for c in pivot_df.columns]
+        flat_cols = list(set(pivot_df.columns) - {'name'})
+
+        def make_list(x):
+            return list(filter(partial(is_not, np.nan), list(x)))
+        agg_df = pivot_df.groupby('name').agg({c: lambda x: make_list(x) for c in flat_cols})
+        if "('image_path', 'nutrition')" in flat_cols:
+            img_diff_df = plot_df[['name', 'calories']].copy().drop_duplicates(subset='name')
+            img_diff_df = img_diff_df.merge(agg_df["('image_path', 'nutrition')"], right_index=True, left_on='name')
+            img_diff_df['OCR failed'] = (img_diff_df['calories'].isnull()) & \
+                                        (img_diff_df["('image_path', 'nutrition')"].apply(len) > 0)
+            ocr_fail_with_image = img_diff_df.loc[
+                img_diff_df["('image_path', 'nutrition')"].apply(len) > 0, 'OCR failed'].value_counts()
+            context['nft_ocr'] = ocr_fail_with_image[False]
+            context['failed_ocr'] = ocr_fail_with_image[True]
+        else:
+            context['nft_ocr'] = 0
+            context['failed_ocr'] = 0
+
+        context['has_ingredients'] = len(plot_df['ingredients'].dropna())
+        plot_df['allergy'] = plot_df['ingredients'].str.contains('contain', flags=re.IGNORECASE).fillna(False)
+        context['has_allergy_info'] = len(plot_df.loc[plot_df['allergy'], ['name', 'ingredients']].drop_duplicates())
+
+        pack_img = agg_df["('image_path', nan)"].apply(len)
+        if "('image_path', 'other')" in flat_cols:
+            pack_img += agg_df["('image_path', 'other')"].apply(len)
+        pack_img.name = 'pack images'
+        context['front_img_mean'] = f'{pack_img.mean():.1f}'
+        context['missing_img'] = pack_img.value_counts()[0]
+        context['has_img'] = pack_img.value_counts()[1:].sum()
+
+        complete_df = plot_df[['name', 'calories', 'allergy']].drop_duplicates().merge(pack_img, left_on='name',
+                                                                                       right_index=True)
+        complete_df['complete'] = (~complete_df['calories'].isnull()) & \
+                                  (complete_df['pack images'] > 0) & complete_df['allergy']
+        context['complete'] = complete_df['complete'].value_counts()[True]
 
         # Visualizations
         context['figure1'] = get_category_nutrient_distribution_plot(plot_df)
@@ -251,6 +296,7 @@ def get_rank_suffix(i):
 def get_plot_df():
     products = models.Product
     nutrition_facts = models.NutritionFacts
+    images = models.ProductImage
     df1 = pd.DataFrame(list(products.objects
                             .annotate(category_text=F('category__predicted_category_1'))
                             .annotate(manual_category_text=F('category__manual_category'))
@@ -259,7 +305,13 @@ def get_plot_df():
                             .filter(most_recent=True)
                             .values()))
     df2 = pd.DataFrame(list(nutrition_facts.objects.filter(product__most_recent=True).values()))
-    df = df1.merge(df2, left_on='id', right_on='product_id')
+    df3 = pd.DataFrame(list(images.objects.filter(product__most_recent=True).values()))
+
+    df = df1.merge(df2.drop(columns=['id', 'created', 'modified']),
+                   left_on='id', right_on='product_id').drop(columns=['created', 'modified', 'product_id'])
+    df = df.merge(df3.drop(columns=['id']), how='outer',
+                  left_on='id', right_on='product_id').drop(columns=['id', 'product_id', 'created', 'modified'])
+    # df.to_csv('/home/brian/Code/flaime/data/git_with_images.csv', index=False)
 
     manual_index = df['manual_category_text'].dropna().index
     df['category_text'].loc[manual_index] = df['manual_category_text'].dropna()
@@ -282,7 +334,7 @@ def get_nutrient_distribution_plot(df):
     try:
         fig = ff.create_distplot(df[nutrients].dropna(how='all').fillna(0).T.values,
                                  ['Sodium', 'Saturated Fat', 'Sugar'], colors=qualitative.Vivid, histnorm='probability',
-                                 bin_size=0.01, show_rug=False,)
+                                 bin_size=0.01, show_rug=False, )
         fig.update_layout(
             width=1100,
             font_size=18,

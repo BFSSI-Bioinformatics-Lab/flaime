@@ -33,7 +33,8 @@ class SubcategoryView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        plot_df = get_plot_df()
+        df = get_plot_df()
+        plot_df = df.drop_duplicates(subset='name')
 
         context['subcategory'] = self.kwargs['subcategory']
         # Figure out parent category for image display
@@ -106,7 +107,8 @@ class CategoryView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        plot_df = get_plot_df()
+        df = get_plot_df()
+        plot_df = df.drop_duplicates(subset='name')
 
         context['product_categories'] = REFERENCE_CATEGORIES_DICT.keys()
 
@@ -181,7 +183,8 @@ class StoreView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['product_stores'] = [x[0] for x in PRODUCT_STORES]
 
-        plot_df = get_plot_df()
+        df = get_plot_df()
+        plot_df = df.drop_duplicates(subset='name')
 
         context['category_count'] = plot_df['category_text'].nunique()
 
@@ -191,6 +194,7 @@ class StoreView(LoginRequiredMixin, TemplateView):
             context['store'] = unquote(
                 self.kwargs['store'].upper())  # pulls category from URL e.g. /reports/store/Loblaws
 
+        df = df.loc[df['store'] == context['store']]
         plot_df = plot_df.loc[plot_df['store'] == context['store']]
 
         context['manual_category_count'] = plot_df['manual_category_text'].dropna().shape[0]
@@ -230,7 +234,7 @@ class StoreView(LoginRequiredMixin, TemplateView):
 
         cols = ['name', 'image_path', 'image_number', 'image_label']
         labels = ['none', 'other', 'nutrition', 'ingredients', 'nutrition_american']
-        pivot_df = pd.concat([plot_df['name'], plot_df[cols].pivot(columns='image_label', values=['image_path'])], axis=1)
+        pivot_df = pd.concat([df['name'], df[cols].pivot(columns='image_label', values=['image_path'])], axis=1)
         names = pivot_df.pop('name')
         pivot_df.columns = [label if label in labels else 'none' for path, label in pivot_df.columns]
         pivot_columns = pivot_df.columns
@@ -248,7 +252,7 @@ class StoreView(LoginRequiredMixin, TemplateView):
             if 'nutrition_american' in agg_df:
                 agg_df['nutrition'] = agg_df['nutrition'] + agg_df['nutrition_american']
                 agg_df.drop(columns=['nutrition_american'], inplace=True)
-            img_diff_df = plot_df[['name', 'calories']].copy().drop_duplicates(subset='name')
+            img_diff_df = plot_df[['name', 'calories']].copy()
             img_diff_df = img_diff_df.merge(agg_df['nutrition'], right_index=True, left_on='name')
             img_diff_df['OCR failed'] = (img_diff_df['calories'].isnull()) & \
                                         (img_diff_df['nutrition'].apply(len) > 0)
@@ -262,7 +266,7 @@ class StoreView(LoginRequiredMixin, TemplateView):
 
         context['has_ingredients'] = len(plot_df['ingredients'].dropna())
         plot_df['allergy'] = plot_df['ingredients'].str.contains('contain', flags=re.IGNORECASE).fillna(False)
-        context['has_allergy_info'] = len(plot_df.loc[plot_df['allergy'], ['name', 'ingredients']].drop_duplicates())
+        context['has_allergy_info'] = len(plot_df.loc[plot_df['allergy'], ['name', 'ingredients']])
 
         pack_img = agg_df['none'].apply(len)
         pack_img.name = 'pack images'
@@ -270,8 +274,7 @@ class StoreView(LoginRequiredMixin, TemplateView):
         context['missing_img'] = pack_img.value_counts()[0]
         context['has_img'] = pack_img.value_counts()[1:].sum()
 
-        complete_df = plot_df[['name', 'calories', 'allergy']].drop_duplicates().merge(pack_img, left_on='name',
-                                                                                       right_index=True)
+        complete_df = plot_df[['name', 'calories', 'allergy']].merge(pack_img, left_on='name', right_index=True)
         complete_df['complete'] = (~complete_df['calories'].isnull()) & \
                                   (complete_df['pack images'] > 0) & complete_df['allergy']
         context['complete'] = complete_df['complete'].value_counts()[True]

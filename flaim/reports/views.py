@@ -312,13 +312,14 @@ def get_plot_df():
                             .annotate(manual_subcategory_text=F('subcategory__manual_subcategory'))
                             .filter(most_recent=True)
                             .values()))
-    df2 = pd.DataFrame(list(nutrition_facts.objects.filter(product__most_recent=True).values()))
-    df3 = pd.DataFrame(list(images.objects.filter(product__most_recent=True).values()))
+    df2 = pd.DataFrame(list(nutrition_facts.objects.filter(product__most_recent=True)
+                            .annotate(product_code=F('product__product_code'))
+                            .values()))
+    df3 = pd.DataFrame(list(images.objects.annotate(product_code=F('product__product_code')).values()))
 
     df = df1.merge(df2.drop(columns=['id', 'created', 'modified']),
-                   left_on='id', right_on='product_id').drop(columns=['created', 'modified', 'product_id'])
-    df = df.merge(df3.drop(columns=['id']), how='outer',
-                  left_on='id', right_on='product_id').drop(columns=['id', 'product_id', 'created', 'modified'])
+                   on='product_code').drop(columns=['id', 'created', 'modified', 'product_id'])
+    df = df.merge(df3, how='outer', on='product_code').drop(columns=['id', 'product_id', 'created', 'modified'])
     # df.to_csv('/home/brian/Code/flaime/data/git_with_images.csv', index=False)
 
     manual_index = df['manual_category_text'].dropna().index

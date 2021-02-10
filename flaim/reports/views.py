@@ -9,15 +9,14 @@ import pandas as pd
 import plotly.figure_factory as ff
 import plotly.graph_objects as go
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import F
 from django.views.generic import TemplateView
 from numpy.linalg import LinAlgError
 from plotly.express.colors import qualitative
 from plotly.io import to_html
 
-from flaim.database import models
 from flaim.database.product_mappings import PRODUCT_STORES, REFERENCE_CATEGORIES_DICT, \
     REFERENCE_SUBCATEGORIES_CODING_DICT
+from flaim.reports.data import ReportData, StoreReportData
 
 
 class ProductView(LoginRequiredMixin, TemplateView):
@@ -33,7 +32,8 @@ class SubcategoryView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        df = get_plot_df()
+        data = ReportData()
+        df = data.df.copy()  # temp copy
         plot_df = df.drop_duplicates(subset='name')
 
         context['subcategory'] = self.kwargs['subcategory']
@@ -107,7 +107,8 @@ class CategoryView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        df = get_plot_df()
+        data = ReportData()
+        df = data.df.copy()  # temp copy
         plot_df = df.drop_duplicates(subset='name')
 
         context['product_categories'] = REFERENCE_CATEGORIES_DICT.keys()
@@ -182,8 +183,8 @@ class StoreView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['product_stores'] = [x[0] for x in PRODUCT_STORES]
-
-        df = get_plot_df()
+        data = StoreReportData()
+        df = data.df.copy()  # temp copy
         plot_df = df.drop_duplicates(subset='name')
 
         context['category_count'] = plot_df['category_text'].nunique()
@@ -301,42 +302,6 @@ def get_rank_suffix(i):
         return f'{i}rd'
     else:
         return f'{i}th'
-
-
-# Fetch dataset
-def get_plot_df():
-    products = models.Product
-    nutrition_facts = models.NutritionFacts
-    images = models.ProductImage
-    df1 = pd.DataFrame(list(products.objects
-                            .annotate(category_text=F('category__predicted_category_1'))
-                            .annotate(manual_category_text=F('category__manual_category'))
-                            .annotate(subcategory_text=F('subcategory__predicted_subcategory_1'))
-                            .annotate(manual_subcategory_text=F('subcategory__manual_subcategory'))
-                            .filter(most_recent=True)
-                            .values()))
-    df2 = pd.DataFrame(list(nutrition_facts.objects.filter(product__most_recent=True)
-                            .annotate(product_code=F('product__product_code'))
-                            .values()))
-    df3 = pd.DataFrame(list(images.objects.annotate(product_code=F('product__product_code')).values()))
-
-    df = df1.merge(df2.drop(columns=['id', 'created', 'modified']),
-                   on='product_code').drop(columns=['id', 'created', 'modified', 'product_id'])
-    df = df.merge(df3, how='outer', on='product_code').drop(columns=['id', 'product_id', 'created', 'modified'])
-    # df.to_csv('/home/brian/Code/flaime/data/git_with_images.csv', index=False)
-
-    manual_index = df['manual_category_text'].dropna().index
-    df['category_text'].loc[manual_index] = df['manual_category_text'].dropna()
-
-    manual_sub_index = df['manual_subcategory_text'].dropna().index
-    df['subcategory_text'].loc[manual_sub_index] = df['manual_subcategory_text'].dropna()
-
-    df = df.loc[(df['category_text'] != 'Unknown') & (df['category_text'] != 'Not Food')
-                & (df['category_text'] != 'Uncategorized')]
-    df['sugar'] /= 100
-    df['brand'] = df['brand'].str.replace('’', "'")
-
-    return df
 
 
 # Figure generation

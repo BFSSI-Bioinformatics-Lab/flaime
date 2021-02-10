@@ -184,30 +184,28 @@ class StoreView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['product_stores'] = [x[0] for x in PRODUCT_STORES]
         data = StoreReportData()
-        df = data.df.copy()  # temp copy
-        plot_df = df.drop_duplicates(subset='name')
+        df = data.df.copy()
 
-        context['category_count'] = plot_df['category_text'].nunique()
+        context['category_count'] = df['category_text'].nunique()
 
         if 'store' not in self.kwargs:
-            context['store'] = np.random.choice(plot_df['store'].unique())  # set default category
+            context['store'] = np.random.choice(df['store'].unique())  # set default category
         else:
             context['store'] = unquote(
                 self.kwargs['store'].upper())  # pulls category from URL e.g. /reports/store/Loblaws
 
         df = df.loc[df['store'] == context['store']]
-        plot_df = plot_df.loc[plot_df['store'] == context['store']]
 
-        context['manual_category_count'] = plot_df['manual_category_text'].dropna().shape[0]
+        context['manual_category_count'] = df['manual_category_text'].dropna().shape[0]
 
         # This can probably be split off into a utility function
-        common_categories = plot_df['category_text'].value_counts().head(3).to_dict()
+        common_categories = df['category_text'].value_counts().head(3).to_dict()
         sen = ', '.join([f'{key} ({common_categories[key]} products)' for key in common_categories])
         sen_par = sen.rpartition(', ')
         context['common_categories'] = sen_par[0] + ', and ' + sen_par[-1]
 
         # above function would be repeated here
-        common_brands = plot_df['brand'].value_counts().head(5).to_dict()
+        common_brands = df['brand'].value_counts().head(5).to_dict()
         sen = ', '.join([f'{key} ({common_brands[key]} products)' for key in common_brands])
         sen_par = sen.rpartition(', ')
         context['common_brands'] = sen_par[0] + ', and ' + sen_par[-1]
@@ -215,21 +213,21 @@ class StoreView(LoginRequiredMixin, TemplateView):
         # Top bar
         context['image'] = context['store'].lower()
         context['store'] = context['store'].capitalize()
-        context['product_count'] = plot_df.shape[0]
-        products_with_nft = plot_df.shape[0] - plot_df.calories.isnull().sum()
+        context['product_count'] = df.shape[0]
+        products_with_nft = df.shape[0] - df.calories.isnull().sum()
         # context['missing_nft'] = f'{plot_df.calories.isnull().sum()/plot_df.shape[0]*100:.1f}%'
         context['has_nft'] = products_with_nft
-        context['has_nft_percent'] = f'{products_with_nft} ({products_with_nft / plot_df.shape[0] * 100:.0f}%)'
+        context['has_nft_percent'] = f'{products_with_nft} ({products_with_nft / df.shape[0] * 100:.0f}%)'
 
-        context['sodium_products_over_15'] = plot_df[plot_df.sodium_dv > 0.15].shape[0]
+        context['sodium_products_over_15'] = df[df.sodium_dv > 0.15].shape[0]
         sodium_percent = context['sodium_products_over_15'] / products_with_nft * 100
         context['sodium_products_percent'] = f'{sodium_percent:.1f}%'
 
-        context['fat_products_over_15'] = plot_df[plot_df.saturatedfat_dv > 0.15].shape[0]
+        context['fat_products_over_15'] = df[df.saturatedfat_dv > 0.15].shape[0]
         fat_percent = context['fat_products_over_15'] / products_with_nft * 100
         context['fat_products_percent'] = f'{fat_percent:.1f}%'
 
-        context['sugar_products_over_15'] = plot_df[plot_df.sugar > 0.15].shape[0]
+        context['sugar_products_over_15'] = df[df.sugar > 0.15].shape[0]
         sugar_percent = context['sugar_products_over_15'] / products_with_nft * 100
         context['sugar_products_percent'] = f'{sugar_percent:.1f}%'
 
@@ -253,7 +251,7 @@ class StoreView(LoginRequiredMixin, TemplateView):
             if 'nutrition_american' in agg_df:
                 agg_df['nutrition'] = agg_df['nutrition'] + agg_df['nutrition_american']
                 agg_df.drop(columns=['nutrition_american'], inplace=True)
-            img_diff_df = plot_df[['name', 'calories']].copy()
+            img_diff_df = df[['name', 'calories']].copy()
             img_diff_df = img_diff_df.merge(agg_df['nutrition'], right_index=True, left_on='name')
             img_diff_df['OCR failed'] = (img_diff_df['calories'].isnull()) & \
                                         (img_diff_df['nutrition'].apply(len) > 0)
@@ -265,23 +263,23 @@ class StoreView(LoginRequiredMixin, TemplateView):
             context['nft_ocr'] = 0
             context['failed_ocr'] = 0
 
-        context['has_ingredients'] = len(plot_df['ingredients'].dropna())
-        plot_df['allergy'] = plot_df['ingredients'].str.contains('contain', flags=re.IGNORECASE).fillna(False)
-        context['has_allergy_info'] = len(plot_df.loc[plot_df['allergy'], ['name', 'ingredients']])
+        context['has_ingredients'] = len(df['ingredients'].dropna())
+        df['allergy'] = df['ingredients'].str.contains('contain', flags=re.IGNORECASE).fillna(False)
+        context['has_allergy_info'] = len(df.loc[df['allergy'], ['name', 'ingredients']])
 
         pack_img = agg_df['none'].apply(len)
         pack_img.name = 'pack images'
         context['front_img_mean'] = f'{pack_img.mean():.1f}'
-        context['missing_img'] = pack_img.value_counts()[0]
-        context['has_img'] = pack_img.value_counts()[1:].sum()
+        context['missing_img'] = len(pack_img.loc[pack_img == 0])
+        context['has_img'] = len(pack_img) - context['missing_img']
 
-        complete_df = plot_df[['name', 'calories', 'allergy']].merge(pack_img, left_on='name', right_index=True)
+        complete_df = df[['name', 'calories', 'allergy']].merge(pack_img, left_on='name', right_index=True)
         complete_df['complete'] = (~complete_df['calories'].isnull()) & \
                                   (complete_df['pack images'] > 0) & complete_df['allergy']
         context['complete'] = complete_df['complete'].value_counts()[True]
 
         # Visualizations
-        context['figure1'] = get_category_nutrient_distribution_plot(plot_df)
+        context['figure1'] = get_category_nutrient_distribution_plot(df)
         return context
 
 

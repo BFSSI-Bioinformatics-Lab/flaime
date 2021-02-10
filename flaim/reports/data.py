@@ -48,4 +48,4 @@ class StoreReportData(ReportData):
         images = models.ProductImage
         df3 = pd.DataFrame(list(images.objects.annotate(product_code=F('product__product_code')).values()))
         df = df.merge(df3, how='outer', on='product_code').drop(columns=['id', 'product_id', 'created', 'modified'])
-        return df  #.drop_duplicates(subset='name')
+        return df.drop_duplicates(subset='name')

@@ -36,7 +36,7 @@ class ReportData:
         df['sugar'] /= 100
         df['brand'] = df['brand'].str.replace('’', "'")
 
-        return df
+        return df.drop_duplicates(subset='name')
 
 
 class StoreReportData(ReportData):

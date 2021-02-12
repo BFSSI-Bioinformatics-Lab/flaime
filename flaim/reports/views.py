@@ -1,6 +1,4 @@
 import re
-from functools import partial
-from operator import is_not
 from urllib.parse import unquote
 
 import numpy as np
@@ -11,8 +9,9 @@ from django.views.generic import TemplateView
 from flaim.database.product_mappings import PRODUCT_STORES, REFERENCE_CATEGORIES_DICT, \
     REFERENCE_SUBCATEGORIES_CODING_DICT
 from flaim.reports.data import ReportData, StoreReportData
-from flaim.reports.util import get_nutrient_color, get_rank_suffix
 from flaim.reports.plots import nutrient_distribution_plot, category_nutrient_distribution_plot
+from flaim.reports.util import nutrient_color, rank_suffix, build_top_x_sentence, make_list, \
+    build_top_ingredient_sentence
 
 
 class ProductView(LoginRequiredMixin, TemplateView):
@@ -23,6 +22,35 @@ class NutrientView(LoginRequiredMixin, TemplateView):
     template_name = 'reports_base.html'
 
 
+def category_context_builder(df: pd.DataFrame, context: dict):
+    ingredient_count = df['ingredients'].str.findall(',').fillna('').apply(lambda row: len(row) + 1)
+    context['ingredient_q25'] = int(ingredient_count.quantile(0.25))
+    context['ingredient_q75'] = int(ingredient_count.quantile(0.75))
+    context['common_ingredients'] = build_top_ingredient_sentence(df['ingredients'])
+
+    # Top bar
+    context['image'] = context['category'].lower()
+    context['product_count'] = df.shape[0]
+    context['store_count'] = df['store'].nunique()
+    context['manual_category_count'] = df['manual_category_text'].dropna().shape[0]
+    context['predicted_category_count'] = context['product_count'] - context['manual_category_count']
+
+    context['calorie_median'] = f'{df.calories.median():.0f}'
+
+    context['sodium_color'] = nutrient_color(df.sodium_dv.median())
+    context['sodium_median'] = f'{df.sodium_dv.median() * 100:.0f}%'
+
+    context['fat_color'] = nutrient_color(df.saturatedfat_dv.median())
+    context['fat_median'] = f'{df.saturatedfat_dv.median() * 100:.0f}%'
+
+    context['sugar_color'] = nutrient_color(df.sugar.median())
+    context['sugar_median'] = f'{df.sugar.median() * 100:.0f}%'
+
+    # Visualizations
+    context['figure1'] = nutrient_distribution_plot(df)
+    return
+
+
 class SubcategoryView(LoginRequiredMixin, TemplateView):
     template_name = 'reports/subcategory_report.html'
 
@@ -30,7 +58,6 @@ class SubcategoryView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         data = ReportData()
         df = data.df.copy()  # temp copy
-        plot_df = df.drop_duplicates(subset='name')
 
         context['subcategory'] = self.kwargs['subcategory']
         # Figure out parent category for image display
@@ -39,62 +66,24 @@ class SubcategoryView(LoginRequiredMixin, TemplateView):
                 context['category'] = category
                 context['image'] = category.lower()
         subcategories = list(
-            set(REFERENCE_SUBCATEGORIES_CODING_DICT.values()).intersection(set(plot_df['subcategory_text'].unique())))
+            set(REFERENCE_SUBCATEGORIES_CODING_DICT.values()).intersection(set(df['subcategory_text'].unique())))
         subcategories.sort()
         context['subcategories'] = subcategories
 
-        plot_df = plot_df.loc[plot_df['category_text'] == context['category']]
+        df = df.loc[df['category_text'] == context['category']]
 
-        context['category_count'] = plot_df['subcategory_text'].nunique()
-        medians = plot_df.groupby('subcategory_text').median()
+        context['category_count'] = df['subcategory_text'].nunique()
+        medians = df.groupby('subcategory_text').median()
 
-        context['sodium_rank'] = get_rank_suffix(medians.sort_values(by='sodium_dv', ascending=False)
-                                                 .index.get_loc(context['subcategory']))
-        context['fat_rank'] = get_rank_suffix(medians.sort_values(by='saturatedfat_dv', ascending=False)
-                                              .index.get_loc(context['subcategory']))
-        context['sugar_rank'] = get_rank_suffix(medians.sort_values(by='sugar', ascending=False)
-                                                .index.get_loc(context['subcategory']))
+        context['sodium_rank'] = rank_suffix(medians.sort_values(by='sodium_dv', ascending=False)
+                                             .index.get_loc(context['subcategory']))
+        context['fat_rank'] = rank_suffix(medians.sort_values(by='saturatedfat_dv', ascending=False)
+                                          .index.get_loc(context['subcategory']))
+        context['sugar_rank'] = rank_suffix(medians.sort_values(by='sugar', ascending=False)
+                                            .index.get_loc(context['subcategory']))
 
-        # plot_df = plot_df.loc[plot_df['category_text'] == context['category']]
-        plot_df = plot_df.loc[plot_df['subcategory_text'] == context['subcategory']]
-
-        ingredient_count = plot_df['ingredients'].str.findall(',').fillna('').apply(lambda row: len(row) + 1)
-        context['ingredient_q25'] = int(ingredient_count.quantile(0.25))
-        context['ingredient_q75'] = int(ingredient_count.quantile(0.75))
-
-        # This gets the 3 most common ingredients but does not preprocess the ingredient lists
-        common_ingredients = pd.Series(' '.join(plot_df['ingredients'].fillna('').str.lower().tolist())
-                                       .split(',')).value_counts().head(3).index.tolist()
-        if len(common_ingredients) >= 3:
-            context['common_ingredients'] = f'The three most common ingredients in this category are \
-            {common_ingredients[0]}, {common_ingredients[1]}, and {common_ingredients[2]}.'
-        elif len(common_ingredients) == 2:
-            context['common_ingredients'] = f'The two most common ingredients in this category are \
-            {common_ingredients[0]} and {common_ingredients[1]}.'
-        # Seems unlikely to only have one ingredient, note it can still have 0 ingredients in which case this sentence
-        # will not be displayed
-        elif len(common_ingredients) == 1:
-            context['common_ingredients'] = f'The only ingredient in this category is {common_ingredients[0]}.'
-
-        # Top bar
-        context['product_count'] = plot_df.shape[0]
-        context['store_count'] = plot_df['store'].nunique()
-        context['manual_category_count'] = plot_df['manual_category_text'].dropna().shape[0]
-        context['predicted_category_count'] = context['product_count'] - context['manual_category_count']
-
-        context['calorie_median'] = f'{plot_df.calories.median():.0f}'
-
-        context['sodium_color'] = get_nutrient_color(plot_df.sodium_dv.median())
-        context['sodium_median'] = f'{plot_df.sodium_dv.median() * 100:.0f}%'
-
-        context['fat_color'] = get_nutrient_color(plot_df.saturatedfat_dv.median())
-        context['fat_median'] = f'{plot_df.saturatedfat_dv.median() * 100:.0f}%'
-
-        context['sugar_color'] = get_nutrient_color(plot_df.sugar.median())
-        context['sugar_median'] = f'{plot_df.sugar.median() * 100:.0f}%'
-
-        # Visualizations
-        context['figure1'] = nutrient_distribution_plot(plot_df)
+        df = df.loc[df['subcategory_text'] == context['subcategory']]
+        category_context_builder(df, context)
         return context
 
 
@@ -118,53 +107,15 @@ class CategoryView(LoginRequiredMixin, TemplateView):
         context['category_count'] = df['category_text'].nunique()
         medians = df.groupby('category_text').median()
 
-        context['sodium_rank'] = get_rank_suffix(medians.sort_values(by='sodium_dv', ascending=False)
-                                                 .index.get_loc(context['category']))
-        context['fat_rank'] = get_rank_suffix(medians.sort_values(by='saturatedfat_dv', ascending=False)
-                                              .index.get_loc(context['category']))
-        context['sugar_rank'] = get_rank_suffix(medians.sort_values(by='sugar', ascending=False)
-                                                .index.get_loc(context['category']))
+        context['sodium_rank'] = rank_suffix(medians.sort_values(by='sodium_dv', ascending=False)
+                                             .index.get_loc(context['category']))
+        context['fat_rank'] = rank_suffix(medians.sort_values(by='saturatedfat_dv', ascending=False)
+                                          .index.get_loc(context['category']))
+        context['sugar_rank'] = rank_suffix(medians.sort_values(by='sugar', ascending=False)
+                                            .index.get_loc(context['category']))
 
         df = df.loc[df['category_text'] == context['category']]
-
-        ingredient_count = df['ingredients'].str.findall(',').fillna('').apply(lambda row: len(row) + 1)
-        context['ingredient_q25'] = int(ingredient_count.quantile(0.25))
-        context['ingredient_q75'] = int(ingredient_count.quantile(0.75))
-
-        # This gets the 3 most common ingredients but does not preprocess the ingredient lists
-        common_ingredients = pd.Series(' '.join(df['ingredients'].fillna('').str.lower().tolist())
-                                       .split(',')).value_counts().head(3).index.tolist()
-        if len(common_ingredients) >= 3:
-            context['common_ingredients'] = f'The three most common ingredients in this category are \
-            {common_ingredients[0]}, {common_ingredients[1]}, and {common_ingredients[2]}.'
-        elif len(common_ingredients) == 2:
-            context['common_ingredients'] = f'The two most common ingredients in this category are \
-            {common_ingredients[0]} and {common_ingredients[1]}.'
-        # Seems unlikely to only have one ingredient, note it can still have 0 ingredients in which case this sentence
-        # will not be displayed
-        elif len(common_ingredients) == 1:
-            context['common_ingredients'] = f'The only ingredient in this category is {common_ingredients[0]}.'
-
-        # Top bar
-        context['image'] = context['category'].lower()
-        context['product_count'] = df.shape[0]
-        context['store_count'] = df['store'].nunique()
-        context['manual_category_count'] = df['manual_category_text'].dropna().shape[0]
-        context['predicted_category_count'] = context['product_count'] - context['manual_category_count']
-
-        context['calorie_median'] = f'{df.calories.median():.0f}'
-
-        context['sodium_color'] = get_nutrient_color(df.sodium_dv.median())
-        context['sodium_median'] = f'{df.sodium_dv.median() * 100:.0f}%'
-
-        context['fat_color'] = get_nutrient_color(df.saturatedfat_dv.median())
-        context['fat_median'] = f'{df.saturatedfat_dv.median() * 100:.0f}%'
-
-        context['sugar_color'] = get_nutrient_color(df.sugar.median())
-        context['sugar_median'] = f'{df.sugar.median() * 100:.0f}%'
-
-        # Visualizations
-        context['figure1'] = nutrient_distribution_plot(df)
+        category_context_builder(df, context)
         return context
 
 
@@ -193,17 +144,8 @@ class StoreView(LoginRequiredMixin, TemplateView):
 
         context['manual_category_count'] = df['manual_category_text'].dropna().shape[0]
 
-        # This can probably be split off into a utility function
-        common_categories = df['category_text'].value_counts().head(3).to_dict()
-        sen = ', '.join([f'{key} ({common_categories[key]} products)' for key in common_categories])
-        sen_par = sen.rpartition(', ')
-        context['common_categories'] = sen_par[0] + ', and ' + sen_par[-1]
-
-        # above function would be repeated here
-        common_brands = df['brand'].value_counts().head(5).to_dict()
-        sen = ', '.join([f'{key} ({common_brands[key]} products)' for key in common_brands])
-        sen_par = sen.rpartition(', ')
-        context['common_brands'] = sen_par[0] + ', and ' + sen_par[-1]
+        context['common_categories'] = build_top_x_sentence(df['category_text'], 3)
+        context['common_brands'] = build_top_x_sentence(df['brand'], 5)
 
         # Top bar
         context['image'] = context['store'].lower()
@@ -233,9 +175,6 @@ class StoreView(LoginRequiredMixin, TemplateView):
         pivot_df.columns = [label if label in labels else 'none' for path, label in pivot_df.columns]
         pivot_columns = pivot_df.columns
         pivot_df = pd.concat([names, pivot_df], axis=1)
-
-        def make_list(x):
-            return list(filter(partial(is_not, np.nan), list(x)))
 
         agg_df = pivot_df.groupby('name').agg({c: lambda x: make_list(x) for c in pivot_columns})
         if 'other' in agg_df:

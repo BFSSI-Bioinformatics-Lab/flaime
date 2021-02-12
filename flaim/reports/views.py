@@ -178,7 +178,10 @@ class StoreView(LoginRequiredMixin, TemplateView):
 
         agg_df = pivot_df.groupby('name').agg({c: lambda x: make_list(x) for c in pivot_columns})
         if 'other' in agg_df:
-            agg_df['none'] = agg_df['none'] + agg_df['other']
+            if 'none' in agg_df:
+                agg_df['none'] = agg_df['none'] + agg_df['other']
+            else:
+                agg_df['none'] = agg_df['other'].copy()
             agg_df.drop(columns=['other'], inplace=True)
 
         if 'nutrition' in agg_df:

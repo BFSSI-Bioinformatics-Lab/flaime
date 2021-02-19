@@ -27,6 +27,10 @@ def category_context_builder(df: pd.DataFrame, context: dict):
     context['ingredient_q25'] = int(ingredient_count.quantile(0.25))
     context['ingredient_q75'] = int(ingredient_count.quantile(0.75))
     context['common_ingredients'] = build_top_ingredient_sentence(df['ingredients'])
+    atwater_results = df.atwater_result.value_counts().to_dict()
+    context['atwater_pass'] = atwater_results['Within Threshold']
+    context['atwater_fail'] = atwater_results['Investigation Required']
+    context['atwater_missing'] = atwater_results['Missing Information']
 
     # Top bar
     context['image'] = context['category'].lower()
@@ -94,7 +98,6 @@ class CategoryView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         data = ReportData()
         df = data.df.copy()  # temp copy
-
         context['product_categories'] = REFERENCE_CATEGORIES_DICT.keys()
 
         # set default category
@@ -146,6 +149,10 @@ class StoreView(LoginRequiredMixin, TemplateView):
 
         context['common_categories'] = build_top_x_sentence(df['category_text'], 3)
         context['common_brands'] = build_top_x_sentence(df['brand'], 5)
+        atwater_results = df.atwater_result.value_counts().to_dict()
+        context['atwater_pass'] = atwater_results['Within Threshold']
+        context['atwater_fail'] = atwater_results['Investigation Required']
+        context['atwater_missing'] = atwater_results['Missing Information']
 
         # Top bar
         context['image'] = context['store'].lower()

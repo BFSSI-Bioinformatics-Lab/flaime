@@ -73,13 +73,15 @@
     </div>
     <div class="row" style="padding-top: 20px">
       <div style="flex: 33%; padding-right: 25px">
-        <b>Nutrition:</b> <b>{{ has_nft_percent }}</b> of {{ store }} products have nutrition information.
-        Of these products, <b>{{ nft_ocr }}</b> had the information extracted from images using optical character
-        recognition. <b>{{ failed_ocr }}</b> products contained a NFT but failed the OCR.
-      </div>
-      <div style="flex: 33%; padding-right: 25px; padding-left: 25px">
         <b>Ingredients:</b> Of the products with nutritional ingredients, <b>{{ has_ingredients }}</b> contain
         ingredient lists. <b>{{ has_allergy_info }}</b> of these contain allergy information or warnings.
+      </div>
+      <div style="flex: 33%; padding-right: 25px; padding-left: 25px">
+        <b>Nutrition:</b> <b>{{ has_nft_percent }}</b> of {{ store }} products have nutrition information.
+        Of these products, <b>{{ nft_ocr }}</b> had the information extracted from images using optical character
+        recognition. <b>{{ failed_ocr }}</b> products contained a NFT but failed the OCR.<br>
+        <b>{{ atwater_pass }}</b> products passed the Atwater test, <b>{{ atwater_fail }}</b>
+        failed, and <b>{{ atwater_missing }}</b> had insufficient information.
       </div>
       <div style="flex: 33%; padding-left: 25px">
         <b>Images:</b> {{ store }} products have on average <b>{{ front_img_mean }}</b> images per product, with

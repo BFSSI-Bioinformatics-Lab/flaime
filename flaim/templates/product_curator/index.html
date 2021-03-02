@@ -17,7 +17,6 @@
       <th>Name</th>
       <th>Brand</th>
       <th>Store</th>
-      <th>Variety Pack</th>
       <th>Manual Category</th>
       <th>Manual Subcategory</th>
       <th>Predicted Category</th>
@@ -31,8 +30,7 @@
   <div class="alert alert-info">
     <h3><i class="fas fa-calculator"></i>
       Regex Cheat Sheet</h3>
-    <p>The "Predicted Category" and "Predicted Subcategory" columns support regular expressions. Here are some useful
-      regex
+    <p>The "Predicted Category" and "Predicted Subcategory" columns support regular expressions. Here are some useful regex
       hints:</p>
     <table class="table table-condensed">
       <thead>
@@ -54,9 +52,7 @@
         <td>$</td>
         <td>End of string</td>
         <td>^Bread$</td>
-        <td>This will return strings that exactly match the string "Bread" as the $ character signals the end of the
-          string
-        </td>
+        <td>This will return strings that exactly match the string "Bread" as the $ character signals the end of the string</td>
       </tr>
       </tbody>
     </table>
@@ -108,12 +104,6 @@
                     name: "images"
                   },
                   {
-                    label: "Variety Pack",
-                    name: "variety_pack",
-                    type: "select2",
-                    options: ['true', 'false']
-                  },
-                  {
                     label: "Predicted Category",
                     name: "category.predicted_category_1",
                   },
@@ -147,23 +137,8 @@
           Sets the manual category field, sets verified=True,
            */
 
-          console.log(values)
-
-
           // Set user and verified status
           values['user'] = "{{ user }}"
-
-          // Break out early if the user is editing variety pack field
-          if (typeof values.variety_pack !== 'undefined') {
-            console.log(values.variety_pack)
-            if (values.variety_pack === 'true') {
-              values.variety_pack = true
-            } else if (values.variety_pack === 'false') {
-              values.variety_pack = false
-            }
-            return
-          }
-
           values['verified'] = true
 
           if (typeof values.subcategory === 'undefined') {
@@ -270,7 +245,6 @@
                     d.name = $('#name').val()
                     d.brand = $('#brand').val()
                     d.store = $('#store').val()
-                    d.variety_pack = $('#variety_pack').val()
                     d.prediction_confidence = parseFloat($('#prediction_confidence').val())
                     d.manual_category = $('#manual_category').val()
                     d.manual_subcategory = $('#manual_subcategory').val()
@@ -304,11 +278,6 @@
                   {data: "name"},
                   {data: "brand"},
                   {data: "store"},
-                  {
-                    data: "variety_pack",
-                    className: "editable",
-                    render: renderEditField
-                  },
                   {
                     data: "category.manual_category",
                     className: "editable",

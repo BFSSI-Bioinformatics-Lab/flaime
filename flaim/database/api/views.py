@@ -152,12 +152,8 @@ class AdvancedProductViewSet(viewsets.ModelViewSet, UpdateModelMixin):
         recent = query_params.get('recent', None)
         category = query_params.get('category', None)
         subcategory = query_params.get('subcategory', None)
-        variety_pack = query_params.get('variety_pack', None)
 
         queryset = models.Product.objects.all()
-
-        if variety_pack:
-            queryset = queryset.filter(variety_pack=variety_pack)
 
         if recent:
             queryset = queryset.filter(most_recent=True)

@@ -281,7 +281,6 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
             product_mapping.category = instance.category.manual_category
             product_mapping.subcategory = instance.subcategory.manual_subcategory
             product_mapping.save()
-            print(f'Set subcategory for {instance} to {validated_data["subcategory"]}')
 
         # Handling if user submitted only a category
         elif 'manual_category' in validated_data.keys():
@@ -302,16 +301,6 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
             product_mapping.category = instance.category.manual_category
             product_mapping.save()
 
-            print(f'Set category for {instance} to {validated_data["category"]}')
-
-        # Variety pack handling
-        elif 'variety_pack' in validated_data.keys():
-            print(f'Set variety_pack for {instance} to {validated_data["variety_pack"]}')
-            instance.variety_pack = validated_data['variety_pack']
-            instance.save()
-            product_mapping.variety_pack = instance.variety_pack
-            product_mapping.save()
-
         return instance
 
     class Meta:
@@ -326,7 +315,7 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
             'category',
             'subcategory'
         ]
-        fields = ['id', 'url', 'product_code', 'name', 'brand', 'store', 'variety_pack', 'price',
+        fields = ['id', 'url', 'product_code', 'name', 'brand', 'store', 'price',
                   'upc_code', 'images', 'calculated_best_category'] + reverse_relationships
 
 

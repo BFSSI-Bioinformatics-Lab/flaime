@@ -234,7 +234,6 @@ class Product(TimeStampedModel):
     brand = models.CharField(max_length=MD_CHAR, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     most_recent = models.BooleanField(default=True)
-    variety_pack = models.BooleanField(default=False)  # for multi-pack/variety pack type products
 
     # TODO: Accomodate the possibility for multiple breadcrumb trails, i.e. change to ArrayField(ArrayField)
     breadcrumbs_text = models.CharField(max_length=LG_CHAR, blank=True, null=True)
@@ -328,8 +327,6 @@ class CategoryProductCodeMappingSupport(models.Model):
     Support table intended to permanently store a mapping between categories and store-specific product codes
     Can be expanded to contain other arbitrary product_code:category mappings
 
-    Also allows for permanent storage of 'variety pack' bool flag
-
     When a user manually corrects a predicted category for a particular product, this table should be automatically
     updated.
 
@@ -342,7 +339,6 @@ class CategoryProductCodeMappingSupport(models.Model):
     category = models.CharField(max_length=MD_CHAR, choices=PRODUCT_CATEGORIES_TUPLES)
     subcategory = models.CharField(max_length=MD_CHAR, choices=PRODUCT_SUBCATEGORY_TUPLES, blank=True, null=True)
     verified_by = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
-    variety_pack = models.BooleanField(blank=True, null=True)
 
     def __str__(self):
         return f'{self.product_code}: {self.category} - {self.subcategory}'
@@ -776,7 +772,7 @@ class ProductImage(TimeStampedModel):
     image_path = models.ImageField(upload_to=upload_product_image, unique=True, max_length=LG_CHAR)
     image_number = models.IntegerField(blank=True, null=True)  # Order of the image in a set for a product
     image_label = models.CharField(max_length=SM_CHAR, null=True,
-                                   blank=True)  # e.g. 'other', 'nutrition', 'ingredients', 'nutrition_american'
+                                   blank=True)  # e.g. 'other', 'nutrition', 'ingredients'
 
     def __str__(self):
         return f"{self.product}: {Path(self.image_path.url).name}"

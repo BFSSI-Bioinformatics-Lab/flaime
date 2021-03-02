@@ -65,7 +65,8 @@ def assign_categories(category_predictor_model: Path = CATEGORY_PREDICTOR_MODEL,
     # Iterate through all most_recent=True products and set their manual category if it is already known
     # in the database
     for obj in tqdm(Product.objects.filter(most_recent=True), desc="Assigning known categories"):
-        curated_category, curated_subcategory, verified_by = find_curated_category(obj.product_code)
+        curated_category, curated_subcategory, verified_by, curated_variety_pack = find_curated_category(
+            obj.product_code)
         if curated_category is not None:
             category = obj.category
             category.manual_category = curated_category
@@ -79,6 +80,8 @@ def assign_categories(category_predictor_model: Path = CATEGORY_PREDICTOR_MODEL,
             subcategory.verified = True
             subcategory.verified_by = verified_by
             subcategory.save()
+        if curated_variety_pack is not None:
+            obj.variety_pack = curated_variety_pack
         obj.save()
 
 

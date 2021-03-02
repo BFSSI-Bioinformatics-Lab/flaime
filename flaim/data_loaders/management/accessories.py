@@ -16,9 +16,9 @@ def find_curated_category(product_code: str) -> [Tuple[Optional[str], Optional[s
     """
     try:
         obj = CategoryProductCodeMappingSupport.objects.get(product_code=product_code)
-        return obj.category, obj.subcategory, obj.verified_by, obj.variety_pack
+        return obj.category, obj.subcategory, obj.verified_by
     except CategoryProductCodeMappingSupport.DoesNotExist:
-        return None, None, None, None
+        return None, None, None
 
 
 def get_atwater_results(df: pd.DataFrame) -> pd.Series:

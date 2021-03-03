@@ -12,6 +12,7 @@ from tqdm import tqdm
 from flaim.database.models import Product, LoblawsProduct, NutritionFacts, ScrapeBatch, ProductImage
 from flaim.classifiers.management.commands.assign_categories import assign_categories
 from flaim.data_loaders.management.commands.calculate_atwater import calculate_atwater
+from flaim.data_loaders.management.accessories import assign_variety_pack_flag
 
 User = get_user_model()
 
@@ -370,6 +371,9 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS(f'Conducting category assignment step'))
         assign_categories()
+
+        self.stdout.write(self.style.SUCCESS(f'Conducting variety pack assignment step'))
+        assign_variety_pack_flag()
 
         self.stdout.write(self.style.SUCCESS(f'Calculating Atwater result for products'))
         calculate_atwater()

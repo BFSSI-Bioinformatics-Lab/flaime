@@ -26,4 +26,5 @@ admin.site.register(models.NutritionLabelClassification)
 
 admin.site.register(models.Category)
 admin.site.register(models.CategoryProductCodeMappingSupport)
+admin.site.register(models.VarietyPackProductCodeMappingSupport)
 admin.site.register(models.ReferenceCategorySupport)

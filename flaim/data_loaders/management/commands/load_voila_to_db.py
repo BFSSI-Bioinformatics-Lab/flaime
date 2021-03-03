@@ -6,6 +6,7 @@ from django.utils.dateparse import parse_date
 from django.core.management.base import BaseCommand
 from tqdm import tqdm
 
+from flaim.data_loaders.management.accessories import assign_variety_pack_flag
 from flaim.database.models import Product, VoilaProduct, NutritionFacts, ProductImage, ScrapeBatch
 from flaim.classifiers.management.commands.assign_categories import assign_categories
 from flaim.data_loaders.management.commands.calculate_atwater import calculate_atwater
@@ -281,6 +282,9 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS(f'Conducting category assignment step'))
         assign_categories()
+
+        self.stdout.write(self.style.SUCCESS(f'Conducting variety pack assignment step'))
+        assign_variety_pack_flag()
 
         self.stdout.write(self.style.SUCCESS(f'Calculating Atwater result for products'))
         calculate_atwater()

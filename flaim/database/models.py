@@ -233,7 +233,12 @@ class Product(TimeStampedModel):
     name = models.CharField(max_length=MD_CHAR, blank=True, null=True)
     brand = models.CharField(max_length=MD_CHAR, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
+
+    # Flag to indicate if this is the most recently uploaded version of a product
     most_recent = models.BooleanField(default=True)
+
+    # Flag to indicate whether the product is a variety pack or not
+    variety_pack = models.BooleanField(default=False)
 
     # TODO: Accomodate the possibility for multiple breadcrumb trails, i.e. change to ArrayField(ArrayField)
     breadcrumbs_text = models.CharField(max_length=LG_CHAR, blank=True, null=True)
@@ -320,6 +325,28 @@ class Product(TimeStampedModel):
                 'most_recent'
             ])
         ]
+
+
+class VarietyPackProductCodeMappingSupport(models.Model):
+    """
+    Support table to permanently store relationship between a retailer product code and whether or not the product
+    is a variety pack (e.g. containing mulitple individual products)
+
+    Records can be created manually either through the manage.py shell command or through the admin interface.
+    Any newly uploaded products will automatically be assigned a variety pack status if a record is found in this table.
+
+    TODO: Implement web interface to allow users flag these
+    """
+    product_code = models.CharField(max_length=MD_CHAR, unique=True)
+    variety_pack = models.BooleanField(default=False)
+    verified_by = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+
+    def __str__(self):
+        return f'{self.product_code}: {self.variety_pack}'
+
+    class Meta:
+        verbose_name = 'Variety Pack:Product Code Mapping'
+        verbose_name_plural = 'Variety Pack:Product Code Mappings'
 
 
 class CategoryProductCodeMappingSupport(models.Model):

@@ -1,12 +1,33 @@
 from typing import Optional, Tuple
-
+from tqdm import tqdm
 import pandas as pd
 
-from flaim.database.models import CategoryProductCodeMappingSupport
+from flaim.database.models import CategoryProductCodeMappingSupport, Product, VarietyPackProductCodeMappingSupport
 
 """
 Accessory methods for data_loaders.management.commands
 """
+
+
+def assign_variety_pack_flag():
+    # Iterate through all most_recent=True products and set their manual category if it is already known
+    # in the database
+    for obj in tqdm(Product.objects.filter(most_recent=True), desc="Assigning known variety pack flags"):
+        curated_variety_pack_flag = find_curated_variety_pack_flag(obj.product_code)
+        obj.variety_pack = curated_variety_pack_flag
+        obj.save()
+
+
+def find_curated_variety_pack_flag(product_code: str) -> bool:
+    """
+    Given a product code, queries the VarietyPackProductCode support table to find if it has been flagged as a variety
+    pack or not. Note the value defaults to False since most products are likely not variety packs.
+    """
+    try:
+        obj = VarietyPackProductCodeMappingSupport.objects.get(product_code=product_code)
+        return obj.variety_pack
+    except VarietyPackProductCodeMappingSupport.DoesNotExist:
+        return False
 
 
 def find_curated_category(product_code: str) -> [Tuple[Optional[str], Optional[str], Optional[str]]]:

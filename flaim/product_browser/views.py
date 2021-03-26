@@ -1,10 +1,11 @@
 import logging
-from django.views.generic import TemplateView, DetailView
+from django.views.generic import TemplateView, DetailView, UpdateView
 from django.core.exceptions import ObjectDoesNotExist
 from flaim.database.models import Product, ProductImage, \
     LoblawsProduct, WalmartProduct, VoilaProduct, GroceryGatewayProduct, \
     NutritionFacts
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
 
 logger = logging.getLogger(__name__)
 
@@ -76,3 +77,10 @@ class ProductView(LoginRequiredMixin, DetailView):
                 context['subcategory_confidence_styling'] = 'text-danger'
 
         return context
+
+# class to Update the details in Product_browser/detail
+class ProductUpdateView(LoginRequiredMixin, UpdateView):
+    model = Product
+    fields = ('name', 'brand')
+    template_name = 'product_browser/product_form.html'
+

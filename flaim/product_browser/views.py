@@ -5,7 +5,7 @@ from flaim.database.models import Product, ProductImage, \
     LoblawsProduct, WalmartProduct, VoilaProduct, GroceryGatewayProduct, \
     NutritionFacts
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy
+from django.shortcuts import redirect
 
 logger = logging.getLogger(__name__)
 
@@ -84,3 +84,6 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
     fields = ('name', 'brand')
     template_name = 'product_browser/product_form.html'
 
+    def form_valid(self, form):
+        updatdeForm = form.save()
+        return redirect('product_browser:product_view', pk=updatdeForm.pk)

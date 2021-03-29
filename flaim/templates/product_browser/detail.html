@@ -42,7 +42,10 @@
               <tbody>
               <tr>
                 <td class="row-label">Name</td>
-                <td>{{ product.name }}</td>
+                <td>{{ product.name }} </td>
+                <td><a href=
+                        {% url 'product_browser:update_view' pk=product.id %}><i
+                        class="fas fa-user-edit fa-lg"></i></a></td>
               </tr>
               <tr>
                 <td class="row-label">Brand</td>

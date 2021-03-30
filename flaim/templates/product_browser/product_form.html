@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+  <h3> Update Product Information</h3>
+  <form  method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input class="btn btn-success" type="submit" value="Update">
+  </form>
+  <br>
+  <form action={% url 'product_browser:product_view' pk=product.id%}>
+    <input class="btn btn-secondary search-button" type="submit" value="Cancel" />
+  </form>
+
+{% endblock %}

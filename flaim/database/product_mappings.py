@@ -3,6 +3,7 @@ PRODUCT_STORES = [
     ('WALMART', 'Walmart'),
     ('VOILA', 'Voila'),
     ('GROCERYGATEWAY', 'Grocery Gateway'),
+    ('MINTEL', 'Mintel')
 ]
 
 # All available categories that can be selected/predicted for any particular product. This list should be maintained.

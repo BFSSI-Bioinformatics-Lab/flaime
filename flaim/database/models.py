@@ -17,7 +17,8 @@ VALID_STORES = (
     ('WALMART', 'Walmart'),
     ('VOILA', 'Voila'),
     ('GROCERYGATEWAY', 'Grocery Gateway'),
-    ('AMAZON', 'Amazon')
+    ('AMAZON', 'Amazon'),
+    ('MINTEL', 'Mintel')
 )
 
 
@@ -788,6 +789,32 @@ class AmazonProductReview(TimeStampedModel):
     class Meta:
         verbose_name = 'Amazon Product Review'
         verbose_name_plural = 'Amazon Product Reviews'
+
+# MINTEL MODELS
+class MintelProduct(TimeStampedModel):
+    """
+    Extension of the generic Product model to MINTEL specific metadata
+    """
+
+    product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name="mintel_product")
+    image_directory = models.CharField(max_length=MD_CHAR, blank=True, null=True)
+
+    sku = models.CharField(max_length=SM_CHAR, blank=True, null=True)
+    bullets = models.TextField(blank=True, null=True)
+    dietary_info = models.TextField(blank=True, null=True)  # Corresponds to "Lifestyle and Dietary Need" in JSON
+    nutrition_facts_json = JSONField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.product.product_code}: {self.product.name}"
+
+    class Meta:
+        verbose_name = 'Mintel Product'
+        verbose_name_plural = 'Mintel Products'
+        indexes = [
+            models.Index(fields=['product'])
+        ]
+
+    history = HistoricalRecords()
 
 
 # IMAGE CLASSIFICATION

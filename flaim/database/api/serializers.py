@@ -77,6 +77,15 @@ class GroceryGatewayProductSerializer(serializers.HyperlinkedModelSerializer):
             'url', 'id', 'image_directory', 'sku', 'bullets', 'dietary_info',
         )
 
+class MintelProductSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.ReadOnlyField()
+
+    class Meta:
+        model = models.MintelProduct
+        fields = (
+            'url', 'id', 'image_directory', 'sku', 'bullets', 'dietary_info',
+        )
+
 
 class AmazonProductSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.ReadOnlyField()
@@ -151,6 +160,7 @@ class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadi
     walmart_product = WalmartProductSerializer()
     voila_product = VoilaProductSerializer()
     grocerygateway_product = GroceryGatewayProductSerializer()
+    mintel_product = MintelProductSerializer()
     category = CategorySerializer()
     subcategory = SubcategorySerializer()
     batch = ScrapeBatchSerializer()
@@ -163,6 +173,7 @@ class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadi
             'walmart_product',
             'voila_product',
             'grocerygateway_product',
+            'mintel_product',
             'category',
             'subcategory',
             'batch'
@@ -181,6 +192,7 @@ class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixi
     walmart_product = WalmartProductSerializer()
     voila_product = VoilaProductSerializer()
     grocerygateway_product = GroceryGatewayProductSerializer()
+    mintel_product = MintelProductSerializer()
     category = CategorySerializer()
     subcategory = SubcategorySerializer()
     batch = ScrapeBatchSerializer()
@@ -194,6 +206,7 @@ class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixi
             'walmart_product',
             'voila_product',
             'grocerygateway_product',
+            'mintel_product',
             'batch',
             'category',
             'subcategory'
@@ -231,6 +244,7 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
     walmart_product = WalmartProductSerializer()
     voila_product = VoilaProductSerializer()
     grocerygateway_product = GroceryGatewayProductSerializer()
+    mintel_product = MintelProductSerializer()
     nutrition_facts = NutritionFactsSerializer()
     category = CategorySerializer()
     subcategory = SubcategorySerializer()
@@ -311,6 +325,7 @@ class AdvancedProductSerializer(serializers.ModelSerializer, EagerLoadingMixin):
             'walmart_product',
             'voila_product',
             'grocerygateway_product',
+            'mintel_product',
             'nutrition_facts',
             'category',
             'subcategory'

@@ -29,16 +29,17 @@ EXPECTED_KEYS = {"product_code",
                  "Brand",
                  "size",
                  "price",
-                 "long_desc",
+                 "description",
                  "bullets",
                  "ingredients_txt",
-                 "Lifestyle & Dietary Need",
+                 "dietary_info",
                  "images",
                  "nft_present",
                  "nft_american",
                  "nielsen_product",
                  "nielsen_upc",
-                 "nutrition"}
+                 "nutrition",
+                 "allergens"}
 
 
 def read_json(json_file):
@@ -88,10 +89,10 @@ class Command(BaseCommand):
         assert f.exists()
         j = read_json(str(f))
 
-        # Get image directory
-        tmp = list(Path(options['input_dir']).glob('*'))
-        image_dir = [x for x in tmp if x.is_dir()][0]
-        assert image_dir.exists()
+        # Get image directory When we get images downloaded
+        # tmp = list(Path(options['input_dir']).glob('*'))
+        # image_dir = [x for x in tmp if x.is_dir()][0]
+        # assert image_dir.exists()
 
         self.stdout.write(self.style.SUCCESS(f'Started loading Mintel products to database'))
 
@@ -136,7 +137,7 @@ class Command(BaseCommand):
                 product.upc_code = first_upc_code
             product.url = p['url']
 
-            product.description = p['long_desc']
+            product.description = p['description']
             if p['breadcrumbs'] is not None:
                 product.breadcrumbs_text = p['breadcrumbs'].strip()
                 product.breadcrumbs_array = [x.strip() for x in p['breadcrumbs'].strip().split('>')]
@@ -156,7 +157,7 @@ class Command(BaseCommand):
 
             product.nutrition_available = p['nft_present']
             product.nielsen_product = p['nielsen_product']
-            product.unidentified_nft_format = p['nft_american']
+            #product.unidentified_nft_format = p['nft_american']
             product.batch = scrape
 
             # Update most_recent flag of older duplicate products if necessary
@@ -177,7 +178,7 @@ class Command(BaseCommand):
                 mintel.image_directory = str(Path(p['images']['image_paths'][0]).parent)
             else:
                 mintel.image_directory = None
-            mintel.dietary_info = p['Lifestyle & Dietary Need']
+            mintel.dietary_info = p['dietary_info']
             mintel.bullets = p['bullets']
             mintel.sku = p['SKU']
             mintel.changeReason = CHANGE_REASON
@@ -194,6 +195,16 @@ class Command(BaseCommand):
                 nutrition_dict['totalcarbohydrate_dv'] = nutrition_dict['carbohydrate_dv']
             if "carbohydrate_unit" in nutrition_dict.keys():
                 nutrition_dict['totalcarbohydrate_unit'] = nutrition_dict['carbohydrate_unit']
+
+            if "fat" in nutrition_dict.keys():
+                nutrition_dict['totalfat'] = nutrition_dict['fat']
+            if "fat_dv" in nutrition_dict.keys():
+                nutrition_dict['totalfat_dv'] = nutrition_dict['fat_dv']
+
+            if "fiber" in nutrition_dict.keys():
+                nutrition_dict['dietaryfiber'] = nutrition_dict['fiber']
+            if "fiber_dv" in nutrition_dict.keys():
+                nutrition_dict['dietaryfiber_dv'] = nutrition_dict['fiber_dv']
 
             for key, val in nutrition_dict.items():
                 # Override bad values with 0 or None
@@ -284,8 +295,8 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f'Done loading Mintel-{str(scrape_date)} products to '
                                              f'database!'))
 
-        self.stdout.write(self.style.SUCCESS(f'Conducting category assignment step'))
-        assign_categories()
+        # self.stdout.write(self.style.SUCCESS(f'Conducting category assignment step'))
+        # assign_categories()
 
         self.stdout.write(self.style.SUCCESS(f'Conducting variety pack assignment step'))
         assign_variety_pack_flag()

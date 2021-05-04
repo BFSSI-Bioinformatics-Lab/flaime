@@ -7,7 +7,8 @@ from django.core.management.base import BaseCommand
 from tqdm import tqdm
 
 from flaim.data_loaders.management.accessories import assign_variety_pack_flag
-from flaim.database.models import Product, MintelProduct, NutritionFacts, ProductImage, ScrapeBatch
+from flaim.database.models import Product, MintelProduct, NutritionFacts, ProductImage, \
+    ScrapeBatch, CategoryProductCodeMappingSupport, Category, Subcategory
 from flaim.classifiers.management.commands.assign_categories import assign_categories
 from flaim.data_loaders.management.commands.calculate_atwater import calculate_atwater
 from django.contrib.auth import get_user_model
@@ -35,9 +36,11 @@ EXPECTED_KEYS = {"product_code",
                  "dietary_info",
                  "images",
                  "nft_present",
-                 "nft_american",
+                 #"nft_american",
                  "nielsen_product",
                  "nielsen_upc",
+                 "category",
+                 "subcategory"
                  "nutrition",
                  "allergens"}
 
@@ -184,6 +187,12 @@ class Command(BaseCommand):
             mintel.changeReason = CHANGE_REASON
             mintel.save()
 
+            # category = Category(manual_category=p['category'])
+            # category.save()
+            #
+            # subcategory = Subcategory(manual_subcategory=p['subcategory'])
+            # subcategory.save()
+
             # Nutrition fields
             # Pass over the nutrition dict to replace 'absent' with 0 and 'conflict' with None
             nutrition_dict = p['nutrition'].copy()
@@ -251,8 +260,8 @@ class Command(BaseCommand):
 
             # TODO: Check: Serving size in Mintel  data
             nutrition.serving_size_raw = None
-            if 'serving_size' in nutrition_dict.keys() and 'serving_size_unit' in nutrition_dict.keys():
-                nutrition.serving_size_raw = f'{nutrition_dict["serving_size"]} {nutrition_dict["serving_size_unit"]}'
+            if 'serving_size_raw' in nutrition_dict.keys():
+                nutrition.serving_size_raw = nutrition_dict["serving_size_raw"]
             else:
                 pass
 
@@ -266,37 +275,37 @@ class Command(BaseCommand):
 
             nutrition.save()
 
-            # Images
-            image_paths = p['images']['image_paths']
-            image_labels = p['images']['image_labels']
-
-            # Check if the product already has images associated with it
-            existing_images = ProductImage.objects.filter(product__product_code=product.product_code)
-            if len(existing_images) > 0:
-                # print(f'Already have image records for {product}; skipping!')
-                continue
-
-            # Upload images if there are any
-            if len(image_paths) > 0:
-                for i, val in enumerate(image_paths):
-                    # Note image_dir is the absolute path to the image directory
-                    image_path = image_dir.parent / val
-                    assert image_path.exists()
-                    # Strip out media root so images behave correctly
-                    image_path = str(image_path).replace(settings.MEDIA_ROOT, '')
-                    try:
-                        image = ProductImage.objects.create(product=product, image_path=image_path,
-                                                            image_label=image_labels[i],
-                                                            image_number=i)
-                        image.save()
-                    # Skip if the file path already exists
-                    except IntegrityError as e:
-                        pass
+            # # Images
+            # image_paths = p['images']['image_paths']
+            # image_labels = p['images']['image_labels']
+            #
+            # # Check if the product already has images associated with it
+            # existing_images = ProductImage.objects.filter(product__product_code=product.product_code)
+            # if len(existing_images) > 0:
+            #     # print(f'Already have image records for {product}; skipping!')
+            #     continue
+            #
+            # # Upload images if there are any
+            # if len(image_paths) > 0:
+            #     for i, val in enumerate(image_paths):
+            #         # Note image_dir is the absolute path to the image directory
+            #         image_path = image_dir.parent / val
+            #         assert image_path.exists()
+            #         # Strip out media root so images behave correctly
+            #         image_path = str(image_path).replace(settings.MEDIA_ROOT, '')
+            #         try:
+            #             image = ProductImage.objects.create(product=product, image_path=image_path,
+            #                                                 image_label=image_labels[i],
+            #                                                 image_number=i)
+            #             image.save()
+            #         # Skip if the file path already exists
+            #         except IntegrityError as e:
+            #             pass
         self.stdout.write(self.style.SUCCESS(f'Done loading Mintel-{str(scrape_date)} products to '
                                              f'database!'))
 
-        # self.stdout.write(self.style.SUCCESS(f'Conducting category assignment step'))
-        # assign_categories()
+        self.stdout.write(self.style.SUCCESS(f'Conducting category assignment step'))
+        assign_categories()
 
         self.stdout.write(self.style.SUCCESS(f'Conducting variety pack assignment step'))
         assign_variety_pack_flag()

@@ -1,0 +1,19 @@
+{% block content %}
+
+  <table class="table table-hover">
+    <tbody>
+      <tr>
+        <td class="row-label">Company</td>
+        <td>{{ product.mintel_product.company }}</td>
+      </tr>
+      <tr>
+        <td class="row-label">Dietary Info</td>
+        <td>{{ product.mintel_product.dietary_info }}</td>
+      </tr>
+      <tr>
+        <td class="row-label">Allergens / Warnings</td>
+        <td>{{ product.mintel_product.allergens_warnings }}</td>
+      </tr>
+    </tbody>
+  </table>
+{% endblock %}

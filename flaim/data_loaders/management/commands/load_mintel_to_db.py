@@ -42,7 +42,12 @@ EXPECTED_KEYS = {"product_code",
                  "category",
                  "subcategory"
                  "nutrition",
-                 "allergens"}
+                 "allergens_warnings",
+                 #"storage",
+                 #"manufacturer",
+                 #"ultimate_company",
+                 #"private_label",
+                 "company"}
 
 
 def read_json(json_file):
@@ -130,6 +135,7 @@ class Command(BaseCommand):
             product = Product.objects.create(product_code=p['product_code'])
 
             # Product fields
+            # Fix french accent /u00e8
             product.name = normalize_apostrophe(p['product_name'])
             product.brand = normalize_apostrophe(p['Brand'])
             product.store = 'MINTEL'
@@ -184,6 +190,8 @@ class Command(BaseCommand):
             mintel.dietary_info = p['dietary_info']
             mintel.bullets = p['bullets']
             mintel.sku = p['SKU']
+            mintel.company = p['company']
+            mintel.allergens_warnings = p['allergens_warnings']
             mintel.changeReason = CHANGE_REASON
             mintel.save()
 

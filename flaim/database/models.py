@@ -839,6 +839,8 @@ class MintelProduct(TimeStampedModel):
     sku = models.CharField(max_length=SM_CHAR, blank=True, null=True)
     bullets = models.TextField(blank=True, null=True)
     dietary_info = models.TextField(blank=True, null=True)  # Corresponds to "Lifestyle and Dietary Need" in JSON
+    company = models.CharField(max_length=SM_CHAR, blank=True, null=True)
+    allergens_warnings = models.TextField(blank=True, null=True)
     nutrition_facts_json = JSONField(blank=True, null=True)
 
     def __str__(self):

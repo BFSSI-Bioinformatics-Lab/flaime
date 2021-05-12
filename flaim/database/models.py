@@ -263,6 +263,11 @@ class Product(TimeStampedModel):
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, blank=True, null=True)
     subcategory = models.ForeignKey(Subcategory, on_delete=models.SET_NULL, blank=True, null=True)
 
+    storage = models.CharField(max_length=MD_CHAR, blank=True, null=True)
+    manufacturer = models.CharField(max_length=MD_CHAR, blank=True, null=True)
+    ultimate_company = models.CharField(max_length=MD_CHAR, blank=True, null=True)
+    private_label = models.CharField(max_length=MD_CHAR, blank=True, null=True)
+
     history = HistoricalRecords(related_name='product_history')
 
     @staticmethod

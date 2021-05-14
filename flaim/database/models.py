@@ -17,7 +17,8 @@ VALID_STORES = (
     ('WALMART', 'Walmart'),
     ('VOILA', 'Voila'),
     ('GROCERYGATEWAY', 'Grocery Gateway'),
-    ('AMAZON', 'Amazon')
+    ('AMAZON', 'Amazon'),
+    ('MINTEL', 'Mintel')
 )
 
 
@@ -262,6 +263,11 @@ class Product(TimeStampedModel):
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, blank=True, null=True)
     subcategory = models.ForeignKey(Subcategory, on_delete=models.SET_NULL, blank=True, null=True)
 
+    storage = models.CharField(max_length=MD_CHAR, blank=True, null=True)
+    manufacturer = models.CharField(max_length=MD_CHAR, blank=True, null=True)
+    ultimate_company = models.CharField(max_length=MD_CHAR, blank=True, null=True)
+    private_label = models.CharField(max_length=MD_CHAR, blank=True, null=True)
+
     history = HistoricalRecords(related_name='product_history')
 
     @staticmethod
@@ -406,6 +412,7 @@ class NutritionFacts(TimeStampedModel):
     monounsaturated_fat = models.FloatField(blank=True, null=True)
     polyunsaturated_fat = models.FloatField(blank=True, null=True)
     omega3fattyacids = models.FloatField(blank=True, null=True)
+    omega6fattyacids = models.FloatField(blank=True, null=True)
     saturatedfat = models.FloatField(blank=True, null=True)
     saturatedfat_dv = models.FloatField(blank=True, null=True)
     transfat = models.FloatField(blank=True, null=True)
@@ -418,23 +425,38 @@ class NutritionFacts(TimeStampedModel):
     dietaryfiber = models.FloatField(blank=True, null=True)
     dietaryfiber_dv = models.FloatField(blank=True, null=True)
     sugar = models.FloatField(blank=True, null=True)
+    sugar_dv = models.FloatField(blank=True, null=True)
     protein = models.FloatField(blank=True, null=True)
     cholesterol = models.FloatField(blank=True, null=True)
     cholesterol_dv = models.FloatField(blank=True, null=True)
+    copper = models.FloatField(blank=True, null=True)
+    copper_dv = models.FloatField(blank=True, null=True)
+    choline = models.FloatField(blank=True, null=True)
+    choline_dv = models.FloatField(blank=True, null=True)
+    chromium = models.FloatField(blank=True, null=True)
+    chromium_dv = models.FloatField(blank=True, null=True)
     vitamina = models.FloatField(blank=True, null=True)
     vitamina_dv = models.FloatField(blank=True, null=True)
     vitaminc = models.FloatField(blank=True, null=True)
     vitaminc_dv = models.FloatField(blank=True, null=True)
     vitamind = models.FloatField(blank=True, null=True)
+    vitamind_dv = models.FloatField(blank=True, null=True)
     vitamine = models.FloatField(blank=True, null=True)
+    vitamine_dv = models.FloatField(blank=True, null=True)
     niacin = models.FloatField(blank=True, null=True)
+    niacin_dv = models.FloatField(blank=True, null=True)
     vitaminb6 = models.FloatField(blank=True, null=True)
+    vitaminb6_dv = models.FloatField(blank=True, null=True)
     folacin = models.FloatField(blank=True, null=True)
     folate = models.FloatField(blank=True, null=True)
+    folate_dv = models.FloatField(blank=True, null=True)
     vitaminb12 = models.FloatField(blank=True, null=True)
+    vitaminb12_dv = models.FloatField(blank=True, null=True)
     pantothenicacid = models.FloatField(blank=True, null=True)
     pantothenate = models.FloatField(blank=True, null=True)
+    pantothenate_dv = models.FloatField(blank=True, null=True)
     alcohol = models.FloatField(blank=True, null=True)
+    alcohol_dv = models.FloatField(blank=True, null=True)
     erythritol = models.FloatField(blank=True, null=True)
     glycerol = models.FloatField(blank=True, null=True)
     isomalt = models.FloatField(blank=True, null=True)
@@ -443,17 +465,38 @@ class NutritionFacts(TimeStampedModel):
     mannitol = models.FloatField(blank=True, null=True)
     polydextrose = models.FloatField(blank=True, null=True)
     sorbitol = models.FloatField(blank=True, null=True)
+    biotin = models.FloatField(blank=True, null=True)
+    biotin_dv = models.FloatField(blank=True, null=True)
     xylitol = models.FloatField(blank=True, null=True)
     iron = models.FloatField(blank=True, null=True)
     iron_dv = models.FloatField(blank=True, null=True)
     riboflavin = models.FloatField(blank=True, null=True)
+    riboflavin_dv = models.FloatField(blank=True, null=True)
     selenium = models.FloatField(blank=True, null=True)
+    selenium_dv = models.FloatField(blank=True, null=True)
+    starch = models.FloatField(blank=True, null=True)
     magnesium = models.FloatField(blank=True, null=True)
     magnesium_dv = models.FloatField(blank=True, null=True)
+    manganese = models.FloatField(blank=True, null=True)
+    manganese_dv = models.FloatField(blank=True, null=True)
+    molybdenum = models.FloatField(blank=True, null=True)
+    molybdenum_dv = models.FloatField(blank=True, null=True)
     phosphorus = models.FloatField(blank=True, null=True)
     phosphorus_dv = models.FloatField(blank=True, null=True)
     thiamine = models.FloatField(blank=True, null=True)
+    thiamine_dv = models.FloatField(blank=True, null=True)
     zinc = models.FloatField(blank=True, null=True)
+    zinc_dv = models.FloatField(blank=True, null=True)
+    # Future nutrients
+    soluble_fibre = models.FloatField(blank=True, null=True)
+    insoluble_fibre = models.FloatField(blank=True, null=True)
+    sugar_alcohols = models.FloatField(blank=True, null=True)
+    vitamink = models.FloatField(blank=True, null=True)
+    vitamink_dv = models.FloatField(blank=True, null=True)
+    iodide = models.FloatField(blank=True, null=True)
+    iodide_dv = models.FloatField(blank=True, null=True)
+    chloride = models.FloatField(blank=True, null=True)
+    chloride_dv = models.FloatField(blank=True, null=True)
     history = HistoricalRecords()
 
     def load_ingredients(self, api_data: dict):
@@ -788,6 +831,34 @@ class AmazonProductReview(TimeStampedModel):
     class Meta:
         verbose_name = 'Amazon Product Review'
         verbose_name_plural = 'Amazon Product Reviews'
+
+# MINTEL MODELS
+class MintelProduct(TimeStampedModel):
+    """
+    Extension of the generic Product model to MINTEL specific metadata
+    """
+
+    product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name="mintel_product")
+    image_directory = models.CharField(max_length=MD_CHAR, blank=True, null=True)
+
+    sku = models.CharField(max_length=SM_CHAR, blank=True, null=True)
+    bullets = models.TextField(blank=True, null=True)
+    dietary_info = models.TextField(blank=True, null=True)  # Corresponds to "Lifestyle and Dietary Need" in JSON
+    company = models.CharField(max_length=SM_CHAR, blank=True, null=True)
+    allergens_warnings = models.TextField(blank=True, null=True)
+    nutrition_facts_json = JSONField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.product.product_code}: {self.product.name}"
+
+    class Meta:
+        verbose_name = 'Mintel Product'
+        verbose_name_plural = 'Mintel Products'
+        indexes = [
+            models.Index(fields=['product'])
+        ]
+
+    history = HistoricalRecords()
 
 
 # IMAGE CLASSIFICATION

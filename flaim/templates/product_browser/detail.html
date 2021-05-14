@@ -144,6 +144,8 @@
               {% include 'product_browser/voila_detail.html' %}
             {% elif product.store.upper == 'GROCERYGATEWAY' %}
               {% include 'product_browser/grocerygateway_detail.html' %}
+            {% elif product.store.upper == 'MINTEL' %}
+              {% include 'product_browser/mintel_detail.html' %}
             {% endif %}
           </div>
           <div class="product-nutrition">

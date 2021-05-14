@@ -375,6 +375,9 @@ class AmazonProductViewSet(viewsets.ModelViewSet):
     queryset = models.AmazonProduct.objects.all().order_by('-created')
     serializer_class = serializers.AmazonProductSerializer
 
+class MintelProductViewSet(viewsets.ModelViewSet):
+    queryset = models.MintelProduct.objects.all().order_by('-created')
+    serializer_class = serializers.MintelProductSerializer
 
 class ProductImageViewSet(viewsets.ModelViewSet):
     queryset = models.ProductImage.objects.all().order_by('-created')

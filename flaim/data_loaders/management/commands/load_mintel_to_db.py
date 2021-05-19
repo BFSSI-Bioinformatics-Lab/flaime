@@ -195,12 +195,6 @@ class Command(BaseCommand):
             mintel.changeReason = CHANGE_REASON
             mintel.save()
 
-            # category = Category(manual_category=p['category'])
-            # category.save()
-            #
-            # subcategory = Subcategory(manual_subcategory=p['subcategory'])
-            # subcategory.save()
-
             # Nutrition fields
             # Pass over the nutrition dict to replace 'absent' with 0 and 'conflict' with None
             nutrition_dict = p['nutrition'].copy()

@@ -219,7 +219,7 @@ class StoreView(LoginRequiredMixin, TemplateView):
 
         complete_df = df[['name', 'calories', 'allergy']].merge(pack_img, left_on='name', right_index=True)
 
-        if context['product_stores']:
+        if context['store'] == 'Mintel':
             complete_df['complete'] = (~complete_df['calories'].isnull()) & complete_df['allergy']
         else:
             complete_df['complete'] = (~complete_df['calories'].isnull()) & \

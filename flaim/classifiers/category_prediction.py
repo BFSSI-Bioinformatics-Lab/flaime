@@ -21,6 +21,7 @@ class CategoryPredictor:
             self.model_version = None
         else:
             self.model, self.vectorizers, self.target_encoder, self.model_version = pickle.load(open(model_path, 'rb'))
+
         self.stemmer = SnowballStemmer("english", ignore_stopwords=True)
 
     def snowball(self, row):

@@ -9,7 +9,8 @@ from django.views.generic import TemplateView
 from flaim.database.product_mappings import PRODUCT_STORES, REFERENCE_CATEGORIES_DICT, \
     REFERENCE_SUBCATEGORIES_CODING_DICT, REFERENCE_CATEGORIES_DESCRIPTION
 from flaim.reports.data import ReportData, StoreReportData
-from flaim.reports.plots import nutrient_distribution_plot, category_nutrient_distribution_plot
+from flaim.reports.plots import nutrient_distribution_plot, category_nutrient_distribution_plot, \
+    category_product_distribution_plot
 from flaim.reports.util import nutrient_color, rank_suffix, build_top_x_sentence, make_list, \
     build_top_ingredient_sentence
 
@@ -51,6 +52,7 @@ def category_context_builder(df: pd.DataFrame, context: dict):
     context['sugar_median'] = f'{df.sugar.median() * 100:.0f}%'
 
     # Visualizations
+    context['product_distribution_plot'] = category_product_distribution_plot(df)
     context['figure1'] = nutrient_distribution_plot(df)
     return
 

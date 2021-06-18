@@ -1,11 +1,50 @@
 from textwrap import wrap
 
 import pandas as pd
+import plotly.express as px
 import plotly.figure_factory as ff
 import plotly.graph_objects as go
 from numpy.linalg import LinAlgError
 from plotly.express.colors import qualitative
 from plotly.io import to_html
+
+
+def category_product_distribution_plot(df: pd.DataFrame):
+    plot_df = df.groupby(['subcategory_text', 'store']).count().reset_index()[
+        ['subcategory_text', 'store', 'product_code']]
+    sums = plot_df.groupby(['subcategory_text']).sum()
+
+    plot_df['store'] = plot_df['store'].str.lower().str.capitalize()
+
+    def sub_cat_sum(row):
+        return sums.loc[row['subcategory_text']]
+
+    plot_df['sum'] = plot_df.apply(lambda row: sub_cat_sum(row), axis=1)
+    plot_df.sort_values(by=['sum', 'product_code'], inplace=True, ascending=True)
+    fig = px.bar(plot_df, y='subcategory_text', x='product_code', color='store', orientation='h')
+    fig.update_layout(dict(
+        title=dict(
+            text='Distribution of Products by Subcategory',
+            x=0.5,
+            xanchor='center'
+        ),
+        font_size=18,
+        xaxis=dict(
+            title='Number of Products'
+        ),
+        yaxis=dict(
+            tickfont_size=10,
+            title='Subcategory'
+        ),
+        margin=dict(
+            l=20,
+            r=20,
+            b=20,
+            t=40,
+        ),
+        legend_title='Retailer'
+    ))
+    return to_html(fig, include_plotlyjs=False, full_html=False)
 
 
 def nutrient_distribution_plot(df: pd.DataFrame):

@@ -28,31 +28,30 @@
             <p>&nbsp;<i class="fas fa-spinner fa-spin"></i>&nbsp;Loading...</p>
           </div>
         </div>
-
       </div>
-    </div>
-
-    <div style="display: flex;text-align:center">
-      <div style="flex: auto">
-        Product Count</br>
-        <h1>{{ product_count }}</h1>
+      <div style="display: flex;text-align:center">
+        <div style="flex: auto">
+          Product Count</br>
+          <h1>{{ product_count }}</h1>
+        </div>
+        <div style="flex: auto">
+          Median Calories
+          <h1>{{ calorie_median }}</h1>
+        </div>
+        <div style="flex: auto">
+          Median Sodium
+          <h1 class={{ sodium_color }}>{{ sodium_median }}</h1>
+        </div>
+        <div style="flex: auto">
+          Median Sat. Fat
+          <h1 class={{ fat_color }}>{{ fat_median }}</h1>
+        </div>
+        <div style="flex: auto">
+          Median Sugar
+          <h1 class={{ sugar_color }}>{{ sugar_median }}</h1>
+        </div>
       </div>
-      <div style="flex: auto">
-        Median Calories
-        <h1>{{ calorie_median }}</h1>
-      </div>
-      <div style="flex: auto">
-        Median Sodium
-        <h1 class={{ sodium_color }}>{{ sodium_median }}</h1>
-      </div>
-      <div style="flex: auto">
-        Median Sat. Fat
-        <h1 class={{ fat_color }}>{{ fat_median }}</h1>
-      </div>
-      <div style="flex: auto">
-        Median Sugar
-        <h1 class={{ sugar_color }}>{{ sugar_median }}</h1>
-      </div>
+      <b>About:</b> {{ category_description }}
     </div>
   </div>
 
@@ -62,20 +61,26 @@
   <div style="flex: 33%; padding-right: 25px">
     {#  how the product counts compares to other categories #}
     {#  how the products are spread across stores #}
-    <b>Overview:</b> The {{ category }} category consists of {{ product_count }} products across
-    {{ store_count }} stores. Of these products, <b>{{ manual_category_count }}</b> were manually verified and
-    <b>{{ predicted_category_count }}</b> were predicted to fall in this category using a machine learning model.
+    {# <b>Overview:</b> The {{ category }} category consists of {{ product_count }} products across#}
+    {# {{ store_count }} stores. Of these products, <b>{{ manual_category_count }}</b> were manually verified and#}
+    {# <b>{{ predicted_category_count }}</b> were predicted to fall in this category using a machine learning model.#}
+
   </div>
-  <div style="flex: 33%; padding-right: 25px; padding-left: 25px">
-    <b>Nutrients:</b> Of the {{ category_count }} food categories, {{ category }} have the
-    <b>{{ sodium_rank }}</b> highest sodium, <b>{{ fat_rank }}</b> highest saturated fat, and <b>{{ sugar_rank }}</b>
-    highest sugar content. <br>
-    <b>{{ atwater_pass }}</b> products passed the Atwater test, <b>{{ atwater_fail }}</b>
-    failed, and <b>{{ atwater_missing }}</b> had insufficient information.
-  </div>
-  <div style="flex: 33%; padding-left: 25px">
-    <b>Ingredients:</b> {{ category }} typically contain <b>{{ ingredient_q25 }}</b> to
-    <b>{{ ingredient_q75 }}</b> ingredients. {{ common_ingredients }}
+  {#  <div style="flex: 33%; padding-right: 25px; padding-left: 25px">#}
+  {# <b>Nutrients:</b> Of the {{ category_count }} food categories, {{ category }} have the#}
+  {# <b>{{ sodium_rank }}</b> highest sodium, <b>{{ fat_rank }}</b> highest saturated fat, and <b>{{ sugar_rank }}</b>#}
+  {# highest sugar content. <br>#}
+  {# <b>{{ atwater_pass }}</b> products passed the Atwater test, <b>{{ atwater_fail }}</b>#}
+  {# failed, and <b>{{ atwater_missing }}</b> had insufficient information.#}
+  {#  </div>#}
+  <div style="flex: 67%; padding-left: 25px">
+    <b>Ingredients:</b> <br>
+    {{ category }} typically contain <b>{{ ingredient_q25 }}</b> to
+    <b>{{ ingredient_q75 }}</b> ingredients. {{ common_ingredients }} <br><br>
+    <b>Free Sugars:</b> <br>
+    Of the x products with ingredients listed, x contain sugar-based ingredients, x contain
+    sweetening agents, x contain sweetening agent substitutes, and x contain sweeteners. Of the x products containing
+    free sugars, x contained one, x contained two, and x contained three or more free sugars.
   </div>
 {% endblock %}
 
@@ -84,7 +89,7 @@
     <script src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'plotly.js-dist/plotly.js' %}"></script>
   {% endblock %}
-  <div style="flex: 20%;padding-top: 20px; padding-right: 25px">
+  <div style="flex: 33%;padding-top: 20px; padding-right: 25px">
     <h3>
       Nutrient Distribution
     </h3>
@@ -94,7 +99,7 @@
       having the daily value on the X axis. A vertical line is placed at the 15% daily value mark.
     </p>
   </div>
-  <div style="flex: 80%; padding-left: 25px">
+  <div style="flex: 67%; padding-left: 25px">
     {% autoescape off %}
       {{ figure1 }}
     {% endautoescape %}

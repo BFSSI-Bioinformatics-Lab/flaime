@@ -16,7 +16,6 @@ def nutrient_distribution_plot(df: pd.DataFrame):
                                  ['Sodium', 'Saturated Fat', 'Sugar'], colors=qualitative.Vivid, histnorm='probability',
                                  bin_size=0.01, show_rug=False, )
         fig.update_layout(
-            width=1100,
             font_size=18,
             xaxis=dict(
                 title='Daily Value',

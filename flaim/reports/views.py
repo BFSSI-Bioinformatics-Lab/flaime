@@ -7,7 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 
 from flaim.database.product_mappings import PRODUCT_STORES, REFERENCE_CATEGORIES_DICT, \
-    REFERENCE_SUBCATEGORIES_CODING_DICT
+    REFERENCE_SUBCATEGORIES_CODING_DICT, REFERENCE_CATEGORIES_DESCRIPTION
 from flaim.reports.data import ReportData, StoreReportData
 from flaim.reports.plots import nutrient_distribution_plot, category_nutrient_distribution_plot
 from flaim.reports.util import nutrient_color, rank_suffix, build_top_x_sentence, make_list, \
@@ -107,6 +107,7 @@ class CategoryView(LoginRequiredMixin, TemplateView):
             # pulls category from URL e.g. /reports/category/Beverages
             context['category'] = unquote(self.kwargs['category'])
 
+        context['category_description'] = REFERENCE_CATEGORIES_DESCRIPTION[context['category']]
         context['category_count'] = df['category_text'].nunique()
         medians = df.groupby('category_text').median()
 

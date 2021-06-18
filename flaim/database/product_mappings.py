@@ -115,6 +115,33 @@ REFERENCE_CATEGORIES_DICT = {
         ['Uncategorized']
 }
 
+REFERENCE_CATEGORIES_DESCRIPTION = {
+    'Bakery Products': "Placeholder description.",
+    'Beverages': "Placeholder description.",
+    'Cereals and Other Grain Products': "Placeholder description.",
+    'Dairy Products and Substitutes': "Placeholder description.",
+    'Desserts': "Placeholder description.",
+    'Dessert Toppings and Fillings': "Placeholder description.",
+    'Eggs and Egg Substitutes': "Placeholder description.",
+    'Fats and Oils': "Placeholder description.",
+    'Marine and Fresh Water Animals': "Placeholder description.",
+    'Fruit and Fruit Juices': "Placeholder description.",
+    'Legumes': "Placeholder description.",
+    'Meat and Poultry, Products and Substitutes': "Placeholder description.",
+    'Miscellaneous': "Placeholder description.",
+    'Combination Dishes': "Placeholder description.",
+    'Nuts and Seeds': "Placeholder description.",
+    'Potatoes, Sweet Potatoes and Yams': "Placeholder description.",
+    'Salads': "Placeholder description.",
+    'Sauces, Dips, Gravies and Condiments': "Placeholder description.",
+    'Snacks': "Placeholder description.",
+    'Soups': "Placeholder description.",
+    'Sugars and Sweets': "Placeholder description.",
+    'Vegetables': "Placeholder description.",
+    'Baby Food': "Placeholder description.",
+    'Meal Replacements and Nutritional Supplements': "Placeholder description."
+}
+
 REFERENCE_CATEGORIES_CODING_DICT = {
     'A': 'Bakery Products',
     'B': 'Beverages',

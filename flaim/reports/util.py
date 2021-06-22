@@ -53,3 +53,33 @@ def build_top_ingredient_sentence(ingredients: pd.Series):
     # will not be displayed
     elif len(common_ingredients) == 1:
         return f'The only ingredient in this category is {common_ingredients[0]}.'
+
+
+def preprocess_ingredients(ingredients: pd.Series):
+    # gets rid of the stuff after the first period (usually allergy info etc.) if there is one
+    step1 = ingredients.dropna().str.lower().str.extract(r'^(.*?)(\.|$)')[0]
+
+    # removes things in parenthesis since they look generally low value
+    # TODO: add [], remove space from regex
+    step2 = step1.str.replace(r'( \(.*?\))', '', regex=True)
+
+    # replaces and/or, & with commas (creates two items but might want to remove the second instead)
+    # TODO: &/or, '/'
+    step3 = step2.str.replace(r'(\s(?:(?:(?:and)|(?:or))\s?/?\s?(?:or)?|&)\s)', ', ', regex=True)
+
+    # remove 'ingredients:'
+    # TODO: remove 'x:' at the beginning
+    step4 = step3.str.replace(r'(ingredients:\s?)', '', regex=True)
+
+    # handle • as separator and period (second case gets filtered by step 1)
+    step5 = step4.str.replace(r'( • )', ', ', regex=True)
+
+    # remove footnote markers *, †, ¹, etc.
+    # TODO: * prefix
+    step6 = step5.str.replace(r'([^a-z]*,)', ', ', regex=True)
+
+    # remove "x%" (% may not be there)
+    # remove lists after ':'
+    # remove "contains less than 2% of"
+
+    return step6.fillna('')

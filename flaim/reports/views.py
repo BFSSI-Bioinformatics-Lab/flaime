@@ -12,7 +12,8 @@ from flaim.reports.data import ReportData, StoreReportData
 from flaim.reports.plots import nutrient_distribution_plot, category_nutrient_distribution_plot, \
     category_product_distribution_plot
 from flaim.reports.util import nutrient_color, rank_suffix, build_top_x_sentence, make_list, \
-    build_top_ingredient_sentence
+    build_top_ingredient_sentence, preprocess_ingredients
+from flaim.reports.constants import FREE_SUGARS, FREE_SUGARS_REGEX
 
 
 class ProductView(LoginRequiredMixin, TemplateView):
@@ -54,6 +55,54 @@ def category_context_builder(df: pd.DataFrame, context: dict):
     # Visualizations
     context['product_distribution_plot'] = category_product_distribution_plot(df)
     context['figure1'] = nutrient_distribution_plot(df)
+    free_sugars_context_builder(df['ingredients'], context)
+    return
+
+
+def free_sugars_context_builder(ingredients: pd.Series, context: dict):
+    search = re.compile(FREE_SUGARS_REGEX)
+
+    def count_sugars(row):
+        count = 0
+        for i in row.split(','):
+            match = re.match(search, i.strip())
+            if match:
+                count = count + 1
+        return count
+
+    def count_sugars_unique(row):
+        count = set()
+        for i in row.split(','):
+            match = re.match(search, i.strip())
+            if match:
+                count.add(i.strip())
+        return len(count)
+
+    df = pd.DataFrame(index=ingredients.index)
+    df['Ingredients'] = ingredients.str.lower()
+    df.dropna(subset=['Ingredients'], inplace=True)
+    df['Ingredients'] = preprocess_ingredients(
+        df['Ingredients'].str.replace('(', ',', regex=False).str.replace(')', '', regex=False))
+
+    for s in FREE_SUGARS.keys():
+        df[s] = df['Ingredients'].str.contains('|'.join(FREE_SUGARS[s]))
+
+    df['Sugar Count'] = df['Ingredients'].apply(count_sugars)
+    df['Unique Sugar Count'] = df['Ingredients'].apply(count_sugars_unique)
+
+    context['products_with_ingredients'] = df.shape[0]
+    context['sugar_based'] = df.loc[df['Sugar-based Ingredients'] > 0].shape[0]
+    context['sweetening_agents'] = df.loc[df['Sweetening Agents'] > 0].shape[0]
+    context['sweetening_substitute'] = df.loc[df['Sweetening Agent Substitute'] > 0].shape[0]
+    context['sweeteners'] = df.loc[df['Sweeteners'] > 0].shape[0]
+    context['free_sugar_count'] = df.loc[df['Sugar Count'] > 0].shape[0]
+    context['one_sugar'] = df.loc[df['Sugar Count'] == 1].shape[0]
+    context['two_sugars'] = df.loc[df['Sugar Count'] == 2].shape[0]
+    context['three_or_more_sugars'] = df.loc[df['Sugar Count'] >= 3].shape[0]
+    context['one_unique_sugar'] = df.loc[df['Unique Sugar Count'] == 1].shape[0]
+    context['two_unique_sugars'] = df.loc[df['Unique Sugar Count'] == 2].shape[0]
+    context['three_or_more_unique_sugars'] = df.loc[df['Unique Sugar Count'] >= 3].shape[0]
+
     return
 
 

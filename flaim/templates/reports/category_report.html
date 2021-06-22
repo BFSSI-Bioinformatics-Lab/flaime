@@ -72,10 +72,16 @@
     {{ category }} typically contain <b>{{ ingredient_q25 }}</b> to
     <b>{{ ingredient_q75 }}</b> ingredients. {{ common_ingredients }} <br><br>
     <b>Free Sugars:</b> <br>
-    Of the _ products with ingredients listed, _ contain sugar-based ingredients, _ contain
-    sweetening agents, _ contain sweetening agent substitutes, and _ contain sweeteners.
-    Of the _ products containing free sugars, _ contained one, _ contained two,
-    and _ contained three or more free sugars.
+    Of the <b>{{ products_with_ingredients }}</b> products with ingredients listed, <b>{{ sugar_based }}</b>
+    contain sugar-based ingredients, <b>{{ sweetening_agents }}</b> contain sweetening agents,
+    <b>{{ sweetening_substitute }}</b> contain sweetening agent substitutes, and <b>{{ sweeteners }}</b>
+    contain sweeteners. <br>
+    Of the <b>{{ free_sugar_count }}</b> products containing free sugars, <b>{{ one_sugar }}</b> contained one,
+    <b>{{ two_sugars }}</b> contained two, and <b>{{ three_or_more_sugars }}</b> contained three or more <i>total</i>
+    sugars. <br>
+    Additionally, <b>{{ one_unique_sugar }}</b> contained one,
+    <b>{{ two_unique_sugars }}</b> contained two, and <b>{{ three_or_more_unique_sugars }}</b> contained three or more
+    <i>unique</i> sugars. <br>
   </div>
   {#  <div style="flex: 33%; padding-right: 25px; padding-left: 25px">#}
   {# <b>Nutrients:</b> Of the {{ category_count }} food categories, {{ category }} have the#}

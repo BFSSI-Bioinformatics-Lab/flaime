@@ -23,28 +23,27 @@
           </label>
         </div>
       </div>
-    </div>
-
-    <div style="display: flex;text-align:center">
-      <div style="flex: auto">
-        Product Count</br>
-        <h1>{{ product_count }}</h1>
-      </div>
-      <div style="flex: auto">
-        Median Calories
-        <h1>{{ calorie_median }}</h1>
-      </div>
-      <div style="flex: auto">
-        Median Sodium
-        <h1 class={{ sodium_color }}>{{ sodium_median }}</h1>
-      </div>
-      <div style="flex: auto">
-        Median Sat. Fat
-        <h1 class={{ fat_color }}>{{ fat_median }}</h1>
-      </div>
-      <div style="flex: auto">
-        Median Sugar
-        <h1 class={{ sugar_color }}>{{ sugar_median }}</h1>
+      <div style="display: flex;text-align:center">
+        <div style="flex: auto">
+          Product Count</br>
+          <h1>{{ product_count }}</h1>
+        </div>
+        <div style="flex: auto">
+          Median Calories
+          <h1>{{ calorie_median }}</h1>
+        </div>
+        <div style="flex: auto">
+          Median Sodium
+          <h1 class={{ sodium_color }}>{{ sodium_median }}</h1>
+        </div>
+        <div style="flex: auto">
+          Median Sat. Fat
+          <h1 class={{ fat_color }}>{{ fat_median }}</h1>
+        </div>
+        <div style="flex: auto">
+          Median Sugar
+          <h1 class={{ sugar_color }}>{{ sugar_median }}</h1>
+        </div>
       </div>
     </div>
   </div>
@@ -55,20 +54,32 @@
   <div style="flex: 33%; padding-right: 25px">
     {#  how the product counts compares to other categories #}
     {#  how the products are spread across stores #}
-    <b>Overview:</b> The {{ subcategory }} subcategory consists of {{ product_count }} products across
-    {{ store_count }} stores. Of these products, <b>{{ manual_category_count }}</b> were manually verified and
-    <b>{{ predicted_category_count }}</b> were predicted to fall in this category using a machine learning model.
+    {#    <b>Overview:</b> The {{ subcategory }} subcategory consists of {{ product_count }} products across#}
+    {#    {{ store_count }} stores. Of these products, <b>{{ manual_category_count }}</b> were manually verified and#}
+    {#    <b>{{ predicted_category_count }}</b> were predicted to fall in this category using a machine learning model.#}
+    <b>About:</b> <br> {{ subcategory_description }} <br><br>
   </div>
   <div style="flex: 33%; padding-right: 25px; padding-left: 25px">
-    <b>Nutrients:</b> Of the {{ category_count }} {{ category }} subcategories, {{ subcategory }} products have the
-    <b>{{ sodium_rank }}</b> highest sodium, <b>{{ fat_rank }}</b> highest saturated fat, and <b>{{ sugar_rank }}</b>
-    highest sugar content. <br>
-    <b>{{ atwater_pass }}</b> products passed the Atwater test, <b>{{ atwater_fail }}</b>
-    failed, and <b>{{ atwater_missing }}</b> had insufficient information.
-  </div>
-  <div style="flex: 33%; padding-left: 25px">
+    {#    <b>Nutrients:</b> Of the {{ category_count }} {{ category }} subcategories, {{ subcategory }} products have the#}
+    {#    <b>{{ sodium_rank }}</b> highest sodium, <b>{{ fat_rank }}</b> highest saturated fat, and <b>{{ sugar_rank }}</b>#}
+    {#    highest sugar content. <br>#}
+    {#    <b>{{ atwater_pass }}</b> products passed the Atwater test, <b>{{ atwater_fail }}</b>#}
+    {#    failed, and <b>{{ atwater_missing }}</b> had insufficient information.#}
     <b>Ingredients:</b> {{ subcategory }} typically contain <b>{{ ingredient_q25 }}</b> to
     <b>{{ ingredient_q75 }}</b> ingredients. {{ common_ingredients }}
+  </div>
+  <div style="flex: 33%; padding-left: 25px">
+    <b>Free Sugars:</b> <br>
+    Of the <b>{{ products_with_ingredients }}</b> products with ingredients listed, <b>{{ sugar_based }}</b>
+    contain sugar-based ingredients, <b>{{ sweetening_agents }}</b> contain sweetening agents,
+    <b>{{ sweetening_substitute }}</b> contain sweetening agent substitutes, and <b>{{ sweeteners }}</b>
+    contain sweeteners. <br>
+    Of the <b>{{ free_sugar_count }}</b> products containing free sugars, <b>{{ one_sugar }}</b> contained one,
+    <b>{{ two_sugars }}</b> contained two, and <b>{{ three_or_more_sugars }}</b> contained three or more <i>total</i>
+    sugars. <br>
+    Additionally, <b>{{ one_unique_sugar }}</b> contained one,
+    <b>{{ two_unique_sugars }}</b> contained two, and <b>{{ three_or_more_unique_sugars }}</b> contained three or more
+    <i>unique</i> sugars. <br>
   </div>
 {% endblock %}
 

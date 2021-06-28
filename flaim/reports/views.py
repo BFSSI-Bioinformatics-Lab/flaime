@@ -7,7 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 
 from flaim.database.product_mappings import PRODUCT_STORES, REFERENCE_CATEGORIES_DICT, \
-    REFERENCE_SUBCATEGORIES_CODING_DICT, REFERENCE_CATEGORIES_DESCRIPTION
+    REFERENCE_SUBCATEGORIES_CODING_DICT, REFERENCE_CATEGORIES_DESCRIPTION, REFERENCE_SUBCATEGORIES_DESCRIPTION
 from flaim.reports.data import ReportData, StoreReportData
 from flaim.reports.plots import nutrient_distribution_plot, category_nutrient_distribution_plot, \
     category_product_distribution_plot
@@ -127,6 +127,7 @@ class SubcategoryView(LoginRequiredMixin, TemplateView):
 
         df = df.loc[df['category_text'] == context['category']]
 
+        context['subcategory_description'] = REFERENCE_SUBCATEGORIES_DESCRIPTION[context['subcategory']]
         context['category_count'] = df['subcategory_text'].nunique()
         medians = df.groupby('subcategory_text').median()
 

@@ -28,8 +28,14 @@ def category_context_builder(df: pd.DataFrame, context: dict):
     context['ingredient_q75'] = int(ingredient_count.quantile(0.75))
     context['common_ingredients'] = build_top_ingredient_sentence(df['ingredients'])
     atwater_results = df.atwater_result.value_counts().to_dict()
+    if 'Within Threshold' not in atwater_results:
+        atwater_results['Within Threshold'] = 0
     context['atwater_pass'] = atwater_results['Within Threshold']
+    if 'Investigation Required' not in atwater_results:
+        atwater_results['Investigation Required'] = 0
     context['atwater_fail'] = atwater_results['Investigation Required']
+    if 'Missing Information' not in atwater_results:
+        atwater_results['Missing Information'] = 0
     context['atwater_missing'] = atwater_results['Missing Information']
 
     # Top bar
@@ -39,16 +45,16 @@ def category_context_builder(df: pd.DataFrame, context: dict):
     context['manual_category_count'] = df['manual_category_text'].dropna().shape[0]
     context['predicted_category_count'] = context['product_count'] - context['manual_category_count']
 
-    context['calorie_median'] = f'{df.calories.median():.0f}'
+    context['calorie_median'] = f'{df.calories.fillna(0).median():.0f}'
 
     context['sodium_color'] = nutrient_color(df.sodium_dv.median())
-    context['sodium_median'] = f'{df.sodium_dv.median() * 100:.0f}%'
+    context['sodium_median'] = f'{df.sodium_dv.fillna(0).median() * 100:.0f}%'
 
     context['fat_color'] = nutrient_color(df.saturatedfat_dv.median())
-    context['fat_median'] = f'{df.saturatedfat_dv.median() * 100:.0f}%'
+    context['fat_median'] = f'{df.saturatedfat_dv.fillna(0).median() * 100:.0f}%'
 
     context['sugar_color'] = nutrient_color(df.sugar.median())
-    context['sugar_median'] = f'{df.sugar.median() * 100:.0f}%'
+    context['sugar_median'] = f'{df.sugar.fillna(0).median() * 100:.0f}%'
 
     # Visualizations
     context['figure1'] = nutrient_distribution_plot(df)
@@ -150,8 +156,14 @@ class StoreView(LoginRequiredMixin, TemplateView):
         context['common_categories'] = build_top_x_sentence(df['category_text'], 3)
         context['common_brands'] = build_top_x_sentence(df['brand'], 5)
         atwater_results = df.atwater_result.value_counts().to_dict()
+        if 'Within Threshold' not in atwater_results:
+            atwater_results['Within Threshold'] = 0
         context['atwater_pass'] = atwater_results['Within Threshold']
+        if 'Investigation Required' not in atwater_results:
+            atwater_results['Investigation Required'] = 0
         context['atwater_fail'] = atwater_results['Investigation Required']
+        if 'Missing Information' not in atwater_results:
+            atwater_results['Missing Information'] = 0
         context['atwater_missing'] = atwater_results['Missing Information']
 
         # Top bar

@@ -134,7 +134,12 @@
                          href="{% url 'batch_browser:index' %}"><i
                               class="fas fa-clock"></i>{% trans " Batch Browser" %}</a>
                     </li>
-
+                    <li class="nav-item">
+                      <a class="nav-link"
+                         href="{% url 'reports:product_report_builder' %}"><i
+                              class="fas fa-file-invoice"></i>{% trans " Product Report Builder" %}
+                      </a>
+                    </li>
                   </div>
                 </div>
               </div>
@@ -149,12 +154,7 @@
                 </div>
                 <div id="collapseTwo" class="collapse multi-collapse show" aria-labelledby="headingTwo">
                   <div class="card-body">
-                    {#                    <li class="nav-item">#}
-                    {#                      <a class="nav-link"#}
-                    {#                         href="{% url 'reports:product_report' %}"><i#}
-                    {#                              class="fas fa-cheese"></i>{% trans " Product" %}#}
-                    {#                      </a>#}
-                    {#                    </li>#}
+
                     {#                    <li class="nav-item">#}
                     {#                      <a class="nav-link"#}
                     {#                         href="{% url 'reports:nutrient_report' %}"><i#}

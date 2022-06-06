@@ -47,13 +47,13 @@ def category_context_builder(df: pd.DataFrame, context: dict):
 
     context['calorie_median'] = f'{df.calories.fillna(0).median():.0f}'
 
-    context['sodium_color'] = nutrient_color(df.sodium_dv.median())
+    context['sodium_color'] = nutrient_color(df.sodium_dv.fillna(0).median())
     context['sodium_median'] = f'{df.sodium_dv.fillna(0).median() * 100:.0f}%'
 
-    context['fat_color'] = nutrient_color(df.saturatedfat_dv.median())
+    context['fat_color'] = nutrient_color(df.saturatedfat_dv.fillna(0).median())
     context['fat_median'] = f'{df.saturatedfat_dv.fillna(0).median() * 100:.0f}%'
 
-    context['sugar_color'] = nutrient_color(df.sugar.median())
+    context['sugar_color'] = nutrient_color(df.sugar.fillna(0).median())
     context['sugar_median'] = f'{df.sugar.fillna(0).median() * 100:.0f}%'
 
     # Visualizations

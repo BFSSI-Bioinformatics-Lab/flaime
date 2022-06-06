@@ -279,11 +279,11 @@ class Command(BaseCommand):
                 continue
             product_code = data['item_number']  # Files are named after product code
             # Skip duplicates in the scrape data
-            if p['item_number'] in seen:
+            if data['item_number'] in seen:
                 continue
 
             # Get or create generic Product
-            obj = Product.objects.get_or_create(product_code=product_code)
+            obj = Product.objects.create(product_code=product_code)
             obj.save()
             obj.changeReason = CHANGE_REASON
 

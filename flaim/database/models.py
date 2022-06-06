@@ -7,6 +7,7 @@ from flaim.database.product_mappings import VALID_NUTRIENT_COLUMNS, \
     REFERENCE_SUBCATEGORIES_CODING_DICT, REFERENCE_CATEGORIES_CODING_DICT
 from simple_history.models import HistoricalRecords
 from flaim.users.models import User
+import re
 
 # Sensible field sizes for CharField columns
 LG_CHAR = 1500
@@ -24,7 +25,9 @@ VALID_STORES = (
 
 def upload_product_image(obj):
     """ Sets the directory for an input ProductImage """
-    store = obj.product.store
+    #print("Hi")
+    #store = obj.product.store
+    store = "LOBLAWS"
     date = strftime("%Y%m%d")
     return f"{store}/{date}"
 
@@ -504,8 +507,90 @@ class NutritionFacts(TimeStampedModel):
         self.save()
 
     def load_total_size(self, api_data: dict):
-        self.total_size = api_data['packageSize']
+        self.total_size = api_data['container_size']
         self.save()
+
+    def load_scrapy_nutrition_facts(self, data: dict, dv_in_val=False):
+        translate_names = {
+            "fat": "totalfat",
+            "fibre": "dietaryfiber",
+            "carbohydrate": "totalcarbohydrate",
+            "sugars": "sugar",
+            "monounsaturatedfat": "monounsaturated_fat",
+            "polyunsaturatedfat": "polyunsaturated_fat",
+            "vitA": "vitamin_a",
+            "vitC": "vitamin_c",
+        }
+        for key in data:
+            val = data[key]
+            if val is None:
+                continue
+            val = str(val)
+
+            if key == "serving_size":
+                self.serving_size_raw = val
+                m = re.search("([0-9]+) *(g|ml|mL)", val)
+                if m:
+                    self.serving_size = m.group(1)
+                self.serving_size_units = self.__detect_units(self.serving_size_raw.lower())
+
+            if "_nft" not in key:
+                continue
+            if key == "raw_nft":
+                continue
+            if "calories" in key:
+                val = val.replace("kcal","").replace("cal","",-1).strip()
+                if "." in val:
+                    val = re.search("([0-9]+)\.",val).group(1)
+
+            if dv_in_val:
+                # Strip out units
+                if "mg" in val:
+                    val = val.replace("mg","",-1)
+                    try:
+                        val = float(val) / 1000
+                    except:
+                        continue
+                elif "g" in val:
+                    val = val.replace("g","",-1)
+                    try:
+                        val = float(val)
+                    except:
+                        continue
+            else:
+                if ("_amount" in key) & ("calories" not in key):
+                    key_unit = key.replace("_amount","_unit")
+                    unit = data[key_unit]
+                    if unit == "mg":
+                        try:
+                            val = float(val) / 1000
+                        except:
+                            continue
+
+            if "_amount" in key:
+                nutrient = key.replace("_amount_nft","").replace("_","",-1)
+                if nutrient in translate_names:
+                    nutrient = translate_names[nutrient]
+                if (val != "") & (val is not None):
+                    try:
+                        setattr(self, nutrient, val)
+                    except:
+                        self.logger.debug("problem with {}: {}".format(nutrient,val))
+            if "_dv" in key:
+                nutrient = key.replace("_dv_nft","").replace("_","",-1)
+                if nutrient in translate_names:
+                    nutrient = translate_names[nutrient]
+                if (val != "") & (val is not None):
+                    # Remove %
+                    val = val.replace("%", "", -1).strip()
+                    try:
+                        val = float(val) / 100.
+                    except:
+                        continue
+                    try:
+                        setattr(self, (nutrient + '_dv'), val)
+                    except:
+                        self.logger.debug("problem with {}: {}".format(nutrient,val))
 
     def load_loblaws_nutrition_facts_json(self, loblaws_nutrition: dict):
         """
@@ -747,6 +832,26 @@ class GroceryGatewayProduct(TimeStampedModel):
 
     history = HistoricalRecords()
 
+
+class NoFrillsProduct(TimeStampedModel):
+    """
+    Extension of the generic Product model to store No Frills specific metadata
+    """
+
+    product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name="nofrills_product")
+    image_directory = models.CharField(max_length=MD_CHAR, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.product.product_code}: {self.product.name}"
+
+    class Meta:
+        verbose_name = 'No Frills Product'
+        verbose_name_plural = 'No Frills Products'
+        indexes = [
+            models.Index(fields=['product'])
+        ]
+
+    history = HistoricalRecords()
 
 # VOILA MODELS
 class VoilaProduct(TimeStampedModel):

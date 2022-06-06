@@ -8,6 +8,7 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 
 from tqdm import tqdm
+import re
 
 from flaim.database.models import Product, LoblawsProduct, NutritionFacts, ScrapeBatch, ProductImage
 from flaim.classifiers.management.commands.assign_categories import assign_categories
@@ -34,10 +35,27 @@ def normalize_apostrophe(val: str):
 
 
 def read_json(json_file):
-    with open(json_file, 'r') as f:
-        data = json.load(f)
-    return data
-
+    """
+    Updated to account for the scrapy output files
+    """
+    try:
+        with open(json_file) as f:
+            products = json.load(f)
+    except:
+        # Scrapy output json is a bit different
+        products = []
+        with open(json_file, 'r') as f:
+            for line in f:
+                line = line.rstrip("\n")
+                line = line.rstrip(",")
+                line = line.rstrip("[")
+                line = line.rstrip("]")
+                if (line == "[") | (line == "]") | (line == "]["):
+                    continue
+                if (line == ""):
+                    continue
+                products.append(json.loads(line))
+    return products
 
 def safe_run(func):
     """ Decorator to run a method wrapped in a try/except -> returns None upon exception """
@@ -73,12 +91,14 @@ def get_description(api_data) -> str:
 
 
 @safe_run
+# TODO
 def get_all_image_urls(api_data) -> list:
     """ This will retrieve ALL of the image urls associated with the product; more than we need """
     return api_data['imageAssets']
 
 
 @safe_run
+# TODO
 def get_large_image_urls(api_data):
     """ This is typically the image data we want to retrieve per product """
     images = [x['largeUrl'] for x in api_data['imageAssets']]
@@ -87,28 +107,28 @@ def get_large_image_urls(api_data):
 
 @safe_run
 def get_package_size(api_data) -> str:
-    return api_data['packageSize'].strip()
+    return api_data['container_size'].strip()
 
 
 @safe_run
 def get_url(api_data) -> str:
     """ Returns the link to the product on the Loblaws domain; no guarantee the link is still accurate/active """
-    return 'https://www.loblaws.ca' + api_data['link'].strip()
+    return api_data['url'].strip()
 
 
 def get_price(api_data) -> (int, str):
     """ Concatenates the price and unit values to produce something like '$6.99 ea' """
-    try:
-        price, unit = float(api_data['prices']['price']['value']), api_data['prices']['price']['unit']
-    except (TypeError, KeyError) as e:
-        print(f'Could not retrieve price for product')
-        price, unit = None, None
-    return price, unit
+    price = api_data['price']
+    m = re.search("([0-9]+\.*[0-9]*)", price)
+    price_val = None
+    if m:
+        price_val = float(m.group(1))
+    return price, price_val
 
 
 @safe_run
 def get_country_of_origin(api_data) -> str:
-    return api_data['countryOfOrigin'].strip()
+    return None
 
 
 @safe_run
@@ -119,51 +139,18 @@ def get_ingredients(api_data) -> str:
 @safe_run
 def get_nutrition_facts(api_data):
     # All information is stored in nutritionFacts
-    nutrition_facts = api_data['nutritionFacts']
-
-    # Further parsing out nutritionFacts
-    '''
-    List containing serving size, calories, etc
-    '''
-    food_labels = nutrition_facts['foodLabels']
-
-    '''
-    List containing nutrients with values in grams and percent.
-    Values in here can contain additional subnutrients e.g. totalfat -> saturatedfat, polyunsaturatedfat
-    '''
-    nutrients_per_serving = nutrition_facts['nutrientsPerServing']
-
-    '''
-    List containing micronutrients e.g. vitamin A, vitamin C, iron
-    '''
-    micronutrients = nutrition_facts['micronutrients']
-
-    '''
-    Text with nutrition disclaimer that the data is approximate and not necessarily accurate
-    '''
-    disclaimer = nutrition_facts['disclaimer']
-
-    '''
-    This field is not necessarily populated
-    '''
-    ingredients = nutrition_facts['ingredients']
-
-    '''
-    Not sure what this is for, comes up as empty string mostly
-    '''
-    nutrition_heading = nutrition_facts['nutritionHeading']
-
+    nutrition_facts = api_data['raw_nft']
     return nutrition_facts
 
 
 @safe_run
 def get_health_tips(api_data) -> str:
-    return api_data['healthTips'].strip()
+    return None
 
 
 @safe_run
 def get_safety_tips(api_data) -> str:
-    return api_data['safetyTips'].strip()
+    return None
 
 
 @safe_run
@@ -172,26 +159,25 @@ def get_breadcrumbs(api_data) -> list:
     :return:    Returns list of of breadcrumbs in order from highest level to lowest level e.g.
                 [Food, Fruits & Vegetables, Fruit, Apples]
     """
-    breadcrumbs = api_data['breadcrumbs']
-    breadcrumb_names = [x['name'].strip() for x in breadcrumbs]
-    return breadcrumb_names
+    breadcrumbs = api_data['breadcrumb'].split(" > ")
+    return breadcrumbs
 
 
 @safe_run
 def get_upc_list(api_data) -> list:
-    return [x.strip() for x in api_data['upcs']]
+    return []
 
 
 @safe_run
 def get_average_weight(api_data) -> str:
-    return api_data['averageWeight'].strip()
+    return None
 
 
 @safe_run
 def get_nutrition_disclaimer(api_data) -> str:
-    return api_data['productNutritionDisclaimer'].strip()
+    return None
 
-
+# TODO
 def load_images(image_dirs: list):
     for d in tqdm(image_dirs, desc="Loading images"):
         product_code = d.name
@@ -242,38 +228,31 @@ class Command(BaseCommand):
             quit()
 
         # Product JSON
-        product_json_dir = Path(options['input_dir']) / 'product_json'
+        infile_json = Path(options['input_dir']) / "out.json"
         scrape_date = parse_date(options['date'])
 
         self.stdout.write(self.style.SUCCESS(f'\nStarted loading Loblaws product JSON to database'))
 
-        self.load_loblaws(product_json_dir=product_json_dir, scrape_date=scrape_date)
+        self.image_dir = Path(options['input_dir']) / 'images'
+        self.load_loblaws(infile_json=infile_json, scrape_date=scrape_date)
 
-        # Images
-        self.stdout.write(self.style.SUCCESS(f'\nStarted loading Loblaws images to database'))
-        input_dir = Path(options['input_dir']) / 'product_images'
-        image_dirs = input_dir.glob("*")
-        image_dirs = [x for x in image_dirs if x.is_dir()]
-        load_images(image_dirs)
-        self.stdout.write(self.style.SUCCESS(f'\nDone loading Loblaws images to database!'))
 
-    def load_loblaws(self, product_json_dir: Path, scrape_date: str):
+    def load_loblaws(self, infile_json: str, scrape_date: str):
 
         CHANGE_REASON = 'New Loblaws Scrape Batch'
-        json_files = list(product_json_dir.glob("*.json"))
+        json_data = read_json(infile_json)
 
-        if len(json_files) < 1:
-            self.stdout.write(self.style.ERROR(f'Could not find any JSON files in {product_json_dir}, quitting!'))
+        if len(json_data) < 1:
+            self.stdout.write(self.style.ERROR(f'Could not find anything in your json file {infile_json}, quitting!'))
             quit()
 
-        self.stdout.write(self.style.SUCCESS(f'Found {len(json_files)} JSON files in {product_json_dir}'))
+        self.stdout.write(self.style.SUCCESS(f'Found {len(json_data)} products in {infile_json}'))
 
-        # Total valid products scraped
-        filtered_json_files = [f for f in json_files if f.stat().st_size > 1000]
-        total_products = len(filtered_json_files)
 
         # All product codes
-        product_codes = [f.with_suffix("").name for f in filtered_json_files]
+        product_codes = set([f['item_number'] for f in json_data])
+        # Total valid products scraped
+        total_products = len(product_codes)
 
         # All Loblaws products in the DB
         existing_products = [x.product.product_code for x in LoblawsProduct.objects.all()]
@@ -281,6 +260,8 @@ class Command(BaseCommand):
         # Total number of products
         missing_products = len(list(set(existing_products) - set(product_codes)))
         new_products = len([x for x in product_codes if x not in existing_products])
+        # Skip duplicates in the scrape data
+        seen = set()
 
         # Create scrape batch
         scrape = ScrapeBatch.objects.create(
@@ -293,17 +274,16 @@ class Command(BaseCommand):
 
         # Iterate over product json files
         existing_codes_dict = Product.generate_existing_product_codes_dict(store='LOBLAWS')
-        for j in tqdm(filtered_json_files, desc="Uploading JSON"):
-            product_code = j.with_suffix("").name  # Files are named after product code
-
-            try:
-                data = read_json(j)
-            except json.decoder.JSONDecodeError as e:
-                # self.stdout.write(self.style.ERROR(f'Skipping product JSON {j} due to exception:\n{e}'))
+        for data in tqdm(json_data, desc="Uploading JSON"):
+            if (data['name'] is None) | (data['name'] == ""):
+                continue
+            product_code = data['item_number']  # Files are named after product code
+            # Skip duplicates in the scrape data
+            if p['item_number'] in seen:
                 continue
 
             # Get or create generic Product
-            obj = Product.objects.create(product_code=product_code)
+            obj = Product.objects.get_or_create(product_code=product_code)
             obj.save()
             obj.changeReason = CHANGE_REASON
 
@@ -318,17 +298,15 @@ class Command(BaseCommand):
             obj.name = normalize_apostrophe(get_name(data))
             obj.brand = normalize_apostrophe(get_brand(data))
 
-            price_float, price_units = get_price(data)
-            obj.price_float, obj.price_units = price_float, price_units
-            obj.price = f'${price_float} {price_units}'
+            price, price_float = get_price(data)
+            obj.price, obj.price_float = price, price_float
 
-            upc_list = get_upc_list(data)
-            if upc_list is not None:
-                obj.upc_code = upc_list[0]  # Set the representative UPC code to the first entry in the list
-                obj.upc_array = upc_list
+            # UPC is no longer on loblaws website
+            obj.upc_code = None  # Set the representative UPC code to the first entry in the list
+            obj.upc_array = []
 
             obj.manufacturer = None  # Not sure if we have this
-            obj.nielsen_product = None  # TODO: Probably populate this post-hoc. Ask Adrian about this.
+            obj.nielsen_product = None  # Can only be populated if we have a UPC
             obj.url = get_url(data)
             obj.scrape_date = timezone.now()
             obj.nutrition_available = None
@@ -336,6 +314,21 @@ class Command(BaseCommand):
             obj.breadcrumbs_text = ",".join(get_breadcrumbs(data))
             obj.description = get_description(data)
             obj.batch = scrape
+
+            # Get the images
+            product_image_paths = []
+            for i, img in enumerate(data['images']):
+                if img['status'] != "downloaded":
+                    continue
+
+                # front, side, etc
+                type = Path(img['url']).name.split("_")[1]
+
+                path_use = str(self.image_dir / img['path']).replace(settings.MEDIA_ROOT, "")
+                if len(ProductImage.objects.filter(image_path=path_use).all()) == 0:
+                    product_image = ProductImage.objects.create(product = obj, image_path=path_use, image_number=i+1, image_label=type)
+                    product_image.save()
+                    product_image_paths.append(product_image.image_path.url)
 
             # Update most_recent flag of older duplicate products if necessary
             if product_code in existing_codes_dict.values():
@@ -345,7 +338,7 @@ class Command(BaseCommand):
 
             # Loblaws fields for LoblawsProduct model
             product.api_data = data
-            nutrition_facts_json = get_nutrition_facts(data)
+            nutrition_facts_raw = get_nutrition_facts(data)
             product.changeReason = CHANGE_REASON
 
             # Populate NutritionFacts model
@@ -353,8 +346,8 @@ class Command(BaseCommand):
             nutrition_facts.load_total_size(data)
             nutrition_facts.ingredients = get_ingredients(data)
 
-            if nutrition_facts_json is not None:
-                nutrition_facts.load_loblaws_nutrition_facts_json(nutrition_facts_json)
+            if nutrition_facts_raw is not None:
+                nutrition_facts.load_scrapy_nutrition_facts(data,dv_in_val=True)
                 obj.nutrition_available = True
             else:
                 obj.nutrition_available = False

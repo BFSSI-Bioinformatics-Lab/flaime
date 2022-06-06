@@ -7,7 +7,7 @@ from django.core.management.base import BaseCommand
 from tqdm import tqdm
 
 from flaim.data_loaders.management.accessories import assign_variety_pack_flag
-from flaim.database.models import Product, GroceryGatewayProduct, NutritionFacts, ProductImage, ScrapeBatch
+from flaim.database.models import Product, NoFrillsProduct, NutritionFacts, ProductImage, ScrapeBatch
 from flaim.classifiers.management.commands.assign_categories import assign_categories
 from flaim.data_loaders.management.commands.calculate_atwater import calculate_atwater
 from django.contrib.auth import get_user_model
@@ -17,7 +17,7 @@ User = get_user_model()
 
 # TODO: Implement automatic scanning/calling of this script upon finding new data
 
-CHANGE_REASON = 'New Grocery Gateway Scrape Batch'
+CHANGE_REASON = 'New No Frills Scrape Batch'
 EXPECTED_KEYS = {"product_code",
                  "product_name",
                  "website",
@@ -69,7 +69,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if options['delete_products']:
             self.stdout.write(self.style.WARNING(f'Deleting all Grocery Gateway products in the database...'))
-            product_records = Product.objects.filter(store="GROCERYGATEWAY")
+            product_records = Product.objects.filter(store="NOFRILLS")
             product_records.delete()
             self.stdout.write(self.style.ERROR(f'Deleted all Grocery Gateway records in the database!'))
             quit()
@@ -84,13 +84,11 @@ class Command(BaseCommand):
         assert infile_json.exists()
         j = read_json(str(infile_json))
 
-        self.stdout.write(self.style.SUCCESS(f'Started loading Grocery Gateway products to database'))
+        self.stdout.write(self.style.SUCCESS(f'Started loading No Frills products to database'))
 
         # Create scrape batch
         # All Grocery Gateway products in the DB
-        existing_products = [x.product.product_code for x in GroceryGatewayProduct.objects.all()]
-
-        j = [x for x in j if 'barcode' in x]
+        existing_products = [x.product.product_code for x in NoFrillsProduct.objects.all()]
         product_codes = set([x['barcode'] for x in j])
         missing_products = len(list(set(existing_products) - set(product_codes)))
         new_products = len([x for x in product_codes if x not in existing_products])
@@ -102,31 +100,29 @@ class Command(BaseCommand):
             new_products=new_products,
             total_products=total_products,
             scrape_date=scrape_date,
-            store='GROCERYGATEWAY'
+            store='NOFRILLS'
         )
+
+        self.stdout.write(self.style.SUCCESS(f'Created new scrape batch for {scrape.scrape_date}'))
         # Skip duplicates in the scrape data
         seen = set()
 
-        self.stdout.write(self.style.SUCCESS(f'Created new scrape batch for {scrape.scrape_date}'))
-
         # Iterate over all products
-        existing_codes_dict = Product.generate_existing_product_codes_dict(store='GROCERYGATEWAY')
-        for p in tqdm(j, desc="Loading Grocery Gateway JSON"):
+        existing_codes_dict = Product.generate_existing_product_codes_dict(store='NOFRILLS')
+        for p in tqdm(j, desc="Loading No Frills JSON"):
             # Make sure all of the expected keys are populated at least with None.
             # Also rename the carbohydrate and carbohydrate_dv columns to match the DB
             if (p['name'] is None) | (p['name'] == ""):
                 continue
-
-            p['container_size'] = p['price_per']
             # Skip duplicates in the scrape data
-            if p['barcode'] in seen:
+            if p['item_number'] in seen:
                 continue
 
-            product = Product.objects.create(product_code=p['barcode'])
+            product = Product.objects.create(product_code=p['item_number'])
 
             # Product fields
             product.name = normalize_apostrophe(p['name'])
-            product.store = 'GROCERYGATEWAY'
+            product.store = 'NOFRILLS'
 
             product.upc_code = p['barcode']
             product.url = p['url']
@@ -169,7 +165,7 @@ class Command(BaseCommand):
             nutrition_facts, c = NutritionFacts.objects.get_or_create(product=product)
             nutrition_facts.load_total_size(p)
             nutrition_facts.ingredients = p['ingredients']
-            nutrition_facts.load_scrapy_nutrition_facts(p)
+            nutrition_facts.load_scrapy_nutrition_facts(p, dv_in_val=True)
             nutrition_facts.save()
 
             # Get the images
@@ -185,11 +181,11 @@ class Command(BaseCommand):
                 product_image.save()
                 product_image_paths.append(product_image.image_path.url)
 
-            gg = GroceryGatewayProduct.objects.create(product=product)
-            gg.save()
+            nf = NoFrillsProduct.objects.create(product=product)
+            nf.save()
 
         self.stdout.write(
-            self.style.SUCCESS(f'Done loading Grocery Gateway - {str(scrape_date)} products to database!'))
+            self.style.SUCCESS(f'Done loading No Frills - {str(scrape_date)} products to database!'))
 
         self.stdout.write(self.style.SUCCESS(f'Conducting category assignment step'))
         assign_categories()

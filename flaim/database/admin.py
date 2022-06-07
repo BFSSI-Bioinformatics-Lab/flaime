@@ -17,6 +17,8 @@ admin.site.register(models.WalmartProduct)
 admin.site.register(models.VoilaProduct)
 admin.site.register(models.GroceryGatewayProduct)
 
+admin.site.register(models.MintelProduct)
+
 admin.site.register(models.AmazonProduct)
 admin.site.register(models.AmazonProductReview)
 admin.site.register(models.AmazonSearchResult)

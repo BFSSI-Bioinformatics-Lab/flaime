@@ -3,7 +3,7 @@ from django.views.generic import TemplateView, DetailView, UpdateView
 from django.core.exceptions import ObjectDoesNotExist
 from flaim.database.models import Product, ProductImage, \
     LoblawsProduct, WalmartProduct, VoilaProduct, GroceryGatewayProduct, \
-    NutritionFacts
+    NutritionFacts, MintelProduct
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
 
@@ -50,6 +50,9 @@ class ProductView(LoginRequiredMixin, DetailView):
         elif context['product'].store == 'GROCERYGATEWAY':
             context['store_changes'] = get_product_history_diff(
                 GroceryGatewayProduct.objects.get(product=context['product']))
+        elif context['product'].store == 'MINTEL':
+            context['store_changes'] = get_product_history_diff(
+                MintelProduct.objects.get(product=context['product']))
 
         try:
             context['nutrition_changes'] = get_product_history_diff(

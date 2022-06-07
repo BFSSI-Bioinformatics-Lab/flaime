@@ -7,6 +7,7 @@ from django.core.management.base import BaseCommand
 from tqdm import tqdm
 
 from flaim.data_loaders.management.accessories import assign_variety_pack_flag
+from flaim.data_loaders.management.commands.load_loblaws_to_db import  read_json
 from flaim.database.models import Product, VoilaProduct, NutritionFacts, ProductImage, ScrapeBatch
 from flaim.classifiers.management.commands.assign_categories import assign_categories
 from flaim.data_loaders.management.commands.calculate_atwater import calculate_atwater
@@ -38,12 +39,6 @@ EXPECTED_KEYS = {"product_code",
                  "nielsen_product",
                  "nielsen_upc",
                  "nutrition"}
-
-
-def read_json(json_file):
-    with open(json_file, 'r') as f:
-        data = json.load(f)
-    return data
 
 
 def normalize_apostrophe(val: str):
@@ -79,27 +74,25 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR(f'Deleted all Voila records in the database!'))
             quit()
 
+
+        infile_json = Path(options['input_dir']) / "out.json"
         scrape_date = parse_date(options['date'])
 
-        # Read main json file
-        f = list(Path(options['input_dir']).glob('*.json'))[0]
-        assert f.exists()
-        j = read_json(str(f))
+        self.image_dir = Path(options['input_dir']) / 'images'
 
-        # Get image directory
-        tmp = list(Path(options['input_dir']).glob('*'))
-        image_dir = [x for x in tmp if x.is_dir()][0]
-        assert image_dir.exists()
+        # Read main json file
+        assert infile_json.exists()
+        j = read_json(str(infile_json))
 
         self.stdout.write(self.style.SUCCESS(f'Started loading Voila products to database'))
 
         # Create scrape batch
         # All Voila products in the DB
         existing_products = [x.product.product_code for x in VoilaProduct.objects.all()]
-        product_codes = [x['product_code'] for x in j]
+        product_codes = set([x['item_number'] for x in j])
         missing_products = len(list(set(existing_products) - set(product_codes)))
         new_products = len([x for x in product_codes if x not in existing_products])
-        total_products = len(j)
+        total_products = len(product_codes)
 
         # TODO: If the script fails this will still be created, should probably clean up after itself
         scrape = ScrapeBatch.objects.create(
@@ -112,34 +105,36 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS(f'Created new scrape batch for {scrape.scrape_date}'))
 
+        # Skip duplicates in the scrape data
+        seen = set()
+
         # Iterate over all products
         existing_codes_dict = Product.generate_existing_product_codes_dict(store='VOILA')
         for p in tqdm(j, desc="Loading Voila JSON"):
+            if (p['name'] is None) | (p['name'] == ""):
+                continue
+            # Skip duplicates in the scrape data
+            if p['item_number'] in seen:
+                continue
             # Make sure all of the expected keys are populated at least with None.
             # Also rename the carbohydrate and carbohydrate_dv columns to match the DB
-            for k in EXPECTED_KEYS:
-                if k not in p:
-                    p[k] = None
 
-            product = Product.objects.create(product_code=p['product_code'])
-
+            product = Product.objects.create(product_code=p['item_number'])
+            seen.add(p['item_number'])
             # Product fields
-            product.name = normalize_apostrophe(p['product_name'])
-            product.brand = normalize_apostrophe(p['Brand'])
+            product.name = normalize_apostrophe(p['name'])
+
+            product.brand = normalize_apostrophe(p['brand'])
             product.store = 'VOILA'
 
-            # TODO: Make sure the UPC code is just the first entry
-            if p['UPC'] is not None:
-                first_upc_code = str(p['UPC']).split(',')[0]
-                product.upc_code = first_upc_code
             product.url = p['url']
 
-            product.description = p['long_desc']
-            if p['breadcrumbs'] is not None:
-                product.breadcrumbs_text = p['breadcrumbs'].strip()
-                product.breadcrumbs_array = [x.strip() for x in p['breadcrumbs'].strip().split('>')]
+            product.description = p['description']
+            if p['breadcrumb'] is not None:
+                product.breadcrumbs_text = p['breadcrumb'].strip()
+                product.breadcrumbs_array = [x.strip() for x in p['breadcrumb'].strip().split('>')]
 
-            if p['price'] == 'price unavailable':
+            if p['price'] == '':
                 product.price = 'price unavailable'
             elif p['price'] is not None:
                 if '¢' in p['price']:
@@ -151,9 +146,11 @@ class Command(BaseCommand):
                 product.price = p['price']
                 product.price_units = "ea"  # TODO: This is just assumed because there is no value provided by the Voila scraper
 
-            product.nutrition_available = p['nft_present']
-            product.nielsen_product = p['nielsen_product']
-            product.unidentified_nft_format = p['nft_american']
+            nft_raw = p['raw_nft']
+            product.nutrition_available = True
+            if nft_raw == "":
+                product.nutrition_available = False
+
             product.batch = scrape
 
             # Update most_recent flag of older duplicate products if necessary
@@ -167,118 +164,28 @@ class Command(BaseCommand):
 
             product.save()
 
-            # Voila fields
+            nutrition_facts, c = NutritionFacts.objects.get_or_create(product=product)
+            nutrition_facts.load_total_size(p)
+            nutrition_facts.ingredients = p['ingredients']
+            nutrition_facts.load_scrapy_nutrition_facts(p)
+            nutrition_facts.save()
+
+            # Get the images
+            product_image_paths = []
+            for i, img in enumerate(p['images']):
+                if img['status'] != "downloaded":
+                    continue
+
+                path_use = str(self.image_dir / img['path']).replace(settings.MEDIA_ROOT, "")
+                if ProductImage.objects.filter(image_path=path_use).first() is not None:
+                    continue
+                product_image = ProductImage.objects.create(product = product, image_path=path_use, image_number=i+1)
+                product_image.save()
+                product_image_paths.append(product_image.image_path.url)
+
+
             voila = VoilaProduct.objects.create(product=product)
-            voila.nutrition_facts_json = p['nutrition']
-            if len(p['images']['image_paths']) > 0:
-                voila.image_directory = str(Path(p['images']['image_paths'][0]).parent)
-            else:
-                voila.image_directory = None
-            voila.dietary_info = p['Lifestyle & Dietary Need']
-            voila.bullets = p['bullets']
-            voila.sku = p['SKU']
-            voila.changeReason = CHANGE_REASON
             voila.save()
-
-            # Nutrition fields
-            # Pass over the nutrition dict to replace 'absent' with 0 and 'conflict' with None
-            nutrition_dict = p['nutrition'].copy()
-
-            # Correct carbohydrate values to proper name to ensure fields match with database
-            if "carbohydrate" in nutrition_dict.keys():
-                nutrition_dict['totalcarbohydrate'] = nutrition_dict['carbohydrate']
-            if "carbohydrate_dv" in nutrition_dict.keys():
-                nutrition_dict['totalcarbohydrate_dv'] = nutrition_dict['carbohydrate_dv']
-            if "carbohydrate_unit" in nutrition_dict.keys():
-                nutrition_dict['totalcarbohydrate_unit'] = nutrition_dict['carbohydrate_unit']
-
-            for key, val in nutrition_dict.items():
-                # Override bad values with 0 or None
-                if val == 'absent':
-                    nutrition_dict[key] = 0
-                if val == 'conflict':
-                    nutrition_dict[key] = None
-
-                # Convert any 'o' values to numeric 0. This is an OCR error.
-                if '_dv' in key and val is not None:
-                    if type(val) == str and val.lower() == 'o':
-                        nutrition_dict[key] = 0
-                    elif type(val) == str:
-                        nutrition_dict[key] = None
-                    else:
-                        nutrition_dict[key] = float(val)
-
-            # Need to iterate through the nutrition dict and convert mg to grams, and dv/100
-            for key, val in nutrition_dict.items():
-                if '_unit' in key and val is not None:
-                    if str(val).lower() == 'mg':
-                        nutrient_to_adjust = key.replace('_unit', '')
-                        if nutrition_dict[nutrient_to_adjust] is None:
-                            continue
-                        nutrition_dict[nutrient_to_adjust] = nutrition_dict[nutrient_to_adjust] / 1000
-                if '_dv' in key and val is not None:
-                    nutrition_dict[key] = val / 100
-
-            nutrition, c = NutritionFacts.objects.get_or_create(product=product)
-            nutrition.ingredients = p['ingredients_txt']
-
-            if p['size'] is not None:
-                if len(p['size']) < 100:
-                    nutrition.total_size = p['size']
-                else:
-                    nutrition.total_size = None
-
-            if not c:
-                nutrition.changeReason = CHANGE_REASON
-
-            for key, val in nutrition_dict.items():
-                if val is not None:
-                    setattr(nutrition, key, val)
-
-            # Serving size does not appear to be available in the Voila scrape data
-            nutrition.serving_size_raw = None
-            if 'serving_size' in nutrition_dict.keys() and 'serving_size_unit' in nutrition_dict.keys():
-                nutrition.serving_size_raw = f'{nutrition_dict["serving_size"]} {nutrition_dict["serving_size_unit"]}'
-            else:
-                pass
-
-            nutrition.serving_size = None
-            if 'serving_size' in nutrition_dict.keys():
-                nutrition.serving_size = nutrition_dict["serving_size"]
-
-            nutrition.serving_size_units = None
-            if 'serving_size_unit' in nutrition_dict.keys():
-                nutrition.serving_size_units = nutrition_dict["serving_size_unit"]
-
-            nutrition.save()
-
-            # Images
-            image_paths = p['images']['image_paths']
-            image_labels = p['images']['image_labels']
-
-            # Check if the product already has images associated with it
-            existing_images = ProductImage.objects.filter(product__product_code=product.product_code)
-            if len(existing_images) > 0:
-                # print(f'Already have image records for {product}; skipping!')
-                continue
-
-            # Upload images if there are any
-            if len(image_paths) > 0:
-                for i, val in enumerate(image_paths):
-                    # Note image_dir is the absolute path to the image directory
-                    image_path = image_dir.parent / val
-                    assert image_path.exists()
-                    # Strip out media root so images behave correctly
-                    image_path = str(image_path).replace(settings.MEDIA_ROOT, '')
-                    try:
-                        image = ProductImage.objects.create(product=product, image_path=image_path,
-                                                            image_label=image_labels[i],
-                                                            image_number=i)
-                        image.save()
-                    # Skip if the file path already exists
-                    except IntegrityError as e:
-                        pass
-        self.stdout.write(self.style.SUCCESS(f'Done loading Voila-{str(scrape_date)} products to database!'))
 
         self.stdout.write(self.style.SUCCESS(f'Conducting category assignment step'))
         assign_categories()

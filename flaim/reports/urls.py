@@ -5,7 +5,7 @@ from flaim.reports.views import ProductView, NutrientView, CategoryView, BrandVi
 app_name = "reports"
 
 urlpatterns = [
-    path("product/", ProductView.as_view(), name='product_report'),
+    path("builder/", ProductView.as_view(), name='product_report_builder'),
     path("nutrient/", NutrientView.as_view(), name='nutrient_report'),
     path("subcategory/", SubcategoryView.as_view(), name='subcategory_report'),
     re_path(r"^subcategory/(?P<subcategory>[\w|\W]+)/$", SubcategoryView.as_view(), name='subcategory_report'),

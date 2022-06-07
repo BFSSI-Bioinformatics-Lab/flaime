@@ -230,8 +230,12 @@ class StoreView(LoginRequiredMixin, TemplateView):
         context['has_img'] = len(pack_img) - context['missing_img']
 
         complete_df = df[['name', 'calories', 'allergy']].merge(pack_img, left_on='name', right_index=True)
-        complete_df['complete'] = (~complete_df['calories'].isnull()) & \
-                                  (complete_df['pack images'] > 0) & complete_df['allergy']
+
+        if context['store'] == 'Mintel':
+            complete_df['complete'] = (~complete_df['calories'].isnull()) & complete_df['allergy']
+        else:
+            complete_df['complete'] = (~complete_df['calories'].isnull()) & \
+                                      (complete_df['pack images'] > 0) & complete_df['allergy']
         context['complete'] = complete_df['complete'].value_counts()[True]
 
         # Visualizations

@@ -1,14 +1,11 @@
-{% extends 'reports_base.html' %}
-
-{% block header %}
-  <h3>product header</h3>
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'datatables/datatables.min.css' %}">
 {% endblock %}
 
-{% block body %}
-  <p>body content</p>
-{% endblock %}
+{% block section %}Product Report Builder{% endblock %}
 
-{% block footer %}
-  <p>visualizations go here</p>
-  {#  add price history/sale graph#}
+{% block content %}
+
 {% endblock %}

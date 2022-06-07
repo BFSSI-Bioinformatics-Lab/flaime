@@ -21,9 +21,12 @@ class CategoryPredictor:
             self.model_version = None
         else:
             self.model, self.vectorizers, self.target_encoder, self.model_version = pickle.load(open(model_path, 'rb'))
+
         self.stemmer = SnowballStemmer("english", ignore_stopwords=True)
 
     def snowball(self, row):
+        if row is None:
+            return ""
         return ' '.join([self.stemmer.stem(w) for w in word_tokenize(row) if w not in string.punctuation])
 
     def train(self, ds: DataStore, process_names=True):

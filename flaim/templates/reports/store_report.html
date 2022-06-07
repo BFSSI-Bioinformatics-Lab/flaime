@@ -108,8 +108,13 @@
       <small>
         <sup>1</sup> Includes products not required to carry NFTs (e.g. fresh fruits and vegetables).
         <br><br>
-        <sup>2</sup> Refers to products which contains all of the following: nutrition information, ingredient list,
-        allergy information, and an image for the front of package.
+        {% if store == 'Mintel' %}
+          <sup>2</sup> Refers to products which contains all of the following: nutrition
+          information, ingredient list and allergy information.
+        {% else %}
+          <sup>2</sup> Refers to products which contains all of the following: nutrition information, ingredient list,
+          allergy information, and an image for the front of package.
+        {% endif %}
       </small>
     </p>
   </div>

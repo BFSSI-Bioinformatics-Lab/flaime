@@ -281,6 +281,7 @@ class Command(BaseCommand):
             # Skip duplicates in the scrape data
             if data['item_number'] in seen:
                 continue
+            seen.add(data['item_number'])
 
             # Get or create generic Product
             obj = Product.objects.create(product_code=product_code)
@@ -318,8 +319,6 @@ class Command(BaseCommand):
             # Get the images
             product_image_paths = []
             for i, img in enumerate(data['images']):
-                if img['status'] != "downloaded":
-                    continue
 
                 # front, side, etc
                 type = Path(img['url']).name.split("_")[1]

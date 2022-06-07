@@ -117,6 +117,7 @@ class Command(BaseCommand):
             # Skip duplicates in the scrape data
             if p['item_number'] in seen:
                 continue
+            seen.add(p['item_number'])
 
             product = Product.objects.create(product_code=p['item_number'])
 

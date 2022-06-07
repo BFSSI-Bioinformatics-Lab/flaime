@@ -41,6 +41,8 @@ def assign_categories(category_predictor_model: Path = CATEGORY_PREDICTOR_MODEL,
     df = pd.concat([data.product_ids, data.names, predictions, sub_predictions], axis=1)
     print(f"Found {len(df)} products to update")
     for i, row in tqdm(df.iterrows(), desc="Predicting categories", total=len(df)):
+        if pd.isnull(row['name']):
+            continue
         # Category prediction
         predicted_category = Category.objects.create(predicted_category_1=row['Pred 1'],
                                                      confidence_1=row['Conf 1'],

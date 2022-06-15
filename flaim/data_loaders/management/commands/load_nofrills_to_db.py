@@ -89,7 +89,7 @@ class Command(BaseCommand):
         # Create scrape batch
         # All Grocery Gateway products in the DB
         existing_products = [x.product.product_code for x in NoFrillsProduct.objects.all()]
-        product_codes = set([x['barcode'] for x in j])
+        product_codes = set([x['item_number'] for x in j])
         missing_products = len(list(set(existing_products) - set(product_codes)))
         new_products = len([x for x in product_codes if x not in existing_products])
         total_products = len(product_codes)

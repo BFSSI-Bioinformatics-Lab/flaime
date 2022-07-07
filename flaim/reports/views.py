@@ -189,6 +189,10 @@ class StoreView(LoginRequiredMixin, TemplateView):
 
         cols = ['name', 'image_path', 'image_number', 'image_label']
         labels = ['none', 'other', 'nutrition', 'ingredients', 'nutrition_american']
+
+        # Labels not in our list of labels will mess things up
+        df["image_label"][~df["image_label"].isin(labels)] = "other"
+
         pivot_df = pd.concat([df['name'], df[cols].pivot(columns='image_label', values=['image_path'])], axis=1)
         names = pivot_df.pop('name')
         pivot_df.columns = [label if label in labels else 'none' for path, label in pivot_df.columns]

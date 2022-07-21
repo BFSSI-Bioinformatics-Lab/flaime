@@ -403,6 +403,7 @@ class NutritionFacts(TimeStampedModel):
     serving_size_units = models.CharField(max_length=SM_CHAR, choices=SERVING_SIZE_UNITS, blank=True, null=True)
 
     ingredients = models.TextField(blank=True, null=True)
+    ingredients_french = models.TextField(blank=True, null=True)
 
     # Nutrients - units should always be represented as grams
     calories = models.IntegerField(blank=True, null=True)
@@ -514,6 +515,8 @@ class NutritionFacts(TimeStampedModel):
         translate_names = {
             "fat": "totalfat",
             "fibre": "dietaryfiber",
+            "saturated": "saturatedfat",
+            "trans": "transfat",
             "carbohydrate": "totalcarbohydrate",
             "sugars": "sugar",
             "monounsaturatedfat": "monounsaturated_fat",
@@ -526,8 +529,7 @@ class NutritionFacts(TimeStampedModel):
             if val is None:
                 continue
             val = str(val)
-
-            if key == "serving_size":
+            if (key == "serving_size") | (key == "portion_size_amount_nft"):
                 self.serving_size_raw = val
                 m = re.search("([0-9]+) *(g|ml|mL)", val)
                 if m:
@@ -542,7 +544,6 @@ class NutritionFacts(TimeStampedModel):
                 val = val.replace("kcal","").replace("cal","",-1).strip()
                 if "." in val:
                     val = re.search("([0-9]+)\.",val).group(1)
-
             if dv_in_val:
                 # Strip out units
                 if "mg" in val:
@@ -832,6 +833,27 @@ class GroceryGatewayProduct(TimeStampedModel):
 
     history = HistoricalRecords()
 
+
+
+class CostcoProduct(TimeStampedModel):
+    """
+    Extension of the generic Product model to store Costco specific metadata
+    """
+
+    product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name="costco_product")
+    image_directory = models.CharField(max_length=MD_CHAR, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.product.product_code}: {self.product.name}"
+
+    class Meta:
+        verbose_name = 'Costco Product'
+        verbose_name_plural = 'Costco Products'
+        indexes = [
+            models.Index(fields=['product'])
+        ]
+
+    history = HistoricalRecords()
 
 class NoFrillsProduct(TimeStampedModel):
     """

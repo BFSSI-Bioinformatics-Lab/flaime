@@ -1,5 +1,6 @@
 import logging
 import rest_framework_datatables
+import time
 
 from django.contrib.auth.models import Group
 from django.db.models import Q
@@ -95,6 +96,29 @@ class RecentProductViewSet(viewsets.ModelViewSet):
                        ]
     filterset_fields = ('name', 'store', 'product_code', 'brand')
     search_fields = ['name', 'store', 'brand']
+
+
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'size'
+    max_page_size = 100
+
+
+class RecentProductViewSetTest(viewsets.ModelViewSet):
+    """
+    Returns only the most recent products within the database. In the back-end, this works by filtering on rows that
+     have the `most_recent` parameter equal to `True`. This parameter is set automatically upon upload of new datasets,
+     where old versions of products have their flag set to False and are replaced by the new entry.
+    """
+    queryset = models.Product.objects.select_related('category','subcategory').filter(most_recent=True).order_by('-created')
+    serializer_class = serializers.RecentProductSerializerTest
+    filter_backends = [df_filters.DjangoFilterBackend,
+                       filters.SearchFilter]
+    filterset_fields = ('name', 'store', 'product_code', 'brand')
+    search_fields = ['name', 'store', 'brand']
+    pagination_class = StandardResultsSetPagination
+
 
 
 class NutritionFactsViewSet(viewsets.ModelViewSet):

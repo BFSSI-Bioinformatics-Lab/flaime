@@ -182,6 +182,20 @@ class RecentProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadi
                   'brand', 'store', 'price', 'upc_code', 'nutrition_available', 'scrape_date'] + reverse_relationships
 
 
+
+
+
+class RecentProductSerializerTest(serializers.HyperlinkedModelSerializer,EagerLoadingMixin ):
+
+    id = serializers.ReadOnlyField()
+    category = CategorySerializer()
+    subcategory = SubcategorySerializer()
+    class Meta:
+        model = models.Product
+        fields = ['id', 'url', 'created', 'modified', 'product_code', 'description', 'breadcrumbs_array', 'name',
+                  'brand', 'store', 'price', 'upc_code', 'nutrition_available', 'category','subcategory']
+
+
 class ProductSerializer(serializers.HyperlinkedModelSerializer, EagerLoadingMixin):
     _SELECT_RELATED_FIELDS = ['loblaws_product', 'walmart_product']
 

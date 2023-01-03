@@ -76,6 +76,7 @@ class Command(BaseCommand):
 
 
         infile_json = Path(options['input_dir']) / "out.json"
+        print(infile_json)
         scrape_date = parse_date(options['date'])
 
         self.image_dir = Path(options['input_dir']) / 'images'

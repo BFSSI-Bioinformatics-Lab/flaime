@@ -336,7 +336,7 @@ class Command(BaseCommand):
                 Product.demote_most_recent_product_list(ids_to_demote)
 
             # Loblaws fields for LoblawsProduct model
-            product.api_data = data
+            # product.api_data = data
             nutrition_facts_raw = get_nutrition_facts(data)
             product.changeReason = CHANGE_REASON
 
